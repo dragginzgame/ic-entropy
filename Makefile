@@ -54,6 +54,7 @@ qualification-check:
 build-entropy-probe:
 	cargo build --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --lib --release --target wasm32-unknown-unknown
 test-installed: build-entropy-probe
+	cargo test --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --test installed --no-run
 	@server="$$(bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.96.0 --bin ic-testkit-server --profile debug --features cli --check)" && \
 	  ENTROPY_PROBE_WASM="$(QUALIFICATION_TARGET)/wasm32-unknown-unknown/release/entropy_probe.wasm" \
 	  "$$server" run --directory "$(CURDIR)/.tools/pocket-ic" -- \

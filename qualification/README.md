@@ -21,6 +21,8 @@ checksum-verified PocketIC setup. Tests admit the prepared selection without
 installing or downloading tools. The command-scoped server belongs to Testkit;
 the driver closes its own instance. Build artifacts live under
 `target/qualification/`. `make fmt` and `make fmt-check` cover both workspace roots.
+The native test binary is built before starting PocketIC, so a cold build cannot
+consume the server's idle timeout before the first request.
 
 The journey verifies:
 
