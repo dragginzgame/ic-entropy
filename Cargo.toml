@@ -7,6 +7,7 @@ version = "0.0.0"
 edition = "2024"
 rust-version = "1.99.1"
 license-file = "LICENSE"
+repository = "https://github.com/dragginzgame/ic-entropy"
 
 [workspace.dependencies]
 # Local packages

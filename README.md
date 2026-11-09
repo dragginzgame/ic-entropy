@@ -28,5 +28,4 @@ Rust 1.99.1 with rustfmt and Clippy; Wasm checks use wasm32-unknown-unknown.
 Run `make test`, `make lint`, and `make check-wasm`. Native macOS execution remains
 required before claiming that host qualified. See [source provenance](crates/ic-entropy/PROVENANCE.md) and [license](LICENSE).
 
-This workspace is local and unpublished. IcyDB's development path selection must
-be replaced by an available registry version before publishing its consumer.
+Add `ic-entropy = "0.1.0"` to use the crate from crates.io.
