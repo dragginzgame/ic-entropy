@@ -1,0 +1,20 @@
+[package]
+name = "ic-entropy"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+description = "Bounded entropy buffering and seeded random generation without runtime dependencies"
+readme = "README.md"
+
+[package.metadata.cargo-machete]
+ignored = ["toko-tooling"]
+
+[dependencies]
+rand_chacha.workspace = true
+
+[dev-dependencies]
+toko-tooling.workspace = true
+
+[lints]
+workspace = true

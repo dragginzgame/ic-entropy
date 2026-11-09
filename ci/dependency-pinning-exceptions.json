@@ -1,0 +1,10 @@
+[
+  {
+    "rule": "cargo-exact",
+    "file": "Cargo.toml",
+    "subject": "toko-tooling",
+    "value": "=0.37.4",
+    "reason": "Authenticated tooling requires one exact reviewed crate selection.",
+    "evidence": "AGENTS.md#tooling-selection"
+  }
+]
