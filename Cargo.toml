@@ -4,7 +4,7 @@ exclude = ["qualification"]
 resolver = "3"
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.99.1"
 license-file = "LICENSE"
@@ -12,8 +12,8 @@ repository = "https://github.com/dragginzgame/ic-entropy"
 
 [workspace.dependencies]
 # Local packages
-ic-entropy = { path = "crates/ic-entropy", version = "0.1.0" }
-ic-entropy-ic = { path = "crates/ic-entropy-ic", version = "0.1.0", default-features = false }
+ic-entropy = { path = "crates/ic-entropy", version = "0.1.1" }
+ic-entropy-ic = { path = "crates/ic-entropy-ic", version = "0.1.1", default-features = false }
 
 # Production dependencies
 ic-platform = { version = "0.28.0", default-features = false }
