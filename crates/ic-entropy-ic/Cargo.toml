@@ -1,0 +1,32 @@
+[package]
+name = "ic-entropy-ic"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license-file = "LICENSE"
+repository.workspace = true
+description = "IC entropy acquisition with opt-in timer-driven buffering and bounded random generation"
+readme = "README.md"
+
+[package.metadata.cargo-machete]
+ignored = ["toko-tooling"]
+
+[package.metadata.docs.rs]
+all-features = true
+default-target = "wasm32-unknown-unknown"
+
+[features]
+default = []
+buffered = ["dep:ic-entropy", "dep:ic-timers"]
+
+[dependencies]
+ic-entropy = { workspace = true, optional = true }
+ic-platform = { workspace = true, features = ["raw-rand"] }
+ic-platform-runtime = { workspace = true, features = ["runtime"] }
+ic-timers = { workspace = true, optional = true }
+
+[dev-dependencies]
+toko-tooling.workspace = true
+
+[lints]
+workspace = true

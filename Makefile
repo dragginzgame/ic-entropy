@@ -1,8 +1,9 @@
 .DEFAULT_GOAL := test
-CARGO_PUBLISH_PACKAGES := ic-entropy
+CARGO_PUBLISH_PACKAGES := ic-entropy ic-entropy-ic
 CARGO_PUBLISH_REGISTRY := crates-io
 CARGO_PUBLISH_VERIFY_TARGETS := release-verify
 RELEASE_DELIVERY := direct
+FORMAT_RUST_ARGS := --extra-workspace qualification --extra-manifest-order package,lib,features,dependencies,dev-dependencies,target
 export RELEASE_DELIVERY
 include make/consumer.mk
 
@@ -10,12 +11,18 @@ include make/consumer.mk
 
 test:
 	cargo test --locked -p ic-entropy
+	cargo test --locked -p ic-entropy-ic
+	cargo test --locked -p ic-entropy-ic --features buffered
 lint:
 	cargo clippy --locked -p ic-entropy --all-targets -- -D warnings
+	cargo clippy --locked -p ic-entropy-ic --all-targets -- -D warnings
+	cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered -- -D warnings
 check-wasm:
 	cargo check --locked -p ic-entropy --target wasm32-unknown-unknown
+	cargo check --locked -p ic-entropy-ic --target wasm32-unknown-unknown
+	cargo check --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown
 ci: toko-tooling-check
-	$(MAKE) test lint check-wasm
+	$(MAKE) lint test check-wasm qualification-check test-installed test-release-metadata
 
 release-editor-setup:
 	bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli
@@ -32,4 +39,26 @@ release-prepared-check release-committed-check release-tagged-check release-push
 release-commit-check:
 	@bash scripts/release/adapter.sh commit-check
 release-files:
-	@printf 'Cargo.toml\0Cargo.lock\0CHANGELOG.md\0'
+	@printf 'Cargo.toml\0Cargo.lock\0CHANGELOG.md\0qualification/Cargo.lock\0'
+
+# Installed qualification stays outside the product dependency graph.
+QUALIFICATION_TARGET := $(CURDIR)/target/qualification
+.PHONY: install-qualification-tools qualification-check build-entropy-probe test-installed
+install-qualification-tools:
+	@server="$$(bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.96.0 --bin ic-testkit-server --profile debug --features cli)" && \
+	  "$$server" setup --directory "$(CURDIR)/.tools/pocket-ic"
+qualification-check:
+	cargo fmt --manifest-path qualification/Cargo.toml --all --check
+	cargo clippy --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --all-targets -- -D warnings
+	cargo clippy --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --lib --target wasm32-unknown-unknown -- -D warnings
+build-entropy-probe:
+	cargo build --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --lib --release --target wasm32-unknown-unknown
+test-installed: build-entropy-probe
+	@server="$$(bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.96.0 --bin ic-testkit-server --profile debug --features cli --check)" && \
+	  ENTROPY_PROBE_WASM="$(QUALIFICATION_TARGET)/wasm32-unknown-unknown/release/entropy_probe.wasm" \
+	  "$$server" run --directory "$(CURDIR)/.tools/pocket-ic" -- \
+	  cargo test --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --test installed -- --nocapture
+
+.PHONY: test-release-metadata
+test-release-metadata:
+	bash scripts/release/test-metadata.sh

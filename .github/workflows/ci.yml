@@ -27,12 +27,13 @@ jobs:
       - name: Prepare dependencies and tooling
         run: |
           cargo fetch --locked
-          make install-host-tools install-rust-tools
+          cargo fetch --locked --manifest-path qualification/Cargo.toml
+          make install-host-tools install-rust-tools install-qualification-tools release-editor-setup
       - name: Save pinned tool downloads
         uses: ./.github/actions/cache-tool-downloads
         with:
           mode: save
-      - name: Validate core
+      - name: Validate core and IC adapter
         run: |
           make ci fmt-check
           PATH="$PWD/.tools/host/bin:$PATH" bash scripts/ci/check-dependency-pins.sh

@@ -1,8 +1,8 @@
 # Toko Tooling snapshot v1
-# version	0.37.4
+# version	0.38.0
 format	1
 source	https://crates.io/crates/toko-tooling
-revision	e83d18a633f4b4fbd5f21ae4fd431ee11bf2d825ab40b5413a4cee35a51295b7
+revision	0e2de9853b58a63373084b551d4ce8c444480aa33d45c35ca21e8de7ab8f9933
 # entrypoint	TOKO-TOOLING.md
 # entrypoint	make/consumer.mk
 # entrypoint	.githooks/pre-commit
@@ -12,7 +12,7 @@ revision	e83d18a633f4b4fbd5f21ae4fd431ee11bf2d825ab40b5413a4cee35a51295b7
 # entrypoint	scripts/ci/install-ci-tool.sh
 # entrypoint	scripts/ci/check-dependency-pins.sh
 # entrypoint	.github/actions/cache-tool-downloads/action.yml
-file	6ff80ba3d008e287094332c382c37dc67f748eea9f87bc30dc1e25be9f600abc	-	TOKO-TOOLING.md
+file	721b93f1789b5592f77925aa31cc55878d71ab191fde4d791a594e97195eafc1	-	TOKO-TOOLING.md
 file	7d72fd4a547086ebed8623257ad683fc64e8d929275041363ebfec5bc5a81766	-	make/consumer.mk
 file	0211c9124882f1e59ab6a11a7e341e6d030020b4b577d9bfbf9d1445d02322d7	x	.githooks/pre-commit
 file	8fb2e21888c67507645b0dd0d98c4bf8476f1e443e8ec8a6b3bfd803064ba856	x	scripts/ci/cargo-release-metadata.sh

@@ -10,8 +10,9 @@ Small, allocation-free `no_std` entropy primitives, independent of Canic and Icy
 
 The host obtains seeds (IC Platform's `raw_rand` or native OS entropy), chooses
 budgets, and schedules retries/reseeding. No acquisition, timer, job, global state,
-persistence or management-canister dependency is hidden in the core. A Canic
-adapter can own that composition without constraining the core's dependency graph.
+persistence or management-canister dependency is hidden in the core. The separate
+`ic-entropy-ic` package owns IC acquisition and optional timer-driven buffering;
+Canic, IcyDB and Auth remain downstream.
 The pool and generator are separate: consuming buffered raw bytes is not the same
 contract as expanding a seed. Neither provides a fresh-after-commitment draw.
 

@@ -1,0 +1,28 @@
+[package]
+name = "entropy-probe"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+ic-platform-types.workspace = true
+ic-testkit.workspace = true
+tokio.workspace = true
+
+[package.metadata.cargo-machete]
+ignored = ["toko-tooling"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+ic-wire.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+toko-tooling.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+ic-entropy-ic = { workspace = true, features = ["buffered"] }
+ic-platform-runtime = { workspace = true, features = ["cdk"] }
