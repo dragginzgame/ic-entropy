@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.6] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.39.8 in both workspaces.
+
 ## [0.1.5] - 2026-11-10
 
 ### 🔧 Changed

@@ -253,18 +253,26 @@ This section supersedes older linked guidance permitting new maintained imports.
 
 ## Canonical licence and contribution policy
 
-- Use only the Toko Studios Network Licence for first-party code. Each repository
-  keeps one root `LICENSE.md` and one root `CONTRIBUTING.md`, byte-identical to
+- Use only the Toko Studios Network Licence when granting a public licence for
+  first-party code. Repositories granting that licence keep one root `LICENSE.md`
+  and one root `CONTRIBUTING.md`, byte-identical to
   the canonical files in its reviewed Toko Tooling release. Adopt updates from
   that master deliberately; do not customise the copies or fetch moving `main`
   during builds. Local engineering instructions belong in `AGENTS.md`.
+- Confidential proprietary repositories do not adopt a public licence merely
+  to use this tooling. Omit first-party licence files and Cargo licence metadata;
+  set every private Cargo package to `publish = false` and npm packages to
+  `private: true`. Retain the canonical contribution policy. An unpublished
+  helper in a licensed repository still inherits that repository's licence;
+  publication flags alone do not determine licence coverage or confidentiality.
 - Do not retain nested licence files, alternate licences, `licenses/` trees or
   duplicate contribution policies in tracked source, including vendored tooling
   snapshots. Package metadata points to the root licence; a standalone package
   archive may include the canonical licence where its packaging requires it,
   without creating a second maintained source copy.
-- Rust workspaces declare `license-file` in `[workspace.package]`; every member,
-  including private and qualification packages, uses
+- Rust workspaces covered by the repository's Toko licence declare `license-file`
+  in `[workspace.package]`; every covered member, including unpublished helpers
+  and qualification packages, uses
   `[package] license-file.workspace = true`. The product workspace selects
   `"LICENSE.md"`; an independent `qualification/Cargo.toml` selects
   `"../LICENSE.md"`, pointing to the same repository-root file. Resolve the path

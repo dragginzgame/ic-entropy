@@ -1,8 +1,8 @@
 # Toko Tooling snapshot v1
-# version	0.39.6
+# version	0.39.8
 format	1
 source	https://crates.io/crates/toko-tooling
-revision	00fcdf9fa866007e0d8e802f711257cd23e3081a467daf69225b3844f91dbc1b
+revision	baf4177553a6a818837ae9765afc021ac3e3c0722e4622f773a990dc4b41cbc9
 # entrypoint	TOKO-TOOLING.md
 # entrypoint	make/consumer.mk
 # entrypoint	.githooks/pre-commit
@@ -12,7 +12,7 @@ revision	00fcdf9fa866007e0d8e802f711257cd23e3081a467daf69225b3844f91dbc1b
 # entrypoint	scripts/ci/install-ci-tool.sh
 # entrypoint	scripts/ci/check-dependency-pins.sh
 # entrypoint	.github/actions/cache-tool-downloads/action.yml
-file	ef23444441f749b60b95567015aa3df9dc751e1584fa920783f1d26ebe24dea2	-	TOKO-TOOLING.md
+file	c04bf9274df49fc32b450834ba1aec0d1efb2f7d11f9c9d88a8010a8dc924a63	-	TOKO-TOOLING.md
 file	91a8c4e1dc4ddb8fbba5825b1190716ddf29eb3cb49784067620b9a86b45c784	-	make/consumer.mk
 file	0211c9124882f1e59ab6a11a7e341e6d030020b4b577d9bfbf9d1445d02322d7	x	.githooks/pre-commit
 file	8fb2e21888c67507645b0dd0d98c4bf8476f1e443e8ec8a6b3bfd803064ba856	x	scripts/ci/cargo-release-metadata.sh
@@ -25,7 +25,7 @@ file	578a5f7217e378280fe378328d39e4b7dcea653bd868159b57362461bd4e8555	x	scripts/
 file	be03eb1b1ed6834b4a93a35cea81d2b8e677311a094e851619de8c393b1800e0	x	scripts/ci/verify-toko-tooling-snapshot.sh
 file	da86464696f4f600f034566cef732aa680dc9c577e534519c71ee3d07172a875	-	scripts/dev/toko-tooling.sh
 file	21cdb5dbdbe3ccd0aeb0762dcde0647ed007f34121d1ef63057af61414e77a00	-	make/tools.mk
-file	cd67ed77566cdee55362f3fbc709b9d193b53e3e2873fd7b7677672cf77591e5	-	make/release.mk
+file	679668278d85532c69005acd2c7289bb44ff5096184478f8e4564f973f3989ed	-	make/release.mk
 file	186a718c118bfb011ae8ed31d8683a9fd90a231827215ec9be973ef76fb36938	-	make/rust-format.mk
 file	f83e4bd3143a04e954f77eb23d38b1924658aa298b0c1d3486748197861d696d	-	make/cargo-publication.mk
 file	9976e6cd4e60bfa86298f4b4209f5ffde0651105feef208a9c5ea9c90a432f2d	x	scripts/dev/install-git-hooks.sh
@@ -53,7 +53,7 @@ file	5f3297399300ab0bd6e486deffbb5b87205e2190db12f9cc40c39e9cfd38e1f7	x	scripts/
 file	92f0d33bdcf5f99ad88b5614bb35055d0128b4ba8026f9ae5cdb97e5cef40393	x	scripts/dev/cloc.sh
 file	476e5bd1acf2033b75eed5eed080e4d306fa81bc3519eef7b79239294ab637e2	x	scripts/ci/run-validation-targets.sh
 file	d4d73d12601ca093878f8206a41185e383ad30484fa9206d60bfcf78248b865c	x	scripts/ci/run-release.sh
-file	7b828068ce61401b01681e87299dff6a9fa1a02aaa54a0d9ddcbd5d0a53f2a8b	x	scripts/ci/run-release-batch.pl
+file	c75f2312273eabc31a5b287673b45fa73b0fb0edb76b018b2967a13145375a49	x	scripts/ci/run-release-batch.pl
 file	1b01f4b482fb85986d1ffab592626ccbfec187ac7a5133ab946b0acd51a18381	-	scripts/ci/check-release-delivery.sh
 file	a1ed6b41c20ec62404a127fa3432a56beb1e76541c08fa7231adc8e0409047e1	-	scripts/dev/clean-empty-source-dirs.pl
 file	a52db278800a9f02d85a6b8a780a9b1eed860c49d5442cef9db1f7f9d7ddee0a	x	scripts/ci/check-format-tools.sh
