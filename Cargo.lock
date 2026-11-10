@@ -25,7 +25,7 @@ checksum = "4583a4551df46e2792f82ceeac45e850d2e2d5debba0b91f102385cda5b11f06"
 
 [[package]]
 name = "ic-entropy"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "rand_chacha",
  "toko-tooling",
@@ -33,7 +33,7 @@ dependencies = [
 
 [[package]]
 name = "ic-entropy-ic"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "ic-entropy",
  "ic-platform",
