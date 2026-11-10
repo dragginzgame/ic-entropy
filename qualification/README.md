@@ -37,8 +37,8 @@ The journey verifies:
 - Upgrade and reinstall reconstruct fresh volatile state and refill again.
 
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
-protocol. Runtime 0.20.3 matches the product's approved Timers compatibility
-exception; the native Testkit side independently uses current Types 0.19.
+protocol. Runtime 0.21.0 matches the product's Timers selection; the native
+Testkit side independently uses current Types 0.19.
 Native model tests retain failure-budget, cancellation and stale-reply cases.
 Arbitrary heap snapshot restore, real subnet deployment, consumer integration and
 macOS execution are separate claims; a Linux PocketIC pass does not establish them.

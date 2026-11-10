@@ -48,3 +48,27 @@ fn zero_budget_refuses_nonempty_draws() {
     assert_eq!(generator.next_u128(), Err(Exhausted));
     assert_eq!(generator.fill_bytes(&mut [0; 1]), Err(Exhausted));
 }
+
+#[test]
+fn pooled_consumers_keep_independent_budgets_and_streams() {
+    let mut pool = crate::SeedPool::<2>::new();
+    pool.insert([1; 32]).unwrap();
+    pool.insert([2; 32]).unwrap();
+    let mut short = Generator::from_seed(pool.take().unwrap(), 2_000);
+    let mut long = Generator::from_seed(pool.take().unwrap(), 20_000);
+    assert_eq!(pool.take(), None);
+
+    short.fill_bytes(&mut [0; 2_000]).unwrap();
+    let mut refused = [0xab; 8];
+    assert_eq!(short.fill_bytes(&mut refused), Err(Exhausted));
+    assert_eq!(refused, [0xab; 8]);
+    assert_eq!(long.remaining_bytes(), 20_000);
+
+    let mut expected = Generator::from_seed([2; 32], 20_000);
+    assert_eq!(long.next_u128(), expected.next_u128());
+    pool.insert([3; 32]).unwrap();
+    short.reseed(pool.take().unwrap(), 2_000);
+    assert_eq!(long.next_u128(), expected.next_u128());
+    assert_eq!(long.remaining_bytes(), 19_968);
+    assert_eq!(short.remaining_bytes(), 2_000);
+}

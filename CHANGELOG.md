@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.2] - Unreleased
+
+### ➕ Added
+
+- Qualify independent consumer streams drawn from one seed pool, including
+  different expansion budgets, exhaustion and reseeding without affecting peers.
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.38.2, IC Timers 0.42.0 and Platform 0.29.2 with
+  Runtime 0.21.0 in the product and qualification graphs, retiring the older
+  Runtime compatibility exception.
+
 ## [0.1.1] - 2026-11-09
 
 ### 🔧 Changed

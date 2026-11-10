@@ -3,7 +3,7 @@
     "rule": "cargo-exact",
     "file": "Cargo.toml",
     "subject": "toko-tooling",
-    "value": "=0.38.0",
+    "value": "=0.38.2",
     "reason": "Authenticated tooling requires one exact reviewed crate selection.",
     "evidence": "AGENTS.md#tooling-selection"
   },
@@ -11,7 +11,7 @@
     "rule": "cargo-exact",
     "file": "qualification/Cargo.toml",
     "subject": "toko-tooling",
-    "value": "=0.38.0",
+    "value": "=0.38.2",
     "reason": "Qualification inherits the same authenticated tooling selection.",
     "evidence": "AGENTS.md#tooling-selection"
   }

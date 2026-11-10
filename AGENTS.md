@@ -26,7 +26,7 @@ maintainer on 2026-11-09; this grants no publication or sibling release authorit
 
 ## Tooling selection
 
-Select Toko Tooling 0.38.0 exactly in the root catalog and inherit it as the
+Select Toko Tooling 0.38.2 exactly in the root catalog and inherit it as the
 package's development dependency. The installed receipt binds registry bytes.
 The qualification catalog selects the same exact tooling version for its probe.
 Do not edit snapshot-owned files locally. Use `make install-host-tools
@@ -36,12 +36,8 @@ commands use the shared runner and this workspace's thin metadata adapter.
 A release includes native tests/lint, formatting, Wasm compilation, pin checks
 and source/lock admission. Hosted macOS qualification runs in CI.
 
-## Runtime compatibility exception — 2026-11-09
+## Runtime selection
 
-The maintainer approved Runtime 0.20.3 for `ic-entropy-ic` while published
-IC Timers 0.41.5 requires Runtime 0.20. Runtime 0.21.0 conflicts with Timers'
-executor guard; Cargo rejects both execution owners in one graph. Platform
-0.28.0 is selected independently for its runtime-free `raw-rand` codec.
-Revisit this exception when a published Timers release supports Runtime 0.21
-or newer; preserve one runtime/executor in each deployed graph.
-The standalone Wasm qualification probe uses that same approved Runtime selection.
+Timers 0.42.0 and the adapter select Runtime 0.21.0 with one executor guard.
+The standalone Wasm qualification probe selects the same Runtime generation.
+This retires the maintainer-approved Runtime 0.20.3 exception from 2026-11-09.
