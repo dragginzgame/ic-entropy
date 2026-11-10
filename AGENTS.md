@@ -1,6 +1,8 @@
 # IC Entropy agent instructions
 
-Apply the reviewed Toko Tooling baseline in `TOKO-TOOLING.md`.
+Apply the installed [Toko Tooling baseline](TOKO-TOOLING.md), recorded in
+[the snapshot](.toko-tooling.snapshot), for common engineering and action-authority
+rules. Keep this overlay focused on local contracts, commands and exceptions.
 
 The core is `no_std`, allocation-free and independent of Canic, IcyDB, Platform,
 OS entropy and timers. The separate `ic-entropy-ic` adapter owns IC acquisition
@@ -26,18 +28,17 @@ maintainer on 2026-11-09; this grants no publication or sibling release authorit
 
 ## Tooling selection
 
-Select Toko Tooling 0.38.2 exactly in the root catalog and inherit it as the
-package's development dependency. The installed receipt binds registry bytes.
-The qualification catalog selects the same exact tooling version for its probe.
-Do not edit snapshot-owned files locally. Use `make install-host-tools
-install-rust-tools install-hooks` for setup. Release metadata uses the reviewed
-IC Build 0.73.0 editor; its setup target owns installation. Standard release
-commands use the shared runner and this workspace's thin metadata adapter.
+The root and qualification catalogs select the same exact Toko Tooling release;
+the receipt binds installed registry bytes. Use `make install-host-tools
+install-rust-tools install-hooks` for setup. The release editor's selected version
+belongs to its setup owner. Standard release commands use the shared runner and
+this workspace's thin metadata adapter.
 A release includes native tests/lint, formatting, Wasm compilation, pin checks
 and source/lock admission. Hosted macOS qualification runs in CI.
 
 ## Runtime selection
 
-Timers 0.42.0 and the adapter select Runtime 0.21.0 with one executor guard.
-The standalone Wasm qualification probe selects the same Runtime generation.
-This retires the maintainer-approved Runtime 0.20.3 exception from 2026-11-09.
+The IC adapter, Timers and standalone Wasm qualification probe must select a
+compatible Runtime generation with one executor guard. Their manifests and locks
+own exact supplier selections.
+The previous Runtime 0.20.3 exception is retired.

@@ -85,6 +85,35 @@ each owned generator with `remaining_bytes()` instead. Core generators do not
 enforce IC execution admission or the adapter's per-call limit; the consumer owns
 those bounds.
 
+### Complete host component
+
+The [consumer-owned example](examples/consumer_owned.rs) retains two generators
+with 2,000-byte and 20,000-byte budgets. It is a compile-checked library example
+to integrate into an existing host, not a standalone canister or a native entropy
+source. It introduces no endpoint or second lifecycle owner.
+
+- Call its `reconstruct()` from the host's synchronous lifecycle participant,
+  after restoring the complete timer provider. Seeds arrive asynchronously.
+- In an update handler, use `fill_bytes(Consumer::Small, &mut [0; 8])` or
+  `fill_bytes(Consumer::Large, &mut [0; 16])`. Subsequent calls retain each stream.
+  Query draws refuse even when a generator already has available bytes.
+- On insufficient budget it takes a new seed before reseeding. If acquisition
+  fails, it returns the typed error without changing the destination or the old
+  stream. Defer the operation or retry later; successful output is never refunded.
+- Call its `suspend()` before snapshot/shutdown and handle errors before
+  proceeding. It discards both owned generators before suspending the adapter.
+- Use its `remaining_bytes(consumer)` for query-safe per-consumer observation.
+
+Compile it for the IC with:
+
+```sh
+cargo check --locked -p ic-entropy-ic --example consumer_owned \
+  --features buffered --target wasm32-unknown-unknown
+```
+
+The regular lint target checks the native example and the Wasm check target
+checks its IC admission path. Native draws deliberately return `NonReplicated`.
+
 ## Lifecycle and consumer policy
 
 All entropy state is volatile. Call `suspend()` before a supported snapshot or

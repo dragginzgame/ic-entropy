@@ -1,5 +1,7 @@
 //! No framework: lifecycle and RPCs exercise the published Runtime and local adapter.
 
+mod source_checks;
+
 use crate::*;
 use ic_entropy_ic::{self as entropy, Error, RefillState};
 use ic_platform_runtime::cdk;

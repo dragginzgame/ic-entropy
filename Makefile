@@ -21,6 +21,7 @@ check-wasm:
 	cargo check --locked -p ic-entropy --target wasm32-unknown-unknown
 	cargo check --locked -p ic-entropy-ic --target wasm32-unknown-unknown
 	cargo check --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown
+	cargo check --locked -p ic-entropy-ic --features buffered --example consumer_owned --target wasm32-unknown-unknown
 ci: toko-tooling-check
 	$(MAKE) lint test check-wasm qualification-check test-installed test-release-metadata
 

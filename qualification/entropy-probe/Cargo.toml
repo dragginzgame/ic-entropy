@@ -25,4 +25,6 @@ toko-tooling.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 ic-entropy-ic = { workspace = true, features = ["buffered"] }
+ic-platform = { workspace = true, features = ["management-canister-types"] }
 ic-platform-runtime = { workspace = true, features = ["cdk"] }
+ic-platform-types.workspace = true

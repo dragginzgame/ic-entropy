@@ -4,7 +4,10 @@ use entropy_probe::*;
 use ic_platform_types::Principal;
 use ic_testkit::{
     pic::PocketIcStartupConfig,
-    pocket_ic::{PocketIc, PocketIcBuilder},
+    pocket_ic::{
+        PocketIc, PocketIcBuilder,
+        common::rest::{CanisterHttpReply, CanisterHttpResponse, MockCanisterHttpResponse},
+    },
 };
 use serde::de::DeserializeOwned;
 use std::{path::PathBuf, time::Duration};
@@ -98,6 +101,55 @@ async fn background_refill_and_lifecycle() {
     let before_fresh = full_pool(pic, pid).await;
     let _: [u8; 32] = update(pic, pid, "fresh", FRESH).await;
     assert_eq!(inspect(pic, pid).await, before_fresh);
+
+    assert!(update::<bool>(pic, pid, "cancel", CANCEL).await);
+    assert_eq!(inspect(pic, pid).await, before_fresh);
+    assert!(update::<bool>(pic, pid, "stale", STALE).await);
+    assert!(inspect(pic, pid).await.disabled);
+
+    let held = pic
+        .submit_call(pid, Principal::anonymous(), "contend", request(CONTEND))
+        .await
+        .unwrap();
+    let mut observed = false;
+    for _ in 0..20 {
+        advance(pic, 1).await;
+        let state: SourceState = query(pic, pid, "source_state", SOURCE_STATE).await;
+        if state.failures > 0 && state.busy {
+            assert_eq!(state.seeds, 0);
+            observed = true;
+            break;
+        }
+    }
+    assert!(
+        observed,
+        "timer refill did not encounter held source custody"
+    );
+    let barrier = pic
+        .get_canister_http()
+        .await
+        .unwrap()
+        .into_iter()
+        .find(|call| call.url == "https://entropy-probe.invalid/hold")
+        .expect("held HTTP barrier");
+    pic.mock_canister_http_response(MockCanisterHttpResponse {
+        subnet_id: barrier.subnet_id,
+        request_id: barrier.request_id,
+        response: CanisterHttpResponse::CanisterHttpReply(CanisterHttpReply {
+            status: 200,
+            headers: Vec::new(),
+            body: Vec::new(),
+        }),
+        additional_responses: Vec::new(),
+    })
+    .await
+    .unwrap();
+    let reply = pic.await_call(held).await.unwrap();
+    assert!(ic_wire::native::decode_response::<bool>(CONTEND, &reply, LIMITS).unwrap());
+    full_pool(pic, pid).await;
+    let recovered: SourceState = query(pic, pid, "source_state", SOURCE_STATE).await;
+    assert!(!recovered.busy);
+    assert_eq!(recovered.failures, 0);
 
     update::<()>(pic, pid, "suspend", SUSPEND).await;
     advance(pic, 10).await;

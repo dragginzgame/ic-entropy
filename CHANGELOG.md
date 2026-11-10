@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### ➕ Added
+
+- Add a compile-checked consumer-owned generator example with separate budgets,
+  small draws, failure-preserving reseeding, query refusal and lifecycle disposal.
+- Extend standalone installed qualification with real fresh-request cancellation,
+  stale callback fencing, replacement-claim custody and timer refill contention
+  followed by recovery, without a downstream framework.
+
 ## [0.1.2] - 2026-11-10
 
 ### ➕ Added

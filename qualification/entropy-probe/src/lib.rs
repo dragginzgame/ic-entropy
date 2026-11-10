@@ -14,6 +14,17 @@ pub const SUSPEND: u64 = 6;
 pub const RESUME: u64 = 7;
 pub const QUERY_REFUSAL: u64 = 8;
 pub const OVERSIZED_REFUSAL: u64 = 9;
+pub const CONTEND: u64 = 10;
+pub const SOURCE_STATE: u64 = 12;
+pub const CANCEL: u64 = 13;
+pub const STALE: u64 = 14;
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct SourceState {
+    pub failures: u8,
+    pub busy: bool,
+    pub seeds: u32,
+}
 
 pub const LIMITS: ic_wire::Limits = ic_wire::Limits {
     bytes: 4096,

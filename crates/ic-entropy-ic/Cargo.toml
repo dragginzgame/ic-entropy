@@ -30,3 +30,8 @@ toko-tooling.workspace = true
 
 [lints]
 workspace = true
+
+[[example]]
+name = "consumer_owned"
+crate-type = ["rlib"]
+required-features = ["buffered"]

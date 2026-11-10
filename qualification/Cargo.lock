@@ -383,6 +383,7 @@ name = "entropy-probe"
 version = "0.0.0"
 dependencies = [
  "ic-entropy-ic",
+ "ic-platform 0.29.2",
  "ic-platform-runtime",
  "ic-platform-types",
  "ic-testkit",
@@ -769,6 +770,12 @@ name = "ic-platform"
 version = "0.29.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a391440c441bebbabcce38251ff61473de37cdca09050fe6c3f71cd10ca7be42"
+dependencies = [
+ "ic-platform-types",
+ "num-bigint 0.5.1",
+ "serde",
+ "serde_bytes",
+]
 
 [[package]]
 name = "ic-platform-macros"
