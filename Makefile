@@ -3,6 +3,7 @@ CARGO_PUBLISH_PACKAGES := ic-entropy ic-entropy-ic
 CARGO_PUBLISH_REGISTRY := crates-io
 CARGO_PUBLISH_VERIFY_TARGETS := release-verify
 RELEASE_DELIVERY := direct
+TOKO_TOOLING_RELEASE := 1
 FORMAT_RUST_ARGS := --extra-workspace qualification --extra-manifest-order package,lib,features,dependencies,dev-dependencies,target
 export RELEASE_DELIVERY
 include make/consumer.mk

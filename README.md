@@ -60,9 +60,7 @@ management calls and timers on PocketIC without a framework dependency. Prepare
 it with `make install-qualification-tools`, then run `make qualification-check`
 and `make test-installed`. CI runs this journey on its native host matrix.
 
-The core retains its [IcyDB source provenance](crates/ic-entropy/PROVENANCE.md)
-and [source license](LICENSE). The adapter retains its separate
-[Canic source provenance](crates/ic-entropy-ic/PROVENANCE.md) and
-[MIT license](crates/ic-entropy-ic/LICENSE).
+The selected repository license is the [Toko Studios Network Licence](LICENSE.md).
+Contributions follow the canonical [contribution policy](CONTRIBUTING.md).
 
 The published core is available as `ic-entropy = "0.1.0"`.

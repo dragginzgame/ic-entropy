@@ -27,6 +27,6 @@ from subnet operators, and no TEE protection is claimed by this crate.
 
 Rust 1.99.1 with rustfmt and Clippy; Wasm checks use wasm32-unknown-unknown.
 Run `make test`, `make lint`, and `make check-wasm`. Native macOS execution remains
-required before claiming that host qualified. See `PROVENANCE.md` and `LICENSE`.
+required before claiming that host qualified. See `LICENSE.md` for license terms.
 
 Add `ic-entropy = "0.1.0"` to use the crate from crates.io.

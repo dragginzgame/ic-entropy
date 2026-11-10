@@ -135,10 +135,10 @@ one seed between independent consumers or replace fresh requests with buffered
 draws where timing is part of the protocol. Seeds are not confidential from subnet
 operators; a local generator does not increase their entropy.
 
-## Validation and provenance
+## Validation
 
-The source was extracted from the local Canic adapter; the package includes
-`PROVENANCE.md` and the retained MIT `LICENSE`. Native model tests cover retries,
+The package includes `LICENSE.md`.
+Native model tests cover retries,
 cancellation, stale replies and bounded draws. The repository's separate
 qualification workspace installs a standalone canister on PocketIC to check real
 management randomness, background refill, query refusal, suspension and fresh-heap

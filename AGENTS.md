@@ -9,7 +9,7 @@ OS entropy and timers. The separate `ic-entropy-ic` adapter owns IC acquisition
 and optional Timers-driven refill; hosts own lifecycle composition and consumer
 admission. Neither package may depend on Canic, IcyDB or Auth.
 Retain upstream cryptographic implementations; do not introduce a custom hash
-chain, entropy mixer or primitive. Preserve the IcyDB source license and provenance.
+chain, entropy mixer or primitive. Preserve applicable external dependency notices.
 
 Focused checks: `cargo test --locked -p ic-entropy`,
 `cargo clippy --locked -p ic-entropy --all-targets -- -D warnings`, and
@@ -23,8 +23,6 @@ Use `make install-qualification-tools`, `make qualification-check`, and
 `make test-installed` for its standalone PocketIC lifecycle journey. Its private
 probe version does not follow product releases; prepare both lockfiles together
 through the consumer adapter and shared metadata transaction. Format both roots.
-Initial workspace creation and the IcyDB extraction were approved by the
-maintainer on 2026-11-09; this grants no publication or sibling release authority.
 
 ## Tooling selection
 

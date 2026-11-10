@@ -106,7 +106,10 @@ fixtures, docs and cleanup. Split independent outcomes, not compiler fallout or
 each proof of the same change. Stop at new independent scope or a release boundary.
 Maintain meaningful [changelog notes](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/changelogs.md) once per completed batch;
 governance-only edits need no note unless they change a maintained surface or one
-is requested. Report outcome, relevant evidence and actionable blockers.
+is requested. Exclude all legal and licensing content from changelogs, including
+adoption notices and notes about this policy or its cleanup. This exclusion overrides
+general changelog coverage and fixed-issue-link requirements.
+Report outcome, relevant evidence and actionable blockers.
 Detailed line metrics and symbol inventories are optional under the
 [reporting rules](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/change-reporting.md), not a routine completion step.
 See [contract-change details](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/engineering-details.md#complete-reviewable-changes)
@@ -185,6 +188,64 @@ when changing interfaces, persistence or installation/recovery behavior.
 
 Do not submit DFINITY PRs or depend on future DFINITY work. Use available qualified
 dependencies or own the solution under the [maintenance contract](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/engineering-details.md#dfinity-dependencies-own-the-solution).
+
+## Independently owned implementations
+
+- Code brought in-house must be independently authored, with documented rights
+  to distribute it under our selected licence. Do not copy, adapt, translate or
+  vendor third-party implementations into owned source. This applies throughout
+  our first-party package graph, including tests, tools, generated source and
+  embedded assets; moving code to another owned crate does not evade the rule.
+- In particular, do not import or fork unmaintained DFINITY code as a way to
+  remove a dependency. Taking over maintenance does not transfer copyright or
+  remove upstream licence conditions. Implement the required behavior independently
+  or retain a qualified external dependency.
+- For a clean-room replacement, derive a behavior specification from published
+  interfaces, protocol facts and lawful black-box observations. Keep upstream
+  implementation text, patches and expressive tests out of the implementation
+  context, including agent prompts. Record specification sources, author/context
+  separation and independently written qualification tests. Keep ownership
+  agreements and legal assessments in company records outside the repository.
+  An agent that has read the upstream implementation must not label its rewrite
+  clean-room; use a separate unexposed implementer and reviewed specification.
+- Separately licensed external dependencies, including transitive dependencies,
+  remain allowed under the dependency rules. Their distribution obligations still
+  apply; this is not a claim that the complete binary has only our licence.
+  Do not rewrite cryptography merely to remove third-party code or notices.
+- Existing imports require an explicit, scoped migration plan or maintainer
+  exception before claiming compliance. Preserve applicable licences, notices and
+  provenance while that material remains. Do not strip credits, rebrand a fork,
+  or claim that a rewrite automatically clears ownership or patent questions.
+  This policy does not authorize sibling edits or immediate fleet rewrites.
+
+This section supersedes older linked guidance permitting new maintained imports.
+
+## Canonical licence and contribution policy
+
+- Use only the Toko Studios Network Licence for first-party code. Each repository
+  keeps one root `LICENSE.md` and one root `CONTRIBUTING.md`, byte-identical to
+  the canonical files in its reviewed Toko Tooling release. Adopt updates from
+  that master deliberately; do not customise the copies or fetch moving `main`
+  during builds. Local engineering instructions belong in `AGENTS.md`.
+- Do not retain nested licence files, alternate licences, `licenses/` trees or
+  duplicate contribution policies in tracked source, including vendored tooling
+  snapshots. Package metadata points to the root licence; a standalone package
+  archive may include the canonical licence where its packaging requires it,
+  without creating a second maintained source copy.
+- Apart from these canonical files, required notices and factual metadata or
+  links to them, do not retain legal material in repository files. This includes
+  legal audits, opinions, exposure assessments, drafting history, superseded
+  drafts, signed agreements and legal commentary in docs, source comments,
+  handoffs or changelogs. Keep necessary company legal records outside the
+  repository. Technical audits and factual source-origin records remain allowed.
+- Separately licensed external dependencies remain allowed. Preserve their
+  required notices and earlier grants; this policy does not relicense them or
+  authorise deleting required records or rewriting Git history. If adoption
+  would discard an obligation or required notice, stop that migration for review
+  rather than silently stripping it or declaring compliance.
+
+This section owns the repository policy and supersedes conflicting older linked
+guidance, including permission for new licence-adoption changelog notices.
 
 ## Current dependencies and upstream independence
 
@@ -313,7 +374,8 @@ for exceptions, historical cleanup and protected release/recovery records.
 
 Use IcyDB-style emoji category sections in the owning release changelog; read the
 [changelog rules](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/changelogs.md) when updating them. Every issue fixed must
-have a direct link in that changelog before handoff: root `CHANGELOG.md` for a
+have a direct link in that changelog before handoff, except legal and licensing
+changes, which must not be recorded there: root `CHANGELOG.md` for a
 workspace without independent release groups, or `releases/<group>/CHANGELOG.md`
 for the owning group. A grouped workspace's root remains a navigation index;
 it does not need duplicate issue links. Preserve selected

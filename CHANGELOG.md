@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.39.2 in both workspaces and explicitly enable its shared
+  release commands.
+
 ## [0.1.3] - 2026-11-10
 
 ### ➕ Added
