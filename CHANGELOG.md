@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.7] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.39.9 in both workspaces.
+- Adopt IC Timers 0.43.0 and Platform 0.30.0, with Runtime 0.21.1 and
+  Types 0.19.2 shared by the adapter and installed qualification probe.
+
 ## [0.1.6] - 2026-11-10
 
 ### 🔧 Changed
