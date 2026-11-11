@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.8] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.39.10 in both workspaces.
+- Adopt IC Platform 0.31.0 and Types 0.19.3 in the adapter and installed
+  qualification workspace.
+- Refresh the product lockfile to IC Timers 0.43.1.
+
 ## [0.1.7] - 2026-11-11
 
 ### 🔧 Changed

@@ -12,14 +12,14 @@ publish = false
 [workspace.dependencies]
 entropy-probe = { path = "entropy-probe" }
 ic-entropy-ic = { path = "../crates/ic-entropy-ic", default-features = false }
-ic-platform = { version = "0.30.0", default-features = false }
+ic-platform = { version = "0.31.0", default-features = false }
 ic-platform-runtime = { version = "0.21.1", default-features = false }
-ic-platform-types = { version = "0.19.2", default-features = false }
+ic-platform-types = { version = "0.19.3", default-features = false }
 ic-testkit = { version = "0.96.0", default-features = false }
 ic-wire = { version = "0.19.0", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread"] }
-toko-tooling = "=0.39.9"
+toko-tooling = "=0.39.10"
 
 [profile.release]
 opt-level = "s"
