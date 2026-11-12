@@ -16,11 +16,14 @@ make qualification-check
 make test-installed
 ```
 
-Setup uses the shared Rust-tool installer for IC Testkit 0.96.0 and Testkit's
+Setup uses the shared Rust-tool installer for IC Testkit 0.101.0 and Testkit's
 checksum-verified PocketIC setup. Tests admit the prepared selection without
 installing or downloading tools. The command-scoped server belongs to Testkit;
 the driver closes its own instance. Build artifacts live under
 `target/qualification/`. `make fmt` and `make fmt-check` cover both workspace roots.
+The native driver uses Testkit's upstream PocketIC re-export, including its
+Principal identities and async client. Explicit close awaits upstream best-effort
+deletion; it does not acknowledge deletion on a borrowed server.
 The native test binary is built before starting PocketIC, so a cold build cannot
 consume the server's idle timeout before the first request.
 
@@ -42,7 +45,7 @@ The journey verifies:
 - Upgrade and reinstall reconstruct fresh volatile state and refill again.
 
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
-protocol. Runtime 0.21.1 matches the product's Timers selection; the native
+protocol. Runtime 0.21.2 matches the product's Timers selection; the native
 Testkit side independently uses current Types 0.19.
 Native model tests retain failure-budget, cancellation and stale-reply cases.
 The installed contention fixture holds a simulator-controlled HTTP reply only

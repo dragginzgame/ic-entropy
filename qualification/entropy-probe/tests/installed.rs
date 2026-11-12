@@ -1,12 +1,12 @@
 //! Real management randomness and global-timer delivery, without a consumer framework.
 
 use entropy_probe::*;
-use ic_platform_types::Principal;
 use ic_testkit::{
     pic::PocketIcStartupConfig,
     pocket_ic::{
-        PocketIc, PocketIcBuilder,
+        CanisterId as Principal, PocketIcBuilder,
         common::rest::{CanisterHttpReply, CanisterHttpResponse, MockCanisterHttpResponse},
+        nonblocking::PocketIc,
     },
 };
 use serde::de::DeserializeOwned;
@@ -39,11 +39,9 @@ async fn inspect(pic: &PocketIc, pid: Principal) -> State {
 }
 
 async fn advance(pic: &PocketIc, seconds: u64) {
-    pic.advance_time(Duration::from_secs(seconds))
-        .await
-        .unwrap();
+    pic.advance_time(Duration::from_secs(seconds)).await;
     for _ in 0..5 {
-        pic.tick().await.unwrap();
+        pic.tick().await;
     }
 }
 
@@ -70,15 +68,18 @@ async fn background_refill_and_lifecycle() {
     let wasm = std::fs::read(path).unwrap();
     let owned = PocketIcStartupConfig::from_env(Duration::from_secs(30))
         .unwrap()
-        .build_instance(PocketIcBuilder::new(Duration::from_secs(120)).with_application_subnet())
+        .build_instance(
+            PocketIcBuilder::new()
+                .with_max_request_time_ms(Some(120_000))
+                .with_application_subnet(),
+        )
         .await
         .unwrap();
     let pic = owned.instance();
-    let pid = pic.create_canister().await.unwrap();
-    pic.add_cycles(pid, 10_000_000_000_000).await.unwrap();
+    let pid = pic.create_canister().await;
+    pic.add_cycles(pid, 10_000_000_000_000).await;
     pic.install_canister(pid, wasm.clone(), request(INIT), None)
-        .await
-        .unwrap();
+        .await;
 
     // Only queries/time/ticks precede readiness: the pool must fill in the background.
     let full = full_pool(pic, pid).await;
@@ -128,7 +129,6 @@ async fn background_refill_and_lifecycle() {
     let barrier = pic
         .get_canister_http()
         .await
-        .unwrap()
         .into_iter()
         .find(|call| call.url == "https://entropy-probe.invalid/hold")
         .expect("held HTTP barrier");
@@ -142,8 +142,7 @@ async fn background_refill_and_lifecycle() {
         }),
         additional_responses: Vec::new(),
     })
-    .await
-    .unwrap();
+    .await;
     let reply = pic.await_call(held).await.unwrap();
     assert!(ic_wire::native::decode_response::<bool>(CONTEND, &reply, LIMITS).unwrap());
     full_pool(pic, pid).await;
@@ -178,5 +177,5 @@ async fn background_refill_and_lifecycle() {
         .await
         .unwrap();
     assert_eq!(full_pool(pic, pid).await.remaining, 0);
-    owned.close().await.unwrap();
+    owned.close().await;
 }

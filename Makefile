@@ -7,6 +7,7 @@ TOKO_TOOLING_RELEASE := 1
 FORMAT_RUST_ARGS := --extra-workspace qualification --extra-manifest-order package,lib,features,dependencies,dev-dependencies,target
 export RELEASE_DELIVERY
 include make/consumer.mk
+include make/cargo-dependencies.mk
 
 .PHONY: test lint check-wasm ci release-verify release-version release-preflight release-prepare-version release-prepared-check release-files release-commit-check release-committed-check release-tagged-check release-push-check release-editor-setup
 
@@ -47,7 +48,7 @@ release-files:
 QUALIFICATION_TARGET := $(CURDIR)/target/qualification
 .PHONY: install-qualification-tools qualification-check build-entropy-probe test-installed
 install-qualification-tools:
-	@server="$$(bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.96.0 --bin ic-testkit-server --profile debug --features cli)" && \
+	@server="$$(bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.101.0 --bin ic-testkit-server --profile debug --features cli)" && \
 	  "$$server" setup --directory "$(CURDIR)/.tools/pocket-ic"
 qualification-check:
 	cargo fmt --manifest-path qualification/Cargo.toml --all --check
@@ -57,7 +58,7 @@ build-entropy-probe:
 	cargo build --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --lib --release --target wasm32-unknown-unknown
 test-installed: build-entropy-probe
 	cargo test --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --test installed --no-run
-	@server="$$(bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.96.0 --bin ic-testkit-server --profile debug --features cli --check)" && \
+	@server="$$(bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.101.0 --bin ic-testkit-server --profile debug --features cli --check)" && \
 	  ENTROPY_PROBE_WASM="$(QUALIFICATION_TARGET)/wasm32-unknown-unknown/release/entropy_probe.wasm" \
 	  "$$server" run --directory "$(CURDIR)/.tools/pocket-ic" -- \
 	  cargo test --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --test installed -- --nocapture

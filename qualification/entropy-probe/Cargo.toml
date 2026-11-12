@@ -7,7 +7,6 @@ publish.workspace = true
 license-file.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-ic-platform-types.workspace = true
 ic-testkit.workspace = true
 tokio.workspace = true
 

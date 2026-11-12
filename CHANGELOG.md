@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.9] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.39.15 in both workspaces, including bounded LOC report
+  labels and the shared `make deps-update` command for both workspaces.
+- Adopt IC Testkit 0.101.0 in the qualification workspace and server setup;
+  migrate the installed lifecycle test to its upstream asynchronous PocketIC client.
+- Adopt qualification Wire 0.21.2, Platform 0.31.2, Runtime 0.21.2 and
+  Types 0.19.4; confirm Metrics 0.29.11 through Timers.
+- Refresh the product and qualification locks to Timers 0.43.2 and the current
+  compatible Platform runtime stack.
+- Supplier review: Serde 1.0.229 and Tokio 1.54.1 are current. Defer the
+  IC Build 0.83.0 release-editor migration to the next release-tooling
+  maintenance batch.
+
 ## [0.1.8] - 2026-11-11
 
 ### 🔧 Changed
