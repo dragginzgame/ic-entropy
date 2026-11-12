@@ -779,14 +779,14 @@ dependencies = [
 
 [[package]]
 name = "ic-entropy"
-version = "0.1.10"
+version = "0.1.11"
 dependencies = [
  "rand_chacha",
 ]
 
 [[package]]
 name = "ic-entropy-ic"
-version = "0.1.10"
+version = "0.1.11"
 dependencies = [
  "ic-entropy",
  "ic-platform",
