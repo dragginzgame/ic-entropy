@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.10] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Wire 0.21.4, Platform 0.31.3, Runtime 0.21.3 and Types 0.19.5;
+  qualify Host Artifacts, FS and Process 0.76.5 through Testkit.
+- Adopt Toko Tooling 0.39.17 and migrate generator, pool and qualification
+  canister modules to its directory-module layout.
+- Supplier review: Testkit 0.101.0 remains current. Defer the optional IC Build
+  0.83.0 release-editor migration to the next release-tooling maintenance batch.
+
 ## [0.1.9] - 2026-11-12
 
 ### 🔧 Changed
