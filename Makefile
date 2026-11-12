@@ -5,8 +5,8 @@ CARGO_PUBLISH_VERIFY_TARGETS := publication-verify
 RELEASE_DELIVERY := direct
 TOKO_TOOLING_RELEASE := 1
 FORMAT_RUST_ARGS := --extra-workspace qualification --extra-manifest-order package,lib,features,dependencies,dev-dependencies,target
-LOCAL_TOOL_INSTALL_TARGETS := release-editor-setup install-qualification-tools
-LOCAL_TOOL_CHECK_TARGETS := release-editor-check qualification-tools-check
+LOCAL_TOOL_INSTALL_TARGETS := release-editor-setup qualification-server-setup
+LOCAL_TOOL_CHECK_TARGETS := release-editor-check qualification-server-check
 export RELEASE_DELIVERY
 include make/consumer.mk
 include make/cargo-dependencies.mk
@@ -56,7 +56,7 @@ QUALIFICATION_TARGET := $(CURDIR)/target/qualification
 .PHONY: install-qualification-tools qualification-check build-entropy-probe test-installed
 install-qualification-tools:
 	@server="$$(bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.101.0 --bin ic-testkit-server --profile debug --features cli)" && \
-	  "$$server" setup --directory "$(CURDIR)/.tools/pocket-ic"
+	  bash scripts/dev/setup-pocket-ic.sh "$$server" "$(CURDIR)/.tools/pocket-ic"
 qualification-check:
 	cargo fmt --manifest-path qualification/Cargo.toml --all --check
 	cargo clippy --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --all-targets -- -D warnings
@@ -74,7 +74,11 @@ test-installed: build-entropy-probe
 test-release-metadata:
 	bash scripts/release/test-metadata.sh
 
-.PHONY: release-editor-check qualification-tools-check
+.PHONY: release-editor-check qualification-tools-check qualification-server-setup qualification-server-check
+qualification-server-setup:
+	@bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.101.0 --bin ic-testkit-server --profile debug --features cli
+qualification-server-check:
+	@bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.101.0 --bin ic-testkit-server --profile debug --features cli --check > /dev/null
 release-editor-check:
 	@bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli --check > /dev/null
 qualification-tools-check:

@@ -19,7 +19,11 @@ make test-installed
 Setup uses the shared Rust-tool installer for IC Testkit 0.101.0 and Testkit's
 checksum-verified PocketIC setup. Tests admit the prepared selection without
 installing or downloading tools. The command-scoped server belongs to Testkit;
-the driver closes its own instance. Build artifacts live under
+compiled CLI setup is cached separately from simulator acquisition. Explicit
+PocketIC setup retries recognized transient curl failures at most three times;
+other failures stop immediately. Redacted download diagnostics live under
+`target/setup-pocket-ic/` and are uploaded by CI.
+The driver closes its own instance. Build artifacts live under
 `target/qualification/`. `make fmt` and `make fmt-check` cover both workspace roots.
 The native driver uses Testkit's upstream PocketIC re-export, including its
 Principal identities and async client. Explicit close awaits upstream best-effort

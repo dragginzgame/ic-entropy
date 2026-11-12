@@ -29,6 +29,13 @@ recipes included in the cache key and ordered setup/check hooks. Restored Cargo
 tools always pass their existing receipt and byte checks; missing or corrupt
 generations retain the installer's rebuild/refusal behavior. Common tool cache
 keys include compiler, native build environment, catalogs and installer inputs.
+Compiled-tool setup and checks include the Testkit CLI, while PocketIC acquisition
+is a separate CI step. Successfully admitted compiled tools can therefore be
+saved before a transient simulator download failure. Explicit simulator setup
+retries at most three times only for recognized transient curl failures from
+Testkit's retained evidence. Checksum, HTTP, version and cancellation failures
+retain their failure status; Testkit still owns downloads and admission. CI
+uploads redacted setup diagnostics and does not cancel other hosts on failure.
 
 Compilation caches are limited to declared Cargo output directories, never
 release/publication evidence. Keys include host/architecture, runner image,

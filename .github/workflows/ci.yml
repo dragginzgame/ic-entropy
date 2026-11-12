@@ -11,6 +11,7 @@ concurrency:
 jobs:
   core:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-15, macos-15-intel]
     runs-on: ${{ matrix.os }}
@@ -32,6 +33,19 @@ jobs:
           cache: 'true'
           cache-save: 'true'
           cache-extra-key: ${{ hashFiles('Makefile') }}
+      - name: Prepare admitted PocketIC server
+        run: make install-qualification-tools
+      - name: Retain setup diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: setup-${{ runner.os }}-${{ runner.arch }}-${{ github.run_attempt }}
+          path: |
+            target/setup-pocket-ic/**/*.log
+            ${{ runner.temp }}/tools-install.log
+            ${{ runner.temp }}/tools-check.log
+          if-no-files-found: ignore
+          retention-days: 14
       - id: build-key
         name: Select native compilation cache
         shell: bash

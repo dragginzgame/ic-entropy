@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.12] - Unreleased
+
+### 🐛 Fixed
+
+- Save admitted compiled tools before PocketIC acquisition; retry recognized
+  transient simulator download failures with a bounded policy, retain redacted
+  setup diagnostics, and let all CI hosts finish independently
+  ([#1](https://github.com/dragginzgame/ic-entropy/issues/1)).
+
 ## [0.1.11] - 2026-11-12
 
 ### 🔧 Changed
