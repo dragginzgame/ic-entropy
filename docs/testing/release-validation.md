@@ -32,8 +32,11 @@ keys include compiler, native build environment, catalogs and installer inputs.
 
 Compilation caches are limited to declared Cargo output directories, never
 release/publication evidence. Keys include host/architecture, runner image,
-compiler, source, manifests, locks and the tooling snapshot. Saves happen only
-after successful default-branch validation, with a 4 GiB limit. Restores verify
+compiler, source, manifests, locks and the tooling snapshot. A fallback restore
+can seed outputs from different source or
+locks on the same compiler/host image; Cargo rechecks their fingerprints and all
+normal tests still run. This never restores stage evidence or authorizes reuse.
+Saves happen only after successful default-branch validation, with a 4 GiB limit. Restores verify
 the complete file/mode/digest inventory. Missing/corrupt or unsupported caches
 discard only those disposable output directories and rebuild normally. The
 cache is an acceleration input, never validation evidence.

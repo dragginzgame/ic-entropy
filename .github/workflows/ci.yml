@@ -31,7 +31,7 @@ jobs:
         with:
           cache: 'true'
           cache-save: 'true'
-          cache-extra-key: ${{ hashFiles('Makefile', 'Cargo.lock', 'qualification/Cargo.lock', '.toko-tooling.snapshot') }}
+          cache-extra-key: ${{ hashFiles('Makefile') }}
       - id: build-key
         name: Select native compilation cache
         shell: bash
@@ -47,7 +47,9 @@ jobs:
             target/wasm32-unknown-unknown
             target/qualification
             target/ci-build-cache.json
-          key: entropy-build-v1-${{ runner.os }}-${{ runner.arch }}-${{ steps.build-key.outputs.key }}-${{ hashFiles('**/*.rs', '**/Cargo.toml', '**/Cargo.lock', 'Makefile', 'rust-toolchain.toml', '.toko-tooling.snapshot') }}
+          key: entropy-build-v2-${{ runner.os }}-${{ runner.arch }}-${{ steps.build-key.outputs.key }}-${{ hashFiles('**/*.rs', '**/Cargo.toml', '**/Cargo.lock', 'Makefile', 'rust-toolchain.toml', '.toko-tooling.snapshot') }}
+          restore-keys: |
+            entropy-build-v2-${{ runner.os }}-${{ runner.arch }}-${{ steps.build-key.outputs.key }}-
       - name: Admit restored build bytes
         run: bash scripts/ci/build-cache.sh restore
       - name: Validate core and IC adapter
@@ -68,7 +70,7 @@ jobs:
             target/wasm32-unknown-unknown
             target/qualification
             target/ci-build-cache.json
-          key: entropy-build-v1-${{ runner.os }}-${{ runner.arch }}-${{ steps.build-key.outputs.key }}-${{ hashFiles('**/*.rs', '**/Cargo.toml', '**/Cargo.lock', 'Makefile', 'rust-toolchain.toml', '.toko-tooling.snapshot') }}
+          key: entropy-build-v2-${{ runner.os }}-${{ runner.arch }}-${{ steps.build-key.outputs.key }}-${{ hashFiles('**/*.rs', '**/Cargo.toml', '**/Cargo.lock', 'Makefile', 'rust-toolchain.toml', '.toko-tooling.snapshot') }}
   secrets:
     runs-on: ubuntu-24.04
     steps:
