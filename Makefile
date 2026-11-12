@@ -1,10 +1,12 @@
 .DEFAULT_GOAL := test
 CARGO_PUBLISH_PACKAGES := ic-entropy ic-entropy-ic
 CARGO_PUBLISH_REGISTRY := crates-io
-CARGO_PUBLISH_VERIFY_TARGETS := release-verify
+CARGO_PUBLISH_VERIFY_TARGETS := publication-verify
 RELEASE_DELIVERY := direct
 TOKO_TOOLING_RELEASE := 1
 FORMAT_RUST_ARGS := --extra-workspace qualification --extra-manifest-order package,lib,features,dependencies,dev-dependencies,target
+LOCAL_TOOL_INSTALL_TARGETS := release-editor-setup install-qualification-tools
+LOCAL_TOOL_CHECK_TARGETS := release-editor-check qualification-tools-check
 export RELEASE_DELIVERY
 include make/consumer.mk
 include make/cargo-dependencies.mk
@@ -35,10 +37,15 @@ release-preflight:
 	@bash scripts/release/adapter.sh preflight
 release-verify:
 	@bash scripts/release/adapter.sh verify
+.PHONY: publication-verify
+publication-verify:
+	@bash scripts/release/adapter.sh publication-verify
 release-prepare-version:
 	@bash scripts/release/adapter.sh prepare
-release-prepared-check release-committed-check release-tagged-check release-push-check:
+release-prepared-check release-tagged-check release-push-check:
 	@bash scripts/release/adapter.sh check
+release-committed-check:
+	@bash scripts/release/adapter.sh committed-check
 release-commit-check:
 	@bash scripts/release/adapter.sh commit-check
 release-files:
@@ -66,3 +73,10 @@ test-installed: build-entropy-probe
 .PHONY: test-release-metadata
 test-release-metadata:
 	bash scripts/release/test-metadata.sh
+
+.PHONY: release-editor-check qualification-tools-check
+release-editor-check:
+	@bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli --check > /dev/null
+qualification-tools-check:
+	@server="$$(bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.101.0 --bin ic-testkit-server --profile debug --features cli --check)" && \
+	  "$$server" check --directory "$(CURDIR)/.tools/pocket-ic" > /dev/null

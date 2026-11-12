@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.11] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.39.18 in both workspaces.
+- Validate committed final-version native inputs once and admit exact-input
+  evidence again at publication; retain fresh source, archive and registry gates.
+  Add admitted compiled-tool and bounded compilation caches in CI
+  ([#1](https://github.com/dragginzgame/ic-entropy/issues/1)).
+- Refresh locked Metrics 0.29.12, Timers 0.43.4 and qualification Wire 0.21.5.
+
 ## [0.1.10] - 2026-11-12
 
 ### 🔧 Changed

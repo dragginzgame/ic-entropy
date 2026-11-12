@@ -22,21 +22,53 @@ jobs:
         run: |
           rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
           rustup target add --toolchain 1.99.1 wasm32-unknown-unknown
-      - name: Restore pinned tool downloads
-        uses: ./.github/actions/cache-tool-downloads
-      - name: Prepare dependencies and tooling
+      - name: Fetch locked dependencies
         run: |
           cargo fetch --locked
           cargo fetch --locked --manifest-path qualification/Cargo.toml
-          make install-host-tools install-rust-tools install-qualification-tools release-editor-setup
-      - name: Save pinned tool downloads
-        uses: ./.github/actions/cache-tool-downloads
+      - name: Prepare admitted tools with compiled cache
+        uses: ./.github/actions/prepare-common-tools
         with:
-          mode: save
+          cache: 'true'
+          cache-save: 'true'
+          cache-extra-key: ${{ hashFiles('Makefile', 'Cargo.lock', 'qualification/Cargo.lock', '.toko-tooling.snapshot') }}
+      - id: build-key
+        name: Select native compilation cache
+        shell: bash
+        run: |
+          echo "key=$(rustc -vV | shasum -a 256 | cut -d ' ' -f 1)-${ImageOS}-${ImageVersion}" >> "$GITHUB_OUTPUT"
+      - id: build-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        continue-on-error: true
+        with:
+          path: |
+            target/debug
+            target/release
+            target/wasm32-unknown-unknown
+            target/qualification
+            target/ci-build-cache.json
+          key: entropy-build-v1-${{ runner.os }}-${{ runner.arch }}-${{ steps.build-key.outputs.key }}-${{ hashFiles('**/*.rs', '**/Cargo.toml', '**/Cargo.lock', 'Makefile', 'rust-toolchain.toml', '.toko-tooling.snapshot') }}
+      - name: Admit restored build bytes
+        run: bash scripts/ci/build-cache.sh restore
       - name: Validate core and IC adapter
         run: |
           make ci fmt-check
           PATH="$PWD/.tools/host/bin:$PATH" bash scripts/ci/check-dependency-pins.sh
+      - id: seal-build-cache
+        if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build-cache.outputs.cache-hit != 'true'
+        run: |
+          if bash scripts/ci/build-cache.sh seal; then echo 'save=true' >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: steps.seal-build-cache.outputs.save == 'true'
+        continue-on-error: true
+        with:
+          path: |
+            target/debug
+            target/release
+            target/wasm32-unknown-unknown
+            target/qualification
+            target/ci-build-cache.json
+          key: entropy-build-v1-${{ runner.os }}-${{ runner.arch }}-${{ steps.build-key.outputs.key }}-${{ hashFiles('**/*.rs', '**/Cargo.toml', '**/Cargo.lock', 'Makefile', 'rust-toolchain.toml', '.toko-tooling.snapshot') }}
   secrets:
     runs-on: ubuntu-24.04
     steps:

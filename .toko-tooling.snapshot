@@ -1,8 +1,8 @@
 # Toko Tooling snapshot v1
-# version	0.39.17
+# version	0.39.18
 format	1
 source	https://crates.io/crates/toko-tooling
-revision	aaeab49adb84ea0d66cf86ecc48d826125f9c3ac6eafaf2a362bccfeba7acbfd
+revision	c2d05d47d59a2de3d1bb7bc8bc6e8c30174f964d03602fa75a89340bb7a71ff6
 # entrypoint	TOKO-TOOLING.md
 # entrypoint	make/consumer.mk
 # entrypoint	.githooks/pre-commit
@@ -13,7 +13,9 @@ revision	aaeab49adb84ea0d66cf86ecc48d826125f9c3ac6eafaf2a362bccfeba7acbfd
 # entrypoint	scripts/ci/check-dependency-pins.sh
 # entrypoint	.github/actions/cache-tool-downloads/action.yml
 # entrypoint	make/cargo-dependencies.mk
-file	98b06138020e538caefbd3a5666fe6dbb3c2df3936a0b8a504c419eba6dcb8b0	-	TOKO-TOOLING.md
+# entrypoint	scripts/ci/run-validation-stage.pl
+# entrypoint	.github/actions/prepare-common-tools/action.yml
+file	a69b056cee965ef5ad20ff153fc90e7a43da76f7953ed71cc2493ca001231c86	-	TOKO-TOOLING.md
 file	91a8c4e1dc4ddb8fbba5825b1190716ddf29eb3cb49784067620b9a86b45c784	-	make/consumer.mk
 file	0211c9124882f1e59ab6a11a7e341e6d030020b4b577d9bfbf9d1445d02322d7	x	.githooks/pre-commit
 file	8fb2e21888c67507645b0dd0d98c4bf8476f1e443e8ec8a6b3bfd803064ba856	x	scripts/ci/cargo-release-metadata.sh
@@ -23,6 +25,8 @@ file	e0f1b194ddbe5e5ae35864edc67727993511e093cff07506b4ffa503681edd52	x	scripts/
 file	531d272b312e7ba4e2c2234ea27d71dd5cc965aecf287055c34697a3b30144d4	x	scripts/ci/check-dependency-pins.sh
 file	12bb1ba3ce34f267118ae34c52b514e8390e9fa0c240313918b3dd5bc9e7964d	-	.github/actions/cache-tool-downloads/action.yml
 file	701efc37079afa34e41b490582f20bc3e8419d2dd0f5eca33041a2d333a50354	-	make/cargo-dependencies.mk
+file	00bb9fa13d3109ecec058251d5213081471084c481b89f2a4be7465ac9719f29	x	scripts/ci/run-validation-stage.pl
+file	a593d7c0061faadbbb3d1106618eb93ace197657131756b197ed48a06008cd62	-	.github/actions/prepare-common-tools/action.yml
 file	578a5f7217e378280fe378328d39e4b7dcea653bd868159b57362461bd4e8555	x	scripts/ci/verify-file-checksum.sh
 file	be03eb1b1ed6834b4a93a35cea81d2b8e677311a094e851619de8c393b1800e0	x	scripts/ci/verify-toko-tooling-snapshot.sh
 file	da86464696f4f600f034566cef732aa680dc9c577e534519c71ee3d07172a875	-	scripts/dev/toko-tooling.sh
@@ -46,6 +50,7 @@ file	9f29743b6961b36c2fdb285c9b08d2aec4f0dbb5bcf5584b556cb98185540574	-	ci/tool-
 file	27c70a759e2afc949bfa998a9e10d6fd6e2d25413d4f84c643c944e981a30d54	-	scripts/ci/dependency-pins.jq
 file	f6ecd07a9577b0b307d2bef6c8185125c611e05732c119c63bb474cbf50e18d5	-	make/execution.mk
 file	4a177c60fbf09eccb6a9a70ce9ac7289cb1c25c3595098ac64b141d1325a4dc7	-	scripts/dev/cargo-dependencies.pl
+file	4c2ee09c8e87b43397d2df28bdbc1b5fc0197a10ebe0a94d89cb46916b93a9ca	x	scripts/ci/cargo-tool-cache-key.sh
 file	0e8e5f0eaa605ea97713595d568f420f051458f269eef287bb4756c9592eb387	-	scripts/ci/check-tooling-prerequisites.sh
 file	68e88225adfb40ff0807516b682c4882825ebbeaf3b5245ae4642db600a45ea1	-	scripts/dev/tooling-lock.pl
 file	5bb62496317accb40a1bf875dc96c15f47de6b10c2f272bc924f44adf16d0018	-	scripts/distribution/registry-package.pl
@@ -67,12 +72,12 @@ file	eeeca9e6e7b92b888fd6547733d6136f0e7e9859d37c983f8048e60551a15c39	-	scripts/
 file	d50eec860f7e4c1f4b44c3414f1f960559e80378ba65aabd268b85ac5f8d5748	-	scripts/ci/cargo-release-groups.jq
 file	b0f12a5031ecb6f4e10c1f6f79989ed9b32e110eec824f83c423d4dc41254def	-	scripts/ci/cargo-qualification-release.sh
 file	6d99677e86759273a88fb4149cbd4c14f2aacc99e1838a0db343d76c776f1aba	-	scripts/ci/ic-tool-pins.awk
+file	2dd5d5da3a78a6b982f7eadb2c175cef9270d6e17753990817e5759f34fa1b7d	-	scripts/dev/cargo-tool-build.sh
 file	f867fd6250b0a2d475faed5a2d6c7d7feb16c4a9f134aae44d7438ec68bc42a0	-	scripts/ci/shared-package-version.pl
 file	4eeaca14cfce7f551f4b9a66ebecc49a9208a861f56dced344709158dee36736	-	scripts/ci/shared-companions.sh
 file	4cfa90a020aefc5115fe5f7103eb5857f837acb9e0cf91f6362947a4abea211c	x	scripts/ci/describe-tool-selection.pl
 file	ebf236f1db579744a13bc995ec1c58c2ee87e34caed23088a6d9b75e638dd27f	x	scripts/ci/verify-evidence-checksums.sh
 file	e32b68b467e75ae309748f3933fa652204617f03fb846cb042f6ab75e46837a2	-	ci/ic-tools.tsv
-file	2dd5d5da3a78a6b982f7eadb2c175cef9270d6e17753990817e5759f34fa1b7d	-	scripts/dev/cargo-tool-build.sh
 file	f06fab74d51ec386133feeda6cd26509e8a9797ae14d93afdf5fb7369b0141a0	-	scripts/dev/tool-store-maintenance.pl
 file	d973f8f415ece4bfec2abda23f832995246daaeb4b97cc7cd25fdb68c08d847d	-	scripts/dev/cloc-classify.pl
 file	c8693a4bc058f31c1592c86e7037f0ed02a9719a8a0269038e0a45e16ca93c0b	-	scripts/ci/validation-input-checkpoint.pl

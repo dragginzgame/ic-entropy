@@ -417,6 +417,17 @@ before interface or storage changes.
 
 ## Release commands
 
+Optimise deployment latency from an authorised release request to the required
+GitHub refs being pushed and all selected crates being available in the registry.
+Measure preparation, validation, packaging and delivery separately; hosted CI
+duration is a separate metric unless delivery actually waits for it. Use existing
+attempt evidence, not an extra benchmark gate. Reuse unchanged validation across
+release and publication only through a qualified evidence contract, and reuse
+admitted prepared tools instead of rebuilding them. Keep fresh source, final
+archive and registry admission, required product/native checks and recovery
+boundaries. Missing or changed evidence still requires execution or refusal;
+speed alone never authorises skipping a gate.
+
 `make release-patch`, `make release-minor` and `make release-major` share the
 [release contract](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/engineering-details.md#release-commands). Read it and the
 local adapter before authorized release work. Normal releases start fresh;

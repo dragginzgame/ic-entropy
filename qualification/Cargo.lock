@@ -841,9 +841,9 @@ dependencies = [
 
 [[package]]
 name = "ic-metrics"
-version = "0.29.11"
+version = "0.29.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45009e4547025d669c579899d17332fdcd00c34429d43bc1795297978b8eb21d"
+checksum = "94c0bc852016b1a7af5bdef20bfadd18d586842ef6f845ddb96d941ff8070c63"
 
 [[package]]
 name = "ic-platform"
@@ -923,9 +923,9 @@ dependencies = [
 
 [[package]]
 name = "ic-timers"
-version = "0.43.3"
+version = "0.43.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f68301372c42c18a9a1c8be71a023b4cd6c7db23c9667814e5734f13eb4a60e"
+checksum = "e86d41908566ea91a0aa3f3384d81f9ac379a16d9a6e9c1330ea27ed868f6451"
 dependencies = [
  "ic-metrics",
  "ic-platform-runtime",
@@ -952,9 +952,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.21.4"
+version = "0.21.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cbb0db960c84649d3b3d5159df724839da9c055caa8ca333e075b62c1f58a624"
+checksum = "0a2dc82864886cccf0eb8733d286dd38e46a2649143d80a88eb95787de6ad84f"
 dependencies = [
  "bytemuck",
  "postcard",
@@ -2348,9 +2348,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.39.17"
+version = "0.39.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aaeab49adb84ea0d66cf86ecc48d826125f9c3ac6eafaf2a362bccfeba7acbfd"
+checksum = "c2d05d47d59a2de3d1bb7bc8bc6e8c30174f964d03602fa75a89340bb7a71ff6"
 
 [[package]]
 name = "tower"

@@ -22,7 +22,7 @@ ic-timers = { version = "0.43.0", default-features = false }
 rand_chacha = { version = "0.10.0", default-features = false }
 
 # Development tooling
-toko-tooling = "=0.39.17"
+toko-tooling = "=0.39.18"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

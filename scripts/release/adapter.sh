@@ -13,11 +13,17 @@ case "$1" in
         cargo fetch --locked --manifest-path qualification/Cargo.toml
         bash scripts/ci/check-release-changelog.sh "${RELEASE_VERSION:?}" "${RELEASE_PREVIOUS:?}" "${RELEASE_DATE:?}" CHANGELOG.md
         ;;
-    verify)
+    verify|publication-verify)
         make --no-print-directory toko-tooling-check
         bash scripts/ci/cargo-release-metadata.sh check-graph ic-entropy
         bash scripts/ci/check-dependency-pins.sh
-        make --no-print-directory fmt-check lint test check-wasm qualification-check test-installed
+        make --no-print-directory fmt-check
+        current="$(bash scripts/ci/read-cargo-workspace-version.sh --stable Cargo.toml)"
+        if [[ "$1" == verify && -n "${RELEASE_VERSION:-}" && "$current" != "$RELEASE_VERSION" ]]; then
+            echo 'Native validation deferred to the committed final-version source.'
+        else
+            bash scripts/release/native-stage.sh
+        fi
         ;;
     prepare)
         bash scripts/ci/check-release-source.sh --allow Cargo.toml --allow Cargo.lock --allow CHANGELOG.md --allow qualification/Cargo.lock
@@ -26,12 +32,15 @@ case "$1" in
         export CARGO_RELEASE_METADATA_MAX_BYTES=8388608
         exec bash scripts/release/metadata.sh prepare
         ;;
-    check|commit-check)
+    check|commit-check|committed-check)
         if [[ "$1" == commit-check ]]; then
             bash scripts/ci/check-release-source.sh --allow Cargo.toml --allow Cargo.lock --allow CHANGELOG.md --allow qualification/Cargo.lock
         fi
         bash scripts/ci/cargo-release-metadata.sh check ic-entropy --manifest-order-grouped
-        exec bash scripts/release/metadata.sh selected
+        bash scripts/release/metadata.sh selected
+        if [[ "$1" == committed-check ]]; then
+            bash scripts/release/native-stage.sh
+        fi
         ;;
-    *) echo 'expected version|preflight|verify|prepare|check|commit-check' >&2; exit 2 ;;
+    *) echo 'expected version|preflight|verify|publication-verify|prepare|check|commit-check|committed-check' >&2; exit 2 ;;
 esac
