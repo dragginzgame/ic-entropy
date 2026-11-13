@@ -10,16 +10,22 @@ rust-version = "1.100.0"
 publish = false
 
 [workspace.dependencies]
-entropy-probe = { path = "entropy-probe" }
 ic-entropy-ic = { path = "../crates/ic-entropy-ic", default-features = false }
-ic-platform = { version = "0.32.0", default-features = false }
-ic-platform-runtime = { version = "0.21.3", default-features = false }
-ic-platform-types = { version = "0.19.5", default-features = false }
-ic-testkit = { version = "0.101.0", default-features = false }
-ic-wire = { version = "0.21.4", default-features = false }
+ic-platform = { version = "0.32.1", default-features = false }
+ic-platform-runtime = { version = "0.22.1", default-features = false }
+ic-platform-types = { version = "0.20.1", default-features = false }
+ic-testkit = { version = "0.102.0", default-features = false }
+ic-wire = { version = "0.22.0", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread"] }
-toko-tooling = "=0.40.1"
+toko-tooling = "=0.42.5"
+
+[workspace.lints.cargo]
+unused_dependencies = "deny"
+unused_workspace_dependencies = "deny"
+unused_workspace_package_fields = "deny"
+missing_lints_inheritance = "deny"
+unknown_lints = "deny"
 
 [workspace.lints.rust]
 dead_code = "deny"
@@ -31,6 +37,7 @@ missing_docs = "warn"
 
 [workspace.lints.rustdoc]
 broken_intra_doc_links = "deny"
+invalid_markdown_table = "deny"
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -2 }

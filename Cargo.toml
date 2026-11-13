@@ -13,16 +13,22 @@ repository = "https://github.com/dragginzgame/ic-entropy"
 [workspace.dependencies]
 # Local packages
 ic-entropy = { path = "crates/ic-entropy", version = "0.2.0" }
-ic-entropy-ic = { path = "crates/ic-entropy-ic", version = "0.2.0", default-features = false }
 
 # Production dependencies
-ic-platform = { version = "0.32.0", default-features = false }
-ic-platform-runtime = { version = "0.21.3", default-features = false }
-ic-timers = { version = "0.43.0", default-features = false }
+ic-platform = { version = "0.32.1", default-features = false }
+ic-platform-runtime = { version = "0.22.1", default-features = false }
+ic-timers = { version = "0.44.0", default-features = false }
 rand_chacha = { version = "0.10.0", default-features = false }
 
 # Development tooling
-toko-tooling = "=0.40.1"
+toko-tooling = "=0.42.5"
+
+[workspace.lints.cargo]
+unused_dependencies = "deny"
+unused_workspace_dependencies = "deny"
+unused_workspace_package_fields = "deny"
+missing_lints_inheritance = "deny"
+unknown_lints = "deny"
 
 [workspace.lints.rust]
 dead_code = "deny"
@@ -34,6 +40,7 @@ unfulfilled_lint_expectations = "deny"
 
 [workspace.lints.rustdoc]
 broken_intra_doc_links = "deny"
+invalid_markdown_table = "deny"
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -2 }

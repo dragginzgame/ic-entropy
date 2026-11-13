@@ -3,11 +3,11 @@
 set -euo pipefail
 export PATH="$PWD/.tools/host/bin:$PWD/.tools/rust/common/bin:$PATH"
 export CARGO_RELEASE_METADATA_EDITOR
-CARGO_RELEASE_METADATA_EDITOR="$(bash scripts/dev/install-rust-tools.sh --consumer "$PWD" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli --check)"
+CARGO_RELEASE_METADATA_EDITOR="$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$PWD" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli --check)"
 export CARGO_RELEASE_METADATA_MAX_BYTES=8388608
 export RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE=2026-11-09
-RELEASE_PREVIOUS="$(bash scripts/ci/read-cargo-workspace-version.sh --stable Cargo.toml)"
-RELEASE_VERSION="$(perl scripts/ci/validate-release-inputs.pl next-version "$RELEASE_PREVIOUS" patch)"
+RELEASE_PREVIOUS="$(bash vendor/toko-tooling/scripts/ci/read-cargo-workspace-version.sh --stable Cargo.toml)"
+RELEASE_VERSION="$(perl vendor/toko-tooling/scripts/ci/validate-release-inputs.pl next-version "$RELEASE_PREVIOUS" patch)"
 mkdir -p target
 scratch="$(mktemp -d "$PWD/target/release-metadata-test.XXXXXX")"
 complete=false
@@ -26,12 +26,13 @@ for path in Cargo.lock qualification/Cargo.lock; do
     yq -p toml -o json '.' "$scratch/candidate/$path" > "$scratch/actual.json"
     jq -e --slurpfile expected "$scratch/expected.json" '. == $expected[0]' "$scratch/actual.json" > /dev/null
 done
-yq -p toml -o json '.' "$scratch/candidate/Cargo.toml" |
-    jq -e --arg version "$RELEASE_VERSION" '
-        .workspace.package.version == $version and
-        .workspace.dependencies["ic-entropy"].version == $version and
-        .workspace.dependencies["ic-entropy-ic"].version == $version
-    ' > /dev/null
+yq -p toml -o json '.' "$scratch/original/Cargo.toml" |
+    jq --arg version "$RELEASE_VERSION" '
+        .workspace.package.version = $version |
+        .workspace.dependencies["ic-entropy"].version = $version
+    ' > "$scratch/expected.json"
+yq -p toml -o json '.' "$scratch/candidate/Cargo.toml" > "$scratch/actual.json"
+jq -e --slurpfile expected "$scratch/expected.json" '. == $expected[0]' "$scratch/actual.json" > /dev/null
 for path in Cargo.toml Cargo.lock qualification/Cargo.lock; do
     cmp "$path" "$scratch/original/$path"
 done

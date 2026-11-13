@@ -4,6 +4,8 @@
 mod model;
 
 use crate::{Error, source};
+#[cfg(any(target_arch = "wasm32", test))]
+use core::mem::DropGuard;
 use ic_timers::{TimerCadence, TimerIdentity, WatchdogReconcileState, WatchdogRegistration};
 use model::Model;
 use std::{cell::RefCell, time::Duration};
@@ -146,37 +148,24 @@ fn now_ns() -> u64 {
 }
 
 #[cfg(any(target_arch = "wasm32", test))]
-struct RefillRequest {
-    generation: u64,
-    started_ns: u64,
-    completed: bool,
-}
-
-#[cfg(any(target_arch = "wasm32", test))]
-impl Drop for RefillRequest {
-    fn drop(&mut self) {
-        if !self.completed {
-            BUFFER.with_borrow_mut(|state| {
-                state.finish(self.generation, Err(Error::Transport), self.started_ns);
-            });
-        }
-    }
+fn refill_cancellation(generation: u64, started_ns: u64) -> DropGuard<(), impl FnOnce(())> {
+    DropGuard::new((), move |()| {
+        BUFFER.with_borrow_mut(|state| {
+            state.finish(generation, Err(Error::Transport), started_ns);
+        });
+    })
 }
 
 fn drive() -> ic_timers::WatchdogRunResult {
     use ic_timers::{TimerCompletion, WatchdogDecision, WatchdogRunResult};
     #[cfg(target_arch = "wasm32")]
     if let Some(generation) = BUFFER.with_borrow_mut(|state| state.begin(now_ns())) {
-        let request = RefillRequest {
-            generation,
-            started_ns: now_ns(),
-            completed: false,
-        };
+        let cancellation = refill_cancellation(generation, now_ns());
         ic_platform_runtime::cdk::futures::spawn_migratory(async move {
-            let mut request = request;
+            let cancellation = cancellation;
             let result = source::fresh_seed().await;
-            BUFFER.with_borrow_mut(|state| state.finish(request.generation, result, now_ns()));
-            request.completed = true;
+            BUFFER.with_borrow_mut(|state| state.finish(generation, result, now_ns()));
+            DropGuard::dismiss(cancellation);
             // Reconcile even on a stale completion: current demand remains authoritative.
             reconcile(false).expect("entropy refill scheduling");
         });

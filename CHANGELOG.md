@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.3.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Adopt Timers 0.44.0 and Runtime 0.22.1 with its exact matching executor guard.
+  Canister hosts must align direct Runtime/Timers dependencies to these generations;
+  align direct Platform Types to 0.20 when exchanging Runtime Principal values.
+  Entropy seed and draw APIs remain unchanged.
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.42.5 and its offline `make deps-list` inventory, including
+  release bootstrap support without display-only dependency aliases.
+- Defer optional Runtime 0.22.2, Types 0.20.2, Wire 0.22.1 and Build 0.84.1
+  refreshes to the next dependency-maintenance batch; this release retains the
+  selected compatible runtime and qualification graphs and Build 0.73.0 editor.
+- Isolate installed tooling under `vendor/toko-tooling/`; update Make, CI, hooks
+  and release callers while keeping repository-owned scripts outside that tree.
+- Adopt Platform 0.32.1, qualification Wire 0.22.0 and Testkit 0.102.0, including
+  its matching server setup and Host 0.77 dependencies. Align qualification Types
+  to 0.20.1 and retain one Runtime executor across acquisition, timers and the probe.
+- Enforce common Cargo dependency/metadata lints and Rustdoc table checks in
+  product and qualification workspaces.
+- Enforce Clippy warnings through Cargo's warning mode on fresh and reused
+  artifacts, retaining explicit strict Rustdoc checks.
+- Remove unused product and qualification dependency aliases to keep Cargo and
+  Clippy output clear while retaining both product packages in release validation.
+- Select the adapter's Runtime dependency for Wasm and buffered builds; native
+  fresh-only builds no longer carry an unused IC execution dependency.
+- Use Rust 1.100's standard cleanup guard for cancelled background refills,
+  preserving stale-generation refusal and single failure accounting without a
+  custom destructor or mutable completion flag.
+
 ## [0.2.0] - 2026-11-13
 
 ### ⚠️ Breaking

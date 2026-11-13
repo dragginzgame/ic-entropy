@@ -12,7 +12,7 @@ Retain upstream cryptographic implementations; do not introduce a custom hash
 chain, entropy mixer or primitive. Preserve applicable external dependency notices.
 
 Focused checks: `cargo test --locked -p ic-entropy`,
-`cargo clippy --locked -p ic-entropy --all-targets -- -D warnings`, and
+`CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets`, and
 `cargo check --locked -p ic-entropy --target wasm32-unknown-unknown`.
 Linux checks do not establish macOS execution. Keep tests in separate modules.
 For adapter changes, select `-p ic-entropy-ic` with both default fresh-only and

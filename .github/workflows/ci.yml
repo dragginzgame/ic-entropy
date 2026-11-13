@@ -34,7 +34,7 @@ jobs:
           cargo fetch --locked
           cargo fetch --locked --manifest-path qualification/Cargo.toml
       - name: Prepare admitted tools with compiled cache
-        uses: ./.github/actions/prepare-common-tools
+        uses: ./vendor/toko-tooling/.github/actions/prepare-common-tools
         with:
           cache: 'true'
           cache-save: 'true'
@@ -75,7 +75,7 @@ jobs:
       - name: Validate core and IC adapter
         run: |
           make ci fmt-check
-          PATH="$PWD/.tools/host/bin:$PATH" bash scripts/ci/check-dependency-pins.sh
+          PATH="$PWD/.tools/host/bin:$PATH" bash vendor/toko-tooling/scripts/ci/check-dependency-pins.sh
       - id: seal-build-cache
         if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build-cache.outputs.cache-hit != 'true'
         run: |
@@ -99,12 +99,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Restore pinned tool downloads
-        uses: ./.github/actions/cache-tool-downloads
+        uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
       - name: Scan history once
         run: |
-          scanner="$(bash scripts/ci/install-ci-tool.sh gitleaks --install-dir "$RUNNER_TEMP/entropy-tools")"
-          "$scanner" git --redact --no-banner .
+          scanner="$(bash vendor/toko-tooling/scripts/ci/install-ci-tool.sh gitleaks --install-dir "$RUNNER_TEMP/entropy-tools")"
+          "$scanner" git --redact=100 --no-banner --no-color --log-level error
       - name: Save pinned tool downloads
-        uses: ./.github/actions/cache-tool-downloads
+        uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
         with:
           mode: save

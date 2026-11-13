@@ -208,9 +208,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.11.1"
+version = "1.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ff2a8126fff0f8c839080d619675a585e61720bb12d2baceae45769fd66f155"
+checksum = "33ef9e3e8154a45c7a95cff4c1299702106ad94062d7bb85fdc5d3a5afd91d45"
 dependencies = [
  "find-msvc-tools",
  "jobserver",
@@ -434,9 +434,9 @@ name = "entropy-probe"
 version = "0.0.0"
 dependencies = [
  "ic-entropy-ic",
- "ic-platform 0.32.0",
+ "ic-platform",
  "ic-platform-runtime",
- "ic-platform-types 0.19.5",
+ "ic-platform-types",
  "ic-testkit",
  "ic-wire",
  "serde",
@@ -466,7 +466,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e35d6e78f4cebb90e51d543db8fe41528851d6deeef6ef21ebd4bfdc1e784776"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -789,16 +789,16 @@ name = "ic-entropy-ic"
 version = "0.2.0"
 dependencies = [
  "ic-entropy",
- "ic-platform 0.32.0",
+ "ic-platform",
  "ic-platform-runtime",
  "ic-timers",
 ]
 
 [[package]]
 name = "ic-host-artifacts"
-version = "0.76.5"
+version = "0.77.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6cfd133e394181238395c0915ad49fcb6802fdd5a59e0c45fbbe92e34788c3aa"
+checksum = "63ea652217df6a14e95eac535226d414eb24ebd534b9ba6420e7cf34944a0113"
 dependencies = [
  "flate2",
  "sha2 0.11.1",
@@ -806,9 +806,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-fs"
-version = "0.76.5"
+version = "0.77.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0330f9b41558f5e55db2c9a814fd83fbc638f116b5fcba8d3d9d9cedd9be4080"
+checksum = "cd156afe23a214e53fd4066f8fb313315bbd2c682d62d5370223692a37cea41e"
 dependencies = [
  "ic-host-artifacts",
  "rustix",
@@ -817,9 +817,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-process"
-version = "0.76.5"
+version = "0.77.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34c3bb46d6e871f8c0a26841f9fe39de5755a726baf01e4bc6da9904d3743d65"
+checksum = "827ecd1002400d30e733565ef3bdebb99eb50cd3d6439126d3acd9d461b4588f"
 dependencies = [
  "command-fds",
  "ic-host-artifacts",
@@ -841,29 +841,17 @@ dependencies = [
 
 [[package]]
 name = "ic-metrics"
-version = "0.29.12"
+version = "0.30.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94c0bc852016b1a7af5bdef20bfadd18d586842ef6f845ddb96d941ff8070c63"
+checksum = "c47441b65ed7436bba6edeff5af5208c312463baeaaae4c432612c2669b25d5f"
 
 [[package]]
 name = "ic-platform"
-version = "0.31.3"
+version = "0.32.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fd611c3961165ef22a19764913cbf780b6f426b1f74173f02cce944a151d6aa"
+checksum = "8410078a52aded890221d5789343b03452c2ee612d3dbecb3d37d19d081cc1cd"
 dependencies = [
- "ic-platform-types 0.19.5",
- "num-bigint 0.5.1",
- "serde",
- "serde_bytes",
-]
-
-[[package]]
-name = "ic-platform"
-version = "0.32.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "207beedb33b13087281c5b7ca365c97eea50f600dd4155cc21bad6bbba320877"
-dependencies = [
- "ic-platform-types 0.20.0",
+ "ic-platform-types",
  "num-bigint 0.5.1",
  "serde",
  "serde_bytes",
@@ -871,9 +859,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-macros"
-version = "0.21.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "299d54eaa0d91c29d771124d5fb1254889168184f1680a0dff6c9e28a981fbbe"
+checksum = "5289c0591ae23465467de3417eaa0d4f0ce2c48e2d5d0e84213d24d426735785"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -882,13 +870,13 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-runtime"
-version = "0.21.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30b250e59766678bc54f25f3d1591e2df4671a7e6a66cfa9f9d6945650bb1bc8"
+checksum = "5ebaa0505656efa68c8d84cf1eed7051deaa79006767e35992bf631007164461"
 dependencies = [
  "ic-platform-macros",
  "ic-platform-runtime-guard",
- "ic-platform-types 0.19.5",
+ "ic-platform-types",
  "ic0",
  "pin-project-lite",
  "serde",
@@ -898,28 +886,15 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-runtime-guard"
-version = "0.21.3"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57b0c9a1fc1fc07b003a48f66f616740942c0801e3cf472ca922f584df78f4d8"
+checksum = "a3d6e8d2e054ba19865129d04ea65b98c024f05758758611bea3572677831560"
 
 [[package]]
 name = "ic-platform-types"
-version = "0.19.5"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "038ec9df9eab1ae1324886140788dbdaf6d2791edd43ebbebcf3f17164d6303e"
-dependencies = [
- "crc32fast",
- "data-encoding",
- "serde",
- "serde_bytes",
- "thiserror 2.0.18",
-]
-
-[[package]]
-name = "ic-platform-types"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88677cb6751fe188b3a0c1870573e80bb62d775105256a44b73aad15e3ae48e6"
+checksum = "690329a03955692b3db6fe9f7801b9a6ffaabaee6ae7f0753348da9b81239c21"
 dependencies = [
  "crc32fast",
  "data-encoding",
@@ -930,15 +905,15 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.101.0"
+version = "0.102.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e68738d09fa6453c98d9520714ca2737b73e0ad62d556eb24a5f1a6c38040a18"
+checksum = "a9cf1b45bf1c4a96367020a2ece68239d6684993d6cdeb47d9f71d2e67d1ac50"
 dependencies = [
  "ic-host-artifacts",
  "ic-host-fs",
  "ic-host-process",
- "ic-platform 0.31.3",
- "ic-platform-types 0.19.5",
+ "ic-platform",
+ "ic-platform-types",
  "libc",
  "pocket-ic",
  "thiserror 2.0.18",
@@ -948,9 +923,9 @@ dependencies = [
 
 [[package]]
 name = "ic-timers"
-version = "0.43.4"
+version = "0.44.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e86d41908566ea91a0aa3f3384d81f9ac379a16d9a6e9c1330ea27ed868f6451"
+checksum = "0db52eb4fab46b8dfab283687ce457235a8445f2a8fe928b7e13648ea49a09a1"
 dependencies = [
  "ic-metrics",
  "ic-platform-runtime",
@@ -977,9 +952,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.21.5"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a2dc82864886cccf0eb8733d286dd38e46a2649143d80a88eb95787de6ad84f"
+checksum = "89cf2de2b642d47bfbc1d4c886cc9351f3f897e35252cd3dc18cb3bffb0293a6"
 dependencies = [
  "bytemuck",
  "postcard",
@@ -1592,7 +1567,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1754,7 +1729,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1811,7 +1786,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1822,9 +1797,9 @@ checksum = "eec689c0bc40ff2458a5977b6619cb718087084a18e02a131c599b62d05e1a5f"
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.16"
+version = "0.103.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4443b1b6d39d7c663139942cc4558262562d2c84123bb6282ef177009ca8b281"
+checksum = "e3a0760a887c14823fca5a1c970b01d47c328c696c0c64829d1df50e8f853fd5"
 dependencies = [
  "aws-lc-rs",
  "ring",
@@ -2221,7 +2196,7 @@ dependencies = [
  "getrandom 0.4.3",
  "once_cell",
  "rustix",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2373,9 +2348,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.40.1"
+version = "0.42.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb884b05e2e5bbca2388dd0b757833fb5ad37e91b3ced09f6a37b454c7fe9f90"
+checksum = "071631f382cbdb682ab04242bb8022bea9f1fa237eaa273456433b95ad6f2aec"
 
 [[package]]
 name = "tower"
@@ -2719,7 +2694,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]

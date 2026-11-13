@@ -9,15 +9,16 @@ The default selection provides `fresh_seed().await`: one bounded-wait management
 retry. Only one request may be outstanding. Call it after the relevant decision
 commitment when fresh-after-commitment randomness is required.
 
+## Runtime compatibility
+
+The adapter selects Platform Runtime 0.22 and buffered builds select Timers 0.44.
+Canister hosts with direct Runtime or Timers dependencies must use the matching
+generations so the complete canister retains one executor and its exact guard.
+Use Platform Types 0.20 for Principal values exchanged with Runtime APIs.
+
 ## Background pool
 
-Enable `buffered` in the consuming package. Inside this workspace:
-
-```toml
-[dependencies]
-ic-entropy.workspace = true
-ic-entropy-ic = { workspace = true, features = ["buffered"] }
-```
+Enable `buffered` on the consuming package's `ic-entropy-ic` dependency.
 
 The host calls `ic_entropy_ic::reconstruct()` synchronously after restoring its
 runtime during init and post-upgrade. It registers one retained IC Timers watchdog

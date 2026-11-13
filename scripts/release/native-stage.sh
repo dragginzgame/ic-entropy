@@ -43,7 +43,7 @@ perl -MJSON::PP -e '
     print JSON::PP->new->canonical->encode(\%e),"\n";
 ' > "$environment"
 # A failure/refusal from the shared verifier never falls through to a skip path.
-perl scripts/ci/run-validation-stage.pl --state target/release-validation/stages \
+perl vendor/toko-tooling/scripts/ci/run-validation-stage.pl --state target/release-validation/stages \
     --stage native --contract ic-entropy-native/1 --group entropy \
     --source "$(git rev-parse HEAD)" --observe scripts/release/observe-native.pl \
     --environment "$environment" --max-bytes 536870912 -- \

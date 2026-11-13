@@ -53,7 +53,12 @@ Rust 1.100.0 with rustfmt and Clippy; Wasm uses `wasm32-unknown-unknown`.
 `make test`, `make lint`, `make check-wasm`, and `make doc-check` aggregate the core and adapter,
 including the adapter's fresh-only and buffered selections. For focused work,
 select `-p ic-entropy` or `-p ic-entropy-ic` and the appropriate feature set.
-Wasm lint checks and Rustdoc use strict warnings, as do native lint checks.
+Native and Wasm Clippy use `CARGO_BUILD_WARNINGS=deny`; Rustdoc retains explicit
+strict warnings. `make deps-list` inventories local product and qualification
+packages without display-only dependency aliases.
+Installed shared tooling lives under `vendor/toko-tooling/`; repository-owned
+setup, CI and release scripts stay under `scripts/`. Refresh the managed snapshot
+with `make toko-tooling-update`.
 Linux checks do not establish native macOS or installed IC execution.
 
 The independent [qualification workspace](qualification/README.md) exercises real

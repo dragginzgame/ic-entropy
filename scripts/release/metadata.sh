@@ -5,7 +5,7 @@ set -euo pipefail
 script="$PWD/scripts/release/metadata.sh"
 case "${1:-}" in
     admit)
-        bash scripts/ci/cargo-release-metadata.sh check-graph ic-entropy
+        bash vendor/toko-tooling/scripts/ci/cargo-release-metadata.sh check-graph ic-entropy
         cargo metadata --locked --offline --manifest-path qualification/Cargo.toml --format-version 1 > /dev/null
         ;;
     selected)
@@ -50,15 +50,15 @@ case "${1:-}" in
         "$editor" --max-input-bytes "$limit" lock "$original/qualification/Cargo.lock" \
             "$RELEASE_PREVIOUS" "$RELEASE_VERSION" "${packages[@]}" > "$candidate/qualification/Cargo.lock"
         awk -v version="$RELEASE_VERSION" -v previous="$RELEASE_PREVIOUS" -v date="${RELEASE_DATE:?}" \
-            -f scripts/ci/finalize-release-changelog.awk "$original/CHANGELOG.md" > "$candidate/CHANGELOG.md"
+            -f vendor/toko-tooling/scripts/ci/finalize-release-changelog.awk "$original/CHANGELOG.md" > "$candidate/CHANGELOG.md"
         ;;
     prepared)
-        bash scripts/ci/cargo-release-metadata.sh check ic-entropy
+        bash vendor/toko-tooling/scripts/ci/cargo-release-metadata.sh check ic-entropy
         bash "$script" admit
         ;;
     prepare)
         bash "$script" admit
-        source scripts/ci/release-metadata-transaction.sh
+        source vendor/toko-tooling/scripts/ci/release-metadata-transaction.sh
         render() { bash "$script" render "$@"; }
         check() { bash "$script" prepared; }
         state="$(git rev-parse --git-path release-state)"

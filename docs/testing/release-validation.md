@@ -24,7 +24,8 @@ execution; the changed context inventories explain the mismatch. Interrupted or
 failed executions produce no success proof. Do not edit or copy stage evidence
 between checkouts or inject it into hosted build caches.
 
-CI uses the shared `prepare-common-tools` action with custom Testkit/editor
+CI uses the shared `vendor/toko-tooling/.github/actions/prepare-common-tools`
+action with custom Testkit/editor
 recipes included in the cache key and ordered setup/check hooks. Restored Cargo
 tools always pass their existing receipt and byte checks; missing or corrupt
 generations retain the installer's rebuild/refusal behavior. Common tool cache

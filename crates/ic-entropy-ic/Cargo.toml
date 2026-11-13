@@ -17,13 +17,16 @@ default-target = "wasm32-unknown-unknown"
 
 [features]
 default = []
-buffered = ["dep:ic-entropy", "dep:ic-timers"]
+buffered = ["dep:ic-entropy", "dep:ic-platform-runtime", "dep:ic-timers"]
 
 [dependencies]
 ic-entropy = { workspace = true, optional = true }
 ic-platform = { workspace = true, features = ["raw-rand"] }
-ic-platform-runtime = { workspace = true, features = ["runtime"] }
+ic-platform-runtime = { workspace = true, features = ["runtime"], optional = true }
 ic-timers = { workspace = true, optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+ic-platform-runtime = { workspace = true, features = ["runtime"] }
 
 [dev-dependencies]
 toko-tooling.workspace = true

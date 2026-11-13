@@ -4,7 +4,8 @@ set -euo pipefail
 root="$PWD"
 mkdir -p target
 fixture="$(mktemp -d "$root/target/validation-caller.XXXXXX")"
-mkdir -p "$fixture/scripts/release" "$fixture/scripts/ci" "$fixture/.tools/host/bin"
+mkdir -p "$fixture/scripts/release" "$fixture/scripts/ci" \
+    "$fixture/vendor/toko-tooling/scripts/ci" "$fixture/.tools/host/bin"
 cp scripts/release/adapter.sh scripts/release/native-stage.sh scripts/release/stage-makeflags.pl "$fixture/scripts/release/"
 cp scripts/ci/build-cache.sh scripts/ci/build-cache.pl "$fixture/scripts/ci/"
 cat > "$fixture/.tools/host/bin/make" <<'EOF'
@@ -13,11 +14,11 @@ printf '%s\n' "$*" >> calls
 exit "${FIXTURE_STATUS:-0}"
 EOF
 chmod +x "$fixture/.tools/host/bin/make"
-cat > "$fixture/scripts/ci/read-cargo-workspace-version.sh" <<'EOF'
+cat > "$fixture/vendor/toko-tooling/scripts/ci/read-cargo-workspace-version.sh" <<'EOF'
 printf '0.1.10\n'
 EOF
 for script in check-release-source cargo-release-metadata check-dependency-pins; do
-    printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/scripts/ci/$script.sh"
+    printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/vendor/toko-tooling/scripts/ci/$script.sh"
 done
 printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/scripts/release/metadata.sh"
 (
