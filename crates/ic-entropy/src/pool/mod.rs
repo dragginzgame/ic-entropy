@@ -20,6 +20,7 @@ pub struct SeedPool<const N: usize> {
 
 impl<const N: usize> SeedPool<N> {
     /// Create an empty pool. Zero capacity is valid and always refuses insertion.
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             seeds: [[0; 32]; N],
@@ -29,16 +30,19 @@ impl<const N: usize> SeedPool<N> {
     }
 
     /// Number of seeds currently buffered.
+    #[must_use]
     pub const fn len(&self) -> usize {
         self.len
     }
 
     /// Whether there is no seed available.
+    #[must_use]
     pub const fn is_empty(&self) -> bool {
         self.len == 0
     }
 
     /// Whether another seed would exceed the configured capacity.
+    #[must_use]
     pub const fn is_full(&self) -> bool {
         self.len == N
     }

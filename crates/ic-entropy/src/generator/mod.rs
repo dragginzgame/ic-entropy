@@ -25,6 +25,7 @@ impl Generator {
     ///
     /// A zero budget is valid and refuses every nonempty draw. Separate consumers
     /// must receive independent seeds; identical seeds reproduce identical streams.
+    #[must_use]
     pub fn from_seed(seed: Seed, byte_budget: u64) -> Self {
         Self {
             rng: ChaCha20Rng::from_seed(seed),
@@ -33,6 +34,7 @@ impl Generator {
     }
 
     /// Number of output bytes available before the host must replace the seed.
+    #[must_use]
     pub const fn remaining_bytes(&self) -> u64 {
         self.remaining
     }

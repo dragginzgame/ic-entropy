@@ -21,8 +21,14 @@ jobs:
           persist-credentials: false
       - name: Prepare selected compiler
         run: |
-          rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
-          rustup target add --toolchain 1.99.1 wasm32-unknown-unknown
+          compiler="$(sed -n 's/^channel = "\([^"]*\)"$/\1/p' rust-toolchain.toml)"
+          test -n "$compiler"
+          rustup toolchain install "$compiler" --profile minimal --component rustfmt --component clippy
+          rustup target add --toolchain "$compiler" wasm32-unknown-unknown
+          rustc -vV
+          cargo -vV
+          test "$(rustc --version | cut -d ' ' -f 2)" = "$compiler"
+          test "$(cargo --version | cut -d ' ' -f 2)" = "$compiler"
       - name: Fetch locked dependencies
         run: |
           cargo fetch --locked

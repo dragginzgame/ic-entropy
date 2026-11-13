@@ -49,8 +49,9 @@ The journey verifies:
 - Upgrade and reinstall reconstruct fresh volatile state and refill again.
 
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
-protocol. Runtime 0.21.3 matches the product's Timers selection; the native
-Testkit side independently uses current Types 0.19.
+protocol. Platform 0.32.0 owns the codec and its Types 0.20 identities;
+Runtime 0.21.3 and the probe's direct Types 0.19.5 match the product's published
+Timers selection. The native Testkit side independently uses Types 0.19.
 Native model tests retain failure-budget, cancellation and stale-reply cases.
 The installed contention fixture holds a simulator-controlled HTTP reply only
 to keep the fresh request's IC invocation alive while its source claim is held.

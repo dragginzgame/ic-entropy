@@ -31,10 +31,10 @@ printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/scripts/release/metadata.sh"
     ! test -e calls || ! rg 'lint test' calls
     # Publication and committed-source checks both retain a native obligation.
     RELEASE_VERSION=0.1.11 RUSTFLAGS=-Cdebuginfo=0 bash scripts/release/adapter.sh publication-verify > publication.log
-    rg -q 'lint test check-wasm qualification-check test-installed' calls
+    rg -q 'lint test check-wasm doc-check qualification-check test-installed' calls
     rm calls
     RUSTFLAGS=-Cdebuginfo=0 bash scripts/release/adapter.sh committed-check > committed.log
-    rg -q 'lint test check-wasm qualification-check test-installed' calls
+    rg -q 'lint test check-wasm doc-check qualification-check test-installed' calls
     # An unsupported environment must execute ordinarily, preserving failure.
     set +e
     FIXTURE_STATUS=23 RUSTFLAGS=-Cdebuginfo=0 bash scripts/release/native-stage.sh > failed.log

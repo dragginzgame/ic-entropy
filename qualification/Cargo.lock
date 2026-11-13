@@ -434,9 +434,9 @@ name = "entropy-probe"
 version = "0.0.0"
 dependencies = [
  "ic-entropy-ic",
- "ic-platform",
+ "ic-platform 0.32.0",
  "ic-platform-runtime",
- "ic-platform-types",
+ "ic-platform-types 0.19.5",
  "ic-testkit",
  "ic-wire",
  "serde",
@@ -789,7 +789,7 @@ name = "ic-entropy-ic"
 version = "0.1.12"
 dependencies = [
  "ic-entropy",
- "ic-platform",
+ "ic-platform 0.32.0",
  "ic-platform-runtime",
  "ic-timers",
 ]
@@ -851,7 +851,19 @@ version = "0.31.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fd611c3961165ef22a19764913cbf780b6f426b1f74173f02cce944a151d6aa"
 dependencies = [
- "ic-platform-types",
+ "ic-platform-types 0.19.5",
+ "num-bigint 0.5.1",
+ "serde",
+ "serde_bytes",
+]
+
+[[package]]
+name = "ic-platform"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "207beedb33b13087281c5b7ca365c97eea50f600dd4155cc21bad6bbba320877"
+dependencies = [
+ "ic-platform-types 0.20.0",
  "num-bigint 0.5.1",
  "serde",
  "serde_bytes",
@@ -876,7 +888,7 @@ checksum = "30b250e59766678bc54f25f3d1591e2df4671a7e6a66cfa9f9d6945650bb1bc8"
 dependencies = [
  "ic-platform-macros",
  "ic-platform-runtime-guard",
- "ic-platform-types",
+ "ic-platform-types 0.19.5",
  "ic0",
  "pin-project-lite",
  "serde",
@@ -904,6 +916,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-platform-types"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "88677cb6751fe188b3a0c1870573e80bb62d775105256a44b73aad15e3ae48e6"
+dependencies = [
+ "crc32fast",
+ "data-encoding",
+ "serde",
+ "serde_bytes",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "ic-testkit"
 version = "0.101.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -912,8 +937,8 @@ dependencies = [
  "ic-host-artifacts",
  "ic-host-fs",
  "ic-host-process",
- "ic-platform",
- "ic-platform-types",
+ "ic-platform 0.31.3",
+ "ic-platform-types 0.19.5",
  "libc",
  "pocket-ic",
  "thiserror 2.0.18",
@@ -2348,9 +2373,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.39.18"
+version = "0.40.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2d05d47d59a2de3d1bb7bc8bc6e8c30174f964d03602fa75a89340bb7a71ff6"
+checksum = "fb884b05e2e5bbca2388dd0b757833fb5ad37e91b3ced09f6a37b454c7fe9f90"
 
 [[package]]
 name = "tower"

@@ -2,11 +2,18 @@
 
 mod source_checks;
 
-use crate::*;
+use crate::{
+    DRAW, FRESH, INIT, INSPECT, LIMITS, OVERSIZED_REFUSAL, QUERY_REFUSAL, RESUME, SUSPEND, State,
+    TAKE,
+};
 use ic_entropy_ic::{self as entropy, Error, RefillState};
 use ic_platform_runtime::cdk;
 use serde::{Serialize, de::DeserializeOwned};
 
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "Runtime's decode_with hook transfers ownership of the raw argument buffer"
+)]
 fn decode<T: DeserializeOwned, const ID: u64>(bytes: Vec<u8>) -> T {
     ic_wire::native::decode_request(ID, &bytes, LIMITS).expect("fixture request")
 }

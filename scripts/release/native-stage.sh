@@ -8,7 +8,7 @@ PATH="$(perl -e 'my %seen; print join ":",grep {!$seen{$_}++} split /:/,$ARGV[0]
 export PATH
 ordinary() {
     printf 'Native validation: executing (%s)\n' "$1"
-    make --no-print-directory lint test check-wasm qualification-check test-installed
+    make --no-print-directory lint test check-wasm doc-check qualification-check test-installed
 }
 # Unknown compiler/build/simulator selections retain the original ambient gate.
 if [[ "$(uname -s)" != Linux ]]; then ordinary 'host not qualified for reuse'; exit; fi
@@ -47,4 +47,4 @@ perl scripts/ci/run-validation-stage.pl --state target/release-validation/stages
     --stage native --contract ic-entropy-native/1 --group entropy \
     --source "$(git rev-parse HEAD)" --observe scripts/release/observe-native.pl \
     --environment "$environment" --max-bytes 536870912 -- \
-    make --no-print-directory lint test check-wasm qualification-check test-installed
+    make --no-print-directory lint test check-wasm doc-check qualification-check test-installed

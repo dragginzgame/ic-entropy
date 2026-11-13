@@ -49,10 +49,11 @@ and no TEE protection is claimed.
 
 ## Development
 
-Rust 1.99.1 with rustfmt and Clippy; Wasm uses `wasm32-unknown-unknown`.
-`make test`, `make lint`, and `make check-wasm` aggregate the core and adapter,
+Rust 1.100.0 with rustfmt and Clippy; Wasm uses `wasm32-unknown-unknown`.
+`make test`, `make lint`, `make check-wasm`, and `make doc-check` aggregate the core and adapter,
 including the adapter's fresh-only and buffered selections. For focused work,
 select `-p ic-entropy` or `-p ic-entropy-ic` and the appropriate feature set.
+Wasm lint checks and Rustdoc use strict warnings, as do native lint checks.
 Linux checks do not establish native macOS or installed IC execution.
 
 The independent [qualification workspace](qualification/README.md) exercises real

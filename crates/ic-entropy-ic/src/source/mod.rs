@@ -66,19 +66,11 @@ impl Drop for Request {
 ///
 /// Never consumes buffered or seeded bytes. Call after the relevant commitment.
 /// Concurrent requests refuse; failures return without automatic retries.
-#[expect(
-    clippy::future_not_send,
-    reason = "IC source custody is local to one executor thread"
-)]
 pub async fn fresh_seed() -> Result<[u8; 32], Error> {
     require_replicated()?;
     request_with(SOURCE.with(Rc::clone), transport()).await
 }
 
-#[expect(
-    clippy::future_not_send,
-    reason = "IC source custody is local to one executor thread"
-)]
 async fn request_with(
     source: Rc<RefCell<Source>>,
     transport: impl Future<Output = Result<Vec<u8>, Error>>,

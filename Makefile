@@ -22,12 +22,18 @@ lint:
 	cargo clippy --locked -p ic-entropy-ic --all-targets -- -D warnings
 	cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered -- -D warnings
 check-wasm:
-	cargo check --locked -p ic-entropy --target wasm32-unknown-unknown
-	cargo check --locked -p ic-entropy-ic --target wasm32-unknown-unknown
-	cargo check --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown
-	cargo check --locked -p ic-entropy-ic --features buffered --example consumer_owned --target wasm32-unknown-unknown
+	cargo clippy --locked -p ic-entropy --target wasm32-unknown-unknown -- -D warnings
+	cargo clippy --locked -p ic-entropy-ic --target wasm32-unknown-unknown -- -D warnings
+	cargo clippy --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown -- -D warnings
+	cargo clippy --locked -p ic-entropy-ic --features buffered --example consumer_owned --target wasm32-unknown-unknown -- -D warnings
+.PHONY: doc-check
+doc-check:
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy -p ic-entropy-ic --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy -p ic-entropy-ic --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown --no-deps
 ci: toko-tooling-check
-	$(MAKE) lint test check-wasm qualification-check test-installed test-release-metadata
+	$(MAKE) lint test check-wasm doc-check qualification-check test-installed test-release-metadata
 
 release-editor-setup:
 	bash scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli
@@ -61,6 +67,8 @@ qualification-check:
 	cargo fmt --manifest-path qualification/Cargo.toml --all --check
 	cargo clippy --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --all-targets -- -D warnings
 	cargo clippy --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --lib --target wasm32-unknown-unknown -- -D warnings
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --target wasm32-unknown-unknown --no-deps
 build-entropy-probe:
 	cargo build --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --lib --release --target wasm32-unknown-unknown
 test-installed: build-entropy-probe

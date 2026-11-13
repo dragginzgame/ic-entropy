@@ -25,7 +25,7 @@ from subnet operators, and no TEE protection is claimed by this crate.
 
 ## Development
 
-Rust 1.99.1 with rustfmt and Clippy; Wasm checks use wasm32-unknown-unknown.
+Rust 1.100.0 with rustfmt and Clippy; Wasm checks use wasm32-unknown-unknown.
 Run `make test`, `make lint`, and `make check-wasm`. Native macOS execution remains
 required before claiming that host qualified. See `LICENSE.md` for license terms.
 

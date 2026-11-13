@@ -1,6 +1,7 @@
 //! Controlled interleavings around real management requests; no mocked entropy.
 
-use super::*;
+use super::{Error, cdk, decode, encode, entropy};
+use crate::{CANCEL, CONTEND, SOURCE_STATE, STALE, SourceState};
 use ic_platform::management_canister_types::{HttpMethod, HttpRequestArgs};
 use std::{
     future::{Future, poll_fn},

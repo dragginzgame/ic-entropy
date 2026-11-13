@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.2.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Consumer builds now require Rust 1.100.0; upgrade the compiler before adopting
+  this release ([#2 — Adopt Rust 1.100.0 and the common lint policy](https://github.com/dragginzgame/ic-entropy/issues/2)).
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.40.1 and its common lint policy in both workspaces.
+  Validate native and Wasm Rustdoc with strict warnings; retain IC-local futures
+  without a universal `Send` requirement.
+- Adopt Platform 0.32.0 for entropy acquisition and the qualification canister.
+  Keep Runtime 0.21.3 and the probe's direct Types 0.19.5 paired with published
+  Timers 0.43.4; revisit Runtime 0.22.0 and direct Types 0.20.0 with the next
+  compatible Timers/Runtime adoption. Platform's codec-owned Types 0.20.0 stays
+  behind its serialization boundary.
+- Supplier review: Testkit 0.101.0, Wire 0.21.5, ChaCha 0.10.0, Serde 1.0.229
+  and Tokio 1.54.1 are current. Defer the optional Build 0.73.0 to 0.83.0
+  release-editor migration to the next release-tooling maintenance batch.
+
 ## [0.1.12] - 2026-11-12
 
 ### 🐛 Fixed
