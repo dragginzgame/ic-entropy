@@ -59,6 +59,10 @@ packages without display-only dependency aliases.
 Installed shared tooling lives under `vendor/toko-tooling/`; repository-owned
 setup, CI and release scripts stay under `scripts/`. Refresh the managed snapshot
 with `make toko-tooling-update`.
+Use `toko-cloc` for source counts, or `toko-cloc --manifest qualification/Cargo.toml`
+for the qualification workspace. Install the launcher once with
+`install -m 755 vendor/toko-tooling/scripts/dev/toko-cloc "$HOME/.local/bin/toko-cloc"`,
+with `$HOME/.local/bin` on PATH.
 Linux checks do not establish native macOS or installed IC execution.
 
 The independent [qualification workspace](qualification/README.md) exercises real

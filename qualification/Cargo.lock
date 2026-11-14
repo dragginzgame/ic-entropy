@@ -149,9 +149,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.20.3"
+version = "3.20.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
+checksum = "87a0cf66fd1eb2fb7b822cb78370d82303750809bc6ba855f3f58e517d3238db"
 
 [[package]]
 name = "bytemuck"
@@ -466,7 +466,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e35d6e78f4cebb90e51d543db8fe41528851d6deeef6ef21ebd4bfdc1e784776"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -796,9 +796,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-artifacts"
-version = "0.77.1"
+version = "0.77.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63ea652217df6a14e95eac535226d414eb24ebd534b9ba6420e7cf34944a0113"
+checksum = "ba9a43bf50ce4f4330a8731c0fa9c7e88bdae6cf3d6b4a4489e38ff7d22b22cf"
 dependencies = [
  "flate2",
  "sha2 0.11.1",
@@ -806,9 +806,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-fs"
-version = "0.77.1"
+version = "0.77.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd156afe23a214e53fd4066f8fb313315bbd2c682d62d5370223692a37cea41e"
+checksum = "c8fbc8faa9e616e863662dc5b061198e5238af46bf383c76438d4463d9e8bc13"
 dependencies = [
  "ic-host-artifacts",
  "rustix",
@@ -817,9 +817,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-process"
-version = "0.77.1"
+version = "0.77.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "827ecd1002400d30e733565ef3bdebb99eb50cd3d6439126d3acd9d461b4588f"
+checksum = "b8e4b3a6b32e0bc13bd7b0e920809961afcf410a424e2a3757b90cc331cccdc8"
 dependencies = [
  "command-fds",
  "ic-host-artifacts",
@@ -841,15 +841,15 @@ dependencies = [
 
 [[package]]
 name = "ic-metrics"
-version = "0.30.2"
+version = "0.30.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c47441b65ed7436bba6edeff5af5208c312463baeaaae4c432612c2669b25d5f"
+checksum = "2a5b7c275b20c0c071925e99b209435610ffe961c358a335d0beaed738113c43"
 
 [[package]]
 name = "ic-platform"
-version = "0.32.1"
+version = "0.32.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8410078a52aded890221d5789343b03452c2ee612d3dbecb3d37d19d081cc1cd"
+checksum = "79bcb8879666931fe9f4c660a34cc8f8a93cc6b5f4e7de6301e08daafb4259f4"
 dependencies = [
  "ic-platform-types",
  "num-bigint 0.5.1",
@@ -859,9 +859,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-macros"
-version = "0.22.1"
+version = "0.22.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5289c0591ae23465467de3417eaa0d4f0ce2c48e2d5d0e84213d24d426735785"
+checksum = "2456be7c9f0644790586c8747b0a8736c893d6ee51155843f1f9a7997b15b49e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -870,9 +870,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-runtime"
-version = "0.22.1"
+version = "0.22.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ebaa0505656efa68c8d84cf1eed7051deaa79006767e35992bf631007164461"
+checksum = "3d944798d08e67036406aea05a6fa73f34734b43e7e4b860840bc5fc0fa210ce"
 dependencies = [
  "ic-platform-macros",
  "ic-platform-runtime-guard",
@@ -886,15 +886,15 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-runtime-guard"
-version = "0.22.1"
+version = "0.22.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3d6e8d2e054ba19865129d04ea65b98c024f05758758611bea3572677831560"
+checksum = "bf31cb93b4ece0be8a5ddc0bc522a49b2ff3d7a67294fe6c806b7a15104d56d6"
 
 [[package]]
 name = "ic-platform-types"
-version = "0.20.1"
+version = "0.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "690329a03955692b3db6fe9f7801b9a6ffaabaee6ae7f0753348da9b81239c21"
+checksum = "56d5223a1ef82ca053ea34b3937bea03f147d459708b7e58a270ec5605f96cc0"
 dependencies = [
  "crc32fast",
  "data-encoding",
@@ -905,9 +905,9 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.102.0"
+version = "0.104.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9cf1b45bf1c4a96367020a2ece68239d6684993d6cdeb47d9f71d2e67d1ac50"
+checksum = "e75c9e8a1ee80ccbcfba19c62bf260ab807f0483aa09ca256ebae317eb3e8135"
 dependencies = [
  "ic-host-artifacts",
  "ic-host-fs",
@@ -923,9 +923,9 @@ dependencies = [
 
 [[package]]
 name = "ic-timers"
-version = "0.44.0"
+version = "0.44.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0db52eb4fab46b8dfab283687ce457235a8445f2a8fe928b7e13648ea49a09a1"
+checksum = "5a6d38ea900adf725693d6950fbed363301620ad92168714a7fa95670ce98716"
 dependencies = [
  "ic-metrics",
  "ic-platform-runtime",
@@ -952,9 +952,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.22.0"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89cf2de2b642d47bfbc1d4c886cc9351f3f897e35252cd3dc18cb3bffb0293a6"
+checksum = "1f1edacb3dd444614ec734dc3b8a46a4ec5887d505522d771245b80d185f05ec"
 dependencies = [
  "bytemuck",
  "postcard",
@@ -1271,9 +1271,9 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "1.2.4"
+version = "1.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1788edb87fdc09c7e26304471e2f5be8cdefb1b6930d6e3985fc02ff53bf86ee"
+checksum = "20521a903f02b0a573cd6840e9d0a5a0cc043d361fe924092cd70f8556cc9c4a"
 dependencies = [
  "libc",
  "wasi",
@@ -1567,7 +1567,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1729,7 +1729,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1786,7 +1786,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2196,7 +2196,7 @@ dependencies = [
  "getrandom 0.4.3",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2348,9 +2348,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.42.5"
+version = "0.43.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "071631f382cbdb682ab04242bb8022bea9f1fa237eaa273456433b95ad6f2aec"
+checksum = "060d3507b66eb290ce12bc2572098f7e7cb1e12e9d6697a9b1a5d1552fcb2588"
 
 [[package]]
 name = "tower"
@@ -2694,7 +2694,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

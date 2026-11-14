@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.1] - Unreleased
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.43.0, including CDPATH-independent hooks and the `toko-cloc`
+  PATH launcher replacing `make cloc`.
+- Adopt IC Testkit 0.104.0 and its matching server CLI for installed qualification;
+  retain raw PocketIC calls and the probe's independently selected Wire codecs.
+
+### 🔧 Changed
+
+- Refresh locked Platform to 0.32.2, Runtime/macros/guard to 0.22.2, Types to
+  0.20.2 and Timers to 0.44.1; retain one executor across acquisition, timers and
+  the qualification probe. Qualification also selects Wire 0.22.1 and Host 0.77.2.
+- Retain the qualified Build 0.73.0 release editor; defer the optional 0.84.1
+  refresh to the next dependency-maintenance batch.
+
 ## [0.3.0] - 2026-11-13
 
 ### ⚠️ Breaking
