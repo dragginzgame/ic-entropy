@@ -10,7 +10,7 @@ def qualification_member_catalog($product; $catalog):
        ($d.value | has("version") or has("path") | not))
     else true end);
 
-def qualification_plan($product; $manifest; $plan; $directory; $next):
+def qualification_plan($product; $manifest; $plan; $directory; $next; $lock):
   . as $qualification |
   [$product.packages[] | select(.id as $id | $product.workspace_members | index($id))] as $owned |
   [.packages[] | select(.id as $id | $qualification.workspace_members | index($id))] as $private |
@@ -33,10 +33,27 @@ def qualification_plan($product; $manifest; $plan; $directory; $next):
   # Path-only aliases need no manifest edit; the lock still follows the product.
   [$catalog[] | select(.previous != null and (.package as $n | $plan.members | index($n))) |
     {alias, previous, next:(.previous | capture("^(?<prefix>[~^=]?[ \t]*).*$") | .prefix + $next)}] as $edits |
-  [.packages[] | select(.source == null) | . as $p |
+  # Cargo's default resolve omits optional packages, but its dependency records
+  # retain their canonical local paths. Walk those edges through admitted product
+  # identities, including optional/transitive and target-specific declarations.
+  # The lock decides presence; a name alone never establishes ownership. This
+  # does not activate or compile mutually exclusive consumer features.
+  ([$qualification.packages[], $owned[]] | unique_by(.id)) as $known |
+  def local_closure:
+    . as $seen |
+    ([$seen[].dependencies[]? | select(.path != null) | .path + "/Cargo.toml"] | unique) as $paths |
+    ($seen + [$known[] | select(.manifest_path as $p | $paths | index($p))] | unique_by(.id)) |
+    if length == ($seen | length) then . else local_closure end;
+  ($qualification.packages | local_closure) as $reachable |
+  [$reachable[] | select(.source == null) | . as $p |
     $owned[] | select(.name == $p.name and (.name as $n | $plan.members | index($n))) |
     if .manifest_path != $p.manifest_path or .version != $p.version
     then error("qualification lock contains a foreign product identity") else .name end] as $members |
-  {catalog:$catalog, members:$members,
+  [$lock.package[] | select(.source == null) | . as $entry |
+    $owned[] | select(.name == $entry.name and (.name as $n | $plan.members | index($n))) |
+    if .version != $entry.version or ($members | index($entry.name) | not)
+    then error("qualification lock product identity lacks Cargo path evidence: \($entry.name)")
+    else .name end] as $locked_members |
+  {catalog:$catalog, members:($locked_members | unique),
    versions:($private | map({key:.name,value:.version}) | from_entries),
    manifest:{path:"qualification/Cargo.toml",version:"unchanged",dependencies:$edits}};

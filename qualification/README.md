@@ -25,7 +25,7 @@ make qualification-check
 make test-installed
 ```
 
-Setup uses the shared Rust-tool installer for IC Testkit 0.104.0 and Testkit's
+Setup uses the shared Rust-tool installer for IC Testkit 0.106.0 and Testkit's
 checksum-verified PocketIC setup. Tests admit the prepared selection without
 installing or downloading tools. The command-scoped server belongs to Testkit;
 compiled CLI setup is cached separately from simulator acquisition. Explicit
@@ -37,7 +37,7 @@ The driver closes its own instance. Build artifacts live under
 The native driver uses Testkit's upstream PocketIC re-export, including its
 Principal identities and async client. Explicit close awaits upstream best-effort
 deletion; it does not acknowledge deletion on a borrowed server.
-Testkit 0.104 keeps typed Wire calls in the separate `ic-testkit-wire` adapter.
+Typed Wire calls live in the separate `ic-testkit-wire` adapter.
 This driver uses raw PocketIC calls and its own Wire codecs, so it needs no
 additional adapter dependency.
 The native test binary is built before starting PocketIC, so a cold build cannot
@@ -61,9 +61,9 @@ The journey verifies:
 - Upgrade and reinstall reconstruct fresh volatile state and refill again.
 
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
-protocol. The locks select Platform 0.32.2 for the codec and its Types 0.20 identities;
-Runtime 0.22.2 and the probe's direct Types 0.20.2 match Timers 0.44.1's
-executor selection. The native Testkit side independently uses Types 0.20.
+protocol. The canister selects Platform 0.33 for the codec and Types 0.20 identities.
+Runtime 0.22 and Timers 0.44 share one exact Runtime/guard selection in the locks.
+The native Testkit side also selects Platform 0.33 and shares Types 0.20 identities.
 Native model tests retain failure-budget, cancellation and stale-reply cases.
 The installed contention fixture holds a simulator-controlled HTTP reply only
 to keep the fresh request's IC invocation alive while its source claim is held.

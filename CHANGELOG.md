@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.2] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Platform 0.33.0 in the IC adapter and qualification probe, with Runtime
+  0.22.3 and Types 0.20.3. Preserve the raw management-randomness contract and one
+  executor across acquisition, timers and the probe.
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.43.2, including qualification lock planning for optional
+  local product crates and retained frozen-batch timing inspection. Keep the
+  existing direct release workflow and two-lock metadata transaction.
+- Adopt IC Testkit 0.106.0, its matching server CLI and required Host 0.79
+  dependencies. Retain fresh-instance qualification and raw PocketIC calls;
+  the retired pooling and diagnostic APIs require no driver migration.
+
 ## [0.3.1] - 2026-11-14
 
 ### 🔧 Tooling

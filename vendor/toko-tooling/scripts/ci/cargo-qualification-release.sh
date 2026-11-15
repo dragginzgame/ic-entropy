@@ -26,11 +26,13 @@ qualification_admit() {
     [[ "${statuses[0]}" == 0 ]] || return "${statuses[0]}"
     [[ "${statuses[1]}" == 0 ]] || return "${statuses[1]}"
     "${YQ:-yq}" -p toml -o json '.' "$directory/Cargo.toml" > "$evidence/qualification/root.json" || return
+    "${YQ:-yq}" -p toml -o json '.' "$directory/Cargo.lock" > "$evidence/qualification/lock.json" || return
     jq -L "$script_dir" -e --slurpfile product "$evidence/metadata.json" \
+        --slurpfile lock "$evidence/qualification/lock.json" \
         --slurpfile manifest "$evidence/qualification/root.json" --slurpfile plan "$evidence/plan.json" \
         --arg directory "$directory" --arg next "${RELEASE_VERSION:-0.0.0}" '
         include "cargo-qualification-release";
-        qualification_plan($product[0]; $manifest[0]; $plan[0]; $directory; $next)' \
+        qualification_plan($product[0]; $manifest[0]; $plan[0]; $directory; $next; $lock[0])' \
         "$evidence/qualification/metadata.json" > "$evidence/qualification/plan.json" || return
     # Resolve every product catalog alias, including declarations not used by Cargo.
     jq -r '.catalog[] | [.alias,.path,.manifest] | @tsv' "$evidence/qualification/plan.json" \
