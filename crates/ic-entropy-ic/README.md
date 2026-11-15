@@ -11,10 +11,13 @@ commitment when fresh-after-commitment randomness is required.
 
 ## Runtime compatibility
 
-The adapter selects Platform Runtime 0.22 and buffered builds select Timers 0.44.
+The adapter selects Platform Runtime 0.22.5 and buffered builds select Timers 0.45.
 Canister hosts with direct Runtime or Timers dependencies must use the matching
 generations so the complete canister retains one executor and its exact guard.
 Use Platform Types 0.20 for Principal values exchanged with Runtime APIs.
+Timers 0.45 requires the host to settle accepted work before upgrading, or use
+a separately qualified reconciliation procedure. Reconstruction creates fresh
+volatile state; it does not reconcile uncertain business effects.
 
 ## Background pool
 

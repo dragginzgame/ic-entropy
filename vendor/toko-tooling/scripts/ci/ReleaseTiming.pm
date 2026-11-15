@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use Fcntl qw(:DEFAULT :flock S_ISREG);
 use JSON::PP;
+use POSIX qw(isfinite);
+use Scalar::Util qw(looks_like_number);
 use Time::HiRes qw(clock_gettime CLOCK_MONOTONIC time);
 my $json=JSON::PP->new->canonical;
 my $sequence=0;
@@ -61,6 +63,7 @@ sub measure {
 }
 sub report {
     my ($path)=@_; route($path);
+    local $/ = "\n";
     return [] unless -e $path;
     sysopen my $fh,$path,O_RDONLY|O_NONBLOCK|O_NOFOLLOW or die "read timing journal: $!\n";
     S_ISREG((stat $fh)[2]) or die "timing journal is not regular\n";
@@ -70,12 +73,21 @@ sub report {
         # An interrupted last write is not a completed observation.
         $line =~ /\n\z/ or die "incomplete timing journal line; retain original bytes\n";
         my $r=$json->decode($line);
-        ($r->{schema}//0)==1 && defined($r->{id}) or die "invalid timing event\n";
+        ref($r) eq 'HASH' && !ref($r->{schema}) && ($r->{schema}//'') eq '1'
+            && defined($r->{id}) && !ref($r->{id}) && length($r->{id})
+            or die "invalid timing event\n";
         if (($r->{event}//'') eq 'started') {
             !exists($by_id{$r->{id}}) or die "duplicate timing start\n";
             my $row={%$r,result=>'incomplete'};delete $row->{event};
             push @spans,$row;$by_id{$r->{id}}=$row;
         } elsif (($r->{event}//'') eq 'finished') {
+            defined($r->{status}) && !ref($r->{status})
+                && $r->{status} =~ /\A(?:0|[1-9][0-9]*)\z/ && $r->{status} <= 255
+                or die "invalid timing finish status\n";
+            defined($r->{elapsed_seconds}) && !ref($r->{elapsed_seconds})
+                && looks_like_number($r->{elapsed_seconds}) && isfinite(0+$r->{elapsed_seconds})
+                && $r->{elapsed_seconds} >= 0
+                or die "invalid timing elapsed seconds\n";
             my $row=$by_id{$r->{id}} or die "timing finish without start\n";
             $row->{result} eq 'incomplete' or die "duplicate timing finish\n";
             $row->{status}=$r->{status};$row->{elapsed_seconds}=$r->{elapsed_seconds};

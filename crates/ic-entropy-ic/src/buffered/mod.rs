@@ -6,9 +6,12 @@ mod model;
 use crate::{Error, source};
 #[cfg(any(target_arch = "wasm32", test))]
 use core::mem::DropGuard;
-use ic_timers::{TimerCadence, TimerIdentity, WatchdogReconcileState, WatchdogRegistration};
+#[cfg(target_arch = "wasm32")]
+use ic_timers::{Lifetime, Watchdog, WatchdogDemand};
 use model::Model;
-use std::{cell::RefCell, time::Duration};
+use std::cell::RefCell;
+#[cfg(target_arch = "wasm32")]
+use std::num::NonZeroU64;
 
 /// Maximum number of independently acquired seeds buffered in memory.
 pub const POOL_CAPACITY: usize = 256;
@@ -51,7 +54,8 @@ pub struct Status {
 
 thread_local! {
     static BUFFER: RefCell<Model> = const { RefCell::new(Model::new()) };
-    static REFILL: RefCell<Option<WatchdogRegistration>> = const { RefCell::new(None) };
+    #[cfg(target_arch = "wasm32")]
+    static REFILL: RefCell<Option<Watchdog>> = const { RefCell::new(None) };
 }
 
 /// Reset volatile entropy and schedule bounded refill after host restoration.
@@ -109,29 +113,36 @@ pub fn suspend() -> Result<(), Error> {
     reconcile(false)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+fn reconcile(_will_draw: bool) -> Result<(), Error> {
+    Err(Error::Scheduling)
+}
+
+#[cfg(target_arch = "wasm32")]
 fn reconcile(will_draw: bool) -> Result<(), Error> {
     let status = status();
     // Opt-out never creates even an inactive declaration.
     if status.refill == RefillState::Disabled && REFILL.with_borrow(Option::is_none) {
         return Ok(());
     }
-    ic_timers::initialize_runtime().map_err(|_| Error::Scheduling)?;
-    let identity = TimerIdentity::try_new("ic-entropy-ic", "buffer", "refill")
-        .map_err(|_| Error::Scheduling)?;
-    let cadence = TimerCadence::new(Duration::from_secs(1)).map_err(|_| Error::Scheduling)?;
+    ic_timers::initialize().map_err(|_| Error::Scheduling)?;
     let desired = match status.refill {
-        RefillState::Idle if will_draw => {
-            WatchdogReconcileState::ScheduledAt(status.next_refill_ns)
-        }
-        RefillState::Disabled | RefillState::Idle | RefillState::Paused => {
-            WatchdogReconcileState::Inactive
-        }
-        RefillState::Pending => WatchdogReconcileState::Scheduled,
-        RefillState::Scheduled => WatchdogReconcileState::ScheduledAt(status.next_refill_ns),
+        RefillState::Idle if will_draw => WatchdogDemand::At(status.next_refill_ns),
+        RefillState::Disabled | RefillState::Idle | RefillState::Paused => WatchdogDemand::Inactive,
+        RefillState::Pending => WatchdogDemand::KeepCadence,
+        RefillState::Scheduled => WatchdogDemand::At(status.next_refill_ns),
     };
     REFILL
         .with_borrow_mut(|slot| {
-            ic_timers::reconcile_watchdog(slot, &identity, cadence, desired, |_| drive())
+            if slot.is_none() {
+                *slot = Some(ic_timers::bind_watchdog(
+                    ["ic-entropy-ic", "buffer", "refill"],
+                    NonZeroU64::new(1_000_000_000).expect("positive refill cadence"),
+                    Lifetime::Retained,
+                    drive,
+                )?);
+            }
+            slot.as_ref().expect("bound refill watchdog").set(desired)
         })
         .map_err(|_| Error::Scheduling)
 }
@@ -156,9 +167,9 @@ fn refill_cancellation(generation: u64, started_ns: u64) -> DropGuard<(), impl F
     })
 }
 
-fn drive() -> ic_timers::WatchdogRunResult {
-    use ic_timers::{TimerCompletion, WatchdogDecision, WatchdogRunResult};
-    #[cfg(target_arch = "wasm32")]
+#[cfg(target_arch = "wasm32")]
+fn drive() -> ic_timers::WatchdogResult {
+    use ic_timers::{Observation, WatchdogNext, WatchdogResult};
     if let Some(generation) = BUFFER.with_borrow_mut(|state| state.begin(now_ns())) {
         let cancellation = refill_cancellation(generation, now_ns());
         ic_platform_runtime::cdk::futures::spawn_migratory(async move {
@@ -172,11 +183,14 @@ fn drive() -> ic_timers::WatchdogRunResult {
     }
     let status = status();
     let decision = match status.refill {
-        RefillState::Disabled | RefillState::Idle | RefillState::Paused => WatchdogDecision::Stop,
-        RefillState::Pending => WatchdogDecision::Continue,
-        RefillState::Scheduled => WatchdogDecision::ScheduleAt(status.next_refill_ns),
+        RefillState::Disabled | RefillState::Idle | RefillState::Paused => WatchdogNext::Stop,
+        RefillState::Pending => WatchdogNext::Continue,
+        RefillState::Scheduled => WatchdogNext::At(status.next_refill_ns),
     };
-    WatchdogRunResult::new(TimerCompletion::no_work(), decision)
+    WatchdogResult {
+        observation: Observation::NoWork,
+        next: decision,
+    }
 }
 
 #[cfg(test)]

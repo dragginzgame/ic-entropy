@@ -15,11 +15,27 @@ use serde::{Serialize, de::DeserializeOwned};
     reason = "Runtime's decode_with hook transfers ownership of the raw argument buffer"
 )]
 fn decode<T: DeserializeOwned, const ID: u64>(bytes: Vec<u8>) -> T {
-    ic_wire::native::decode_request(ID, &bytes, LIMITS).expect("fixture request")
+    ic_wire::decode(
+        &bytes,
+        ic_wire::Encoding::Frame {
+            method: ID,
+            direction: ic_wire::Direction::Request,
+        },
+        LIMITS,
+    )
+    .expect("fixture request")
 }
 
 fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
-    ic_wire::native::encode_response(ID, &value, LIMITS).expect("fixture response")
+    ic_wire::encode(
+        &value,
+        ic_wire::Encoding::Frame {
+            method: ID,
+            direction: ic_wire::Direction::Response,
+        },
+        LIMITS,
+    )
+    .expect("fixture response")
 }
 
 fn encode_unit<const ID: u64>() -> Vec<u8> {

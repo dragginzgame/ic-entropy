@@ -1,17 +1,25 @@
 # Changelog
 
-## [0.3.2] - Unreleased
+## [0.4.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Adopt Timers 0.45.9 and its retained watchdog capabilities, with the required
+  Runtime 0.22.5 executor. Hosts must align direct Timers dependencies to 0.45;
+  entropy APIs, bounded refill admission and lifecycle ownership are unchanged.
 
 ### 🔧 Changed
 
+- Migrate the independent qualification probe and driver to Wire 0.24.1's
+  root codec APIs with explicit request/response framing and existing limits.
 - Adopt Platform 0.33.0 in the IC adapter and qualification probe, with Runtime
-  0.22.3 and Types 0.20.3. Preserve the raw management-randomness contract and one
+  0.22.5 and Types 0.20.3. Preserve the raw management-randomness contract and one
   executor across acquisition, timers and the probe.
 
 ### 🔧 Tooling
 
-- Adopt Toko Tooling 0.43.2, including qualification lock planning for optional
-  local product crates and retained frozen-batch timing inspection. Keep the
+- Adopt Toko Tooling 0.44.4, including corrected LOC depth reporting and stricter
+  release timing admission. Keep qualification lock planning and the
   existing direct release workflow and two-lock metadata transaction.
 - Adopt IC Testkit 0.106.0, its matching server CLI and required Host 0.79
   dependencies. Retain fresh-instance qualification and raw PocketIC calls;

@@ -15,7 +15,15 @@ use std::{path::PathBuf, time::Duration};
 const EXPECTED_POOL_CAPACITY: u32 = 256;
 
 fn request(id: u64) -> Vec<u8> {
-    ic_wire::native::encode_request(id, &(), LIMITS).unwrap()
+    ic_wire::encode(
+        &(),
+        ic_wire::Encoding::Frame {
+            method: id,
+            direction: ic_wire::Direction::Request,
+        },
+        LIMITS,
+    )
+    .unwrap()
 }
 
 async fn update<T: DeserializeOwned>(pic: &PocketIc, pid: Principal, name: &str, id: u64) -> T {
@@ -23,7 +31,15 @@ async fn update<T: DeserializeOwned>(pic: &PocketIc, pid: Principal, name: &str,
         .update_call(pid, Principal::anonymous(), name, request(id))
         .await
         .unwrap();
-    ic_wire::native::decode_response(id, &bytes, LIMITS).unwrap()
+    ic_wire::decode(
+        &bytes,
+        ic_wire::Encoding::Frame {
+            method: id,
+            direction: ic_wire::Direction::Response,
+        },
+        LIMITS,
+    )
+    .unwrap()
 }
 
 async fn query<T: DeserializeOwned>(pic: &PocketIc, pid: Principal, name: &str, id: u64) -> T {
@@ -31,7 +47,15 @@ async fn query<T: DeserializeOwned>(pic: &PocketIc, pid: Principal, name: &str, 
         .query_call(pid, Principal::anonymous(), name, request(id))
         .await
         .unwrap();
-    ic_wire::native::decode_response(id, &bytes, LIMITS).unwrap()
+    ic_wire::decode(
+        &bytes,
+        ic_wire::Encoding::Frame {
+            method: id,
+            direction: ic_wire::Direction::Response,
+        },
+        LIMITS,
+    )
+    .unwrap()
 }
 
 async fn inspect(pic: &PocketIc, pid: Principal) -> State {
@@ -144,7 +168,17 @@ async fn background_refill_and_lifecycle() {
     })
     .await;
     let reply = pic.await_call(held).await.unwrap();
-    assert!(ic_wire::native::decode_response::<bool>(CONTEND, &reply, LIMITS).unwrap());
+    assert!(
+        ic_wire::decode::<bool>(
+            &reply,
+            ic_wire::Encoding::Frame {
+                method: CONTEND,
+                direction: ic_wire::Direction::Response
+            },
+            LIMITS
+        )
+        .unwrap()
+    );
     full_pool(pic, pid).await;
     let recovered: SourceState = query(pic, pid, "source_state", SOURCE_STATE).await;
     assert!(!recovered.busy);

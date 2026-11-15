@@ -62,7 +62,7 @@ The journey verifies:
 
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
 protocol. The canister selects Platform 0.33 for the codec and Types 0.20 identities.
-Runtime 0.22 and Timers 0.44 share one exact Runtime/guard selection in the locks.
+Runtime 0.22.5 and Timers 0.45 share one exact Runtime/guard selection in the locks.
 The native Testkit side also selects Platform 0.33 and shares Types 0.20 identities.
 Native model tests retain failure-budget, cancellation and stale-reply cases.
 The installed contention fixture holds a simulator-controlled HTTP reply only
