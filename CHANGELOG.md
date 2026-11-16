@@ -13,16 +13,15 @@
 - Move management randomness framing to Protocol 0.2.7 and Principal identities
   to Types 0.21.2. Remove the legacy Platform facade from both workspaces.
 - Migrate installed qualification to Testkit 0.107.3's explicit server ownership
-  and authenticated PocketIC preparation, retaining real source-custody and
-  lifecycle checks.
+  and authenticated PocketIC preparation with Wire 0.24.3, retaining real
+  source-custody and lifecycle checks.
 
 ### 🔧 Tooling
 
 - Adopt Toko Tooling 0.44.11 in both workspaces, correcting dependency-pin
   admission for the exact tooling selection and private qualification version.
-- Retain qualification Wire 0.24.2 and the Build 0.73.0 release editor; defer
-  optional Wire 0.24.3 and Build 0.87.3 refreshes to the next dependency-maintenance
-  batch.
+- Retain the Build 0.73.0 release editor; defer its optional 0.87.3 refresh to
+  the next dependency-maintenance batch.
 
 ## [0.4.0] - 2026-11-15
 
