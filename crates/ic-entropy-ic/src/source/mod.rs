@@ -80,18 +80,27 @@ async fn request_with(
     if !request.is_current() {
         return Err(Error::Stale);
     }
-    ic_platform::raw_rand::decode(&reply?).map_err(|_| Error::MalformedReply)
+    ic_platform_protocol::raw_rand::decode(&reply?, 42).map_err(|_| Error::MalformedReply)
 }
 
 #[cfg(target_arch = "wasm32")]
 async fn transport() -> Result<Vec<u8>, Error> {
-    use ic_platform::raw_rand;
-    use ic_platform_runtime::{Principal, cdk::call::Call};
-    Call::bounded_wait(Principal::management_canister(), raw_rand::METHOD)
-        .with_raw_args(raw_rand::encode())
-        .await
-        .map(ic_platform_runtime::call::Response::into_bytes)
-        .map_err(|_| Error::Transport)
+    use ic_platform_protocol::raw_rand;
+    use ic_platform_runtime::call::{Call, Outcome, Wait};
+    use ic_platform_types::Principal;
+    let completion = Call::new(
+        Principal::management_canister(),
+        raw_rand::METHOD,
+        Wait::Bounded { seconds: 300 },
+    )
+    .args(raw_rand::encode(6).expect("fixed raw_rand request"))
+    .execute()
+    .await
+    .map_err(|_| Error::Transport)?;
+    match completion.into_parts().0 {
+        Outcome::Reply(bytes) => Ok(bytes),
+        Outcome::Rejected(_) | Outcome::OutcomeUnknown(_) => Err(Error::Transport),
+    }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -101,8 +110,7 @@ fn transport() -> std::future::Ready<Result<Vec<u8>, Error>> {
 
 #[cfg(target_arch = "wasm32")]
 pub fn require_replicated() -> Result<(), Error> {
-    #[cfg(target_arch = "wasm32")]
-    if ic_platform_runtime::ic0::in_replicated_execution() != 0 {
+    if ic_platform_runtime::raw::in_replicated_execution() {
         return Ok(());
     }
     Err(Error::NonReplicated)

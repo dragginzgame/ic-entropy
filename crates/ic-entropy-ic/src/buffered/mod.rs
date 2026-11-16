@@ -150,7 +150,7 @@ fn reconcile(will_draw: bool) -> Result<(), Error> {
 fn now_ns() -> u64 {
     #[cfg(target_arch = "wasm32")]
     {
-        ic_platform_runtime::cdk::api::time()
+        ic_platform_runtime::system::time()
     }
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -172,14 +172,18 @@ fn drive() -> ic_timers::WatchdogResult {
     use ic_timers::{Observation, WatchdogNext, WatchdogResult};
     if let Some(generation) = BUFFER.with_borrow_mut(|state| state.begin(now_ns())) {
         let cancellation = refill_cancellation(generation, now_ns());
-        ic_platform_runtime::cdk::futures::spawn_migratory(async move {
+        // Timers invokes this synchronous watchdog directly from its self-update
+        // export, outside executor polling. Timers owns the dispatch reply; this
+        // root only awaits acquisition and never issues a reply of its own.
+        ic_platform_runtime::executor::run_update(async move {
             let cancellation = cancellation;
             let result = source::fresh_seed().await;
             BUFFER.with_borrow_mut(|state| state.finish(generation, result, now_ns()));
             DropGuard::dismiss(cancellation);
             // Reconcile even on a stale completion: current demand remains authoritative.
             reconcile(false).expect("entropy refill scheduling");
-        });
+        })
+        .expect("entropy refill task admission");
     }
     let status = status();
     let decision = match status.refill {

@@ -44,7 +44,7 @@ perl -MJSON::PP -e '
 ' > "$environment"
 # A failure/refusal from the shared verifier never falls through to a skip path.
 perl vendor/toko-tooling/scripts/ci/run-validation-stage.pl --state target/release-validation/stages \
-    --stage native --contract ic-entropy-native/1 --group entropy \
+    --stage native --contract ic-entropy-native/2 --group entropy \
     --source "$(git rev-parse HEAD)" --observe scripts/release/observe-native.pl \
     --environment "$environment" --max-bytes 536870912 -- \
     make --no-print-directory lint test check-wasm doc-check qualification-check test-installed

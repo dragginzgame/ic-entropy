@@ -25,23 +25,26 @@ make qualification-check
 make test-installed
 ```
 
-Setup uses the shared Rust-tool installer for IC Testkit 0.106.0 and Testkit's
-checksum-verified PocketIC setup. Tests admit the prepared selection without
-installing or downloading tools. The command-scoped server belongs to Testkit;
-compiled CLI setup is cached separately from simulator acquisition. Explicit
-PocketIC setup retries recognized transient curl failures at most three times;
-other failures stop immediately. Redacted download diagnostics live under
-`target/setup-pocket-ic/` and are uploaded by CI.
-The driver closes its own instance. Build artifacts live under
+Setup uses the shared Rust-tool installer for IC Testkit 0.107.3's
+`prepare_server` example with `managed-server`. The setup script explicitly
+downloads Testkit's selected archive; Testkit authenticates the archive and
+executable and performs bounded decompression. Prepared server bytes live under
+`.tools/pocket-ic-managed/`; earlier installations remain intact. Tests verify
+the prepared bytes without installing or downloading tools. Curl retries its
+recognized transient failures twice. Redacted download and preparation diagnostics
+live under `target/setup-pocket-ic/` and are uploaded by CI.
+The driver explicitly owns the bounded server lifetime, attempts instance deletion,
+then stops and joins the server, checking for abandoned owners and cleanup errors.
+Build artifacts live under
 `target/qualification/`. `make fmt` and `make fmt-check` cover both workspace roots.
 The native driver uses Testkit's upstream PocketIC re-export, including its
 Principal identities and async client. Explicit close awaits upstream best-effort
-deletion; it does not acknowledge deletion on a borrowed server.
+deletion; it does not independently prove remote deletion.
 Typed Wire calls live in the separate `ic-testkit-wire` adapter.
 This driver uses raw PocketIC calls and its own Wire codecs, so it needs no
 additional adapter dependency.
-The native test binary is built before starting PocketIC, so a cold build cannot
-consume the server's idle timeout before the first request.
+The native test starts the server after its binary is built. The offline
+`make qualification-tools-check` runs only prepared-server admission.
 
 The journey verifies:
 
@@ -58,12 +61,14 @@ The journey verifies:
   allows automatic refill recovery and clears the failure count.
 - Suspension discards the pool/stream and stops refill; explicit reconstruction
   starts acquisition again.
-- Upgrade and reinstall reconstruct fresh volatile state and refill again.
+- Stop/drain, upgrade/start and reinstall reconstruct fresh volatile state and
+  refill again.
 
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
-protocol. The canister selects Platform 0.33 for the codec and Types 0.20 identities.
-Runtime 0.22.5 and Timers 0.45 share one exact Runtime/guard selection in the locks.
-The native Testkit side also selects Platform 0.33 and shares Types 0.20 identities.
+protocol. The canister selects Protocol 0.2.7 for bounded randomness/HTTP codecs
+and Types 0.21.2 identities. Runtime 0.23.14 and Timers 0.46 share one exact
+Runtime/guard selection in the locks. Testkit 0.107.3 supplies native server and
+instance ownership; neither workspace retains the legacy Platform facade.
 Native model tests retain failure-budget, cancellation and stale-reply cases.
 The installed contention fixture holds a simulator-controlled HTTP reply only
 to keep the fresh request's IC invocation alive while its source claim is held.

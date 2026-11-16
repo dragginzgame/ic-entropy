@@ -7,26 +7,22 @@ use crate::{
     TAKE,
 };
 use ic_entropy_ic::{self as entropy, Error, RefillState};
-use ic_platform_runtime::cdk;
+use ic_platform_runtime as runtime;
 use serde::{Serialize, de::DeserializeOwned};
 
-#[expect(
-    clippy::needless_pass_by_value,
-    reason = "Runtime's decode_with hook transfers ownership of the raw argument buffer"
-)]
-fn decode<T: DeserializeOwned, const ID: u64>(bytes: Vec<u8>) -> T {
+fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, &'static str> {
     ic_wire::decode(
-        &bytes,
+        bytes,
         ic_wire::Encoding::Frame {
             method: ID,
             direction: ic_wire::Direction::Request,
         },
         LIMITS,
     )
-    .expect("fixture request")
+    .map_err(|_| "fixture request")
 }
 
-fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
+fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, &'static str> {
     ic_wire::encode(
         &value,
         ic_wire::Encoding::Frame {
@@ -35,28 +31,53 @@ fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
         },
         LIMITS,
     )
-    .expect("fixture response")
+    .map_err(|_| "fixture response")
 }
 
-fn encode_unit<const ID: u64>() -> Vec<u8> {
+fn encode_unit<const ID: u64>((): ()) -> Result<Vec<u8>, &'static str> {
     encode::<_, ID>(())
 }
 
-#[cdk::init(decode_with = "decode::<_, { INIT }>")]
-fn init() {
-    entropy::reconstruct().unwrap();
+fn guard() -> Result<(), std::convert::Infallible> {
+    Ok(())
 }
 
-#[cdk::post_upgrade(decode_with = "decode::<_, { INIT }>")]
-fn post_upgrade() {
-    entropy::reconstruct().unwrap();
+fn fail<E: std::fmt::Debug>(error: E) -> ! {
+    runtime::system::trap(&format!("{error:?}"))
 }
 
-#[cdk::query(
-    decode_with = "decode::<_, { INSPECT }>",
-    encode_with = "encode::<_, { INSPECT }>"
+#[runtime::init(
+    runtime = runtime,
+    guard = guard,
+    decode = decode::<_, { INIT }>,
+    max_bytes = 4096,
+    on_error = fail
 )]
-fn inspect() -> State {
+fn init(_input: ()) {
+    entropy::reconstruct().unwrap();
+}
+
+#[runtime::post_upgrade(
+    runtime = runtime,
+    guard = guard,
+    decode = decode::<_, { INIT }>,
+    max_bytes = 4096,
+    on_error = fail
+)]
+fn post_upgrade(_input: ()) {
+    entropy::reconstruct().unwrap();
+}
+
+#[runtime::query(
+    runtime = runtime,
+    name = "inspect",
+    guard = guard,
+    decode = decode::<_, { INSPECT }>,
+    encode = encode::<_, { INSPECT }>,
+    max_bytes = 4096,
+    on_error = fail
+)]
+fn inspect(_input: ()) -> State {
     let status = entropy::status();
     State {
         seeds: status.buffered_seeds as u32,
@@ -66,63 +87,98 @@ fn inspect() -> State {
     }
 }
 
-#[cdk::update(
-    decode_with = "decode::<_, { TAKE }>",
-    encode_with = "encode::<_, { TAKE }>"
+#[runtime::update(
+    runtime = runtime,
+    name = "take",
+    guard = guard,
+    decode = decode::<_, { TAKE }>,
+    encode = encode::<_, { TAKE }>,
+    max_bytes = 4096,
+    on_error = fail
 )]
-fn take() -> ([u8; 32], State) {
+fn take(_input: ()) -> ([u8; 32], State) {
     let seed = entropy::take_seed().unwrap();
-    (seed, inspect())
+    (seed, inspect(()))
 }
 
-#[cdk::update(
-    decode_with = "decode::<_, { DRAW }>",
-    encode_with = "encode::<_, { DRAW }>"
+#[runtime::update(
+    runtime = runtime,
+    name = "draw",
+    guard = guard,
+    decode = decode::<_, { DRAW }>,
+    encode = encode::<_, { DRAW }>,
+    max_bytes = 4096,
+    on_error = fail
 )]
-fn draw() -> (ic_wire::ByteBuf, u64) {
+fn draw(_input: ()) -> (ic_wire::ByteBuf, u64) {
     let mut bytes = vec![0; 1024];
     entropy::fill_bytes(&mut bytes).unwrap();
     (bytes.into(), entropy::status().remaining_bytes)
 }
 
-#[cdk::update(
-    decode_with = "decode::<_, { FRESH }>",
-    encode_with = "encode::<_, { FRESH }>"
+#[runtime::update(
+    runtime = runtime,
+    name = "fresh",
+    guard = guard,
+    decode = decode::<_, { FRESH }>,
+    encode = encode::<_, { FRESH }>,
+    max_bytes = 4096,
+    on_error = fail
 )]
-async fn fresh() -> [u8; 32] {
+async fn fresh(_input: ()) -> [u8; 32] {
     entropy::fresh_seed().await.unwrap()
 }
 
-#[cdk::update(
-    decode_with = "decode::<_, { SUSPEND }>",
-    encode_with = "encode_unit::<{ SUSPEND }>"
+#[runtime::update(
+    runtime = runtime,
+    name = "suspend",
+    guard = guard,
+    decode = decode::<_, { SUSPEND }>,
+    encode = encode_unit::<{ SUSPEND }>,
+    max_bytes = 4096,
+    on_error = fail
 )]
-fn suspend() {
+fn suspend(_input: ()) {
     entropy::suspend().unwrap();
 }
 
-#[cdk::update(
-    decode_with = "decode::<_, { RESUME }>",
-    encode_with = "encode_unit::<{ RESUME }>"
+#[runtime::update(
+    runtime = runtime,
+    name = "resume",
+    guard = guard,
+    decode = decode::<_, { RESUME }>,
+    encode = encode_unit::<{ RESUME }>,
+    max_bytes = 4096,
+    on_error = fail
 )]
-fn resume() {
+fn resume(_input: ()) {
     entropy::reconstruct().unwrap();
 }
 
-#[cdk::query(
-    decode_with = "decode::<_, { QUERY_REFUSAL }>",
-    encode_with = "encode::<_, { QUERY_REFUSAL }>"
+#[runtime::query(
+    runtime = runtime,
+    name = "query_refusal",
+    guard = guard,
+    decode = decode::<_, { QUERY_REFUSAL }>,
+    encode = encode::<_, { QUERY_REFUSAL }>,
+    max_bytes = 4096,
+    on_error = fail
 )]
-fn query_refusal() -> bool {
+fn query_refusal(_input: ()) -> bool {
     let mut bytes = [7; 32];
     entropy::fill_bytes(&mut bytes) == Err(Error::NonReplicated) && bytes == [7; 32]
 }
 
-#[cdk::update(
-    decode_with = "decode::<_, { OVERSIZED_REFUSAL }>",
-    encode_with = "encode::<_, { OVERSIZED_REFUSAL }>"
+#[runtime::update(
+    runtime = runtime,
+    name = "oversized_refusal",
+    guard = guard,
+    decode = decode::<_, { OVERSIZED_REFUSAL }>,
+    encode = encode::<_, { OVERSIZED_REFUSAL }>,
+    max_bytes = 4096,
+    on_error = fail
 )]
-fn oversized_refusal() -> bool {
+fn oversized_refusal(_input: ()) -> bool {
     let before = entropy::status();
     let mut bytes = [7; 1025];
     entropy::fill_bytes(&mut bytes) == Err(Error::DrawTooLarge)

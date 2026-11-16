@@ -43,7 +43,7 @@ thread_local! {
 // Core Generator has no IC admission policy, including after it has been seeded.
 fn require_update_context() -> Result<(), Error> {
     #[cfg(target_arch = "wasm32")]
-    if ic_platform_runtime::ic0::in_replicated_execution() != 0 {
+    if ic_platform_runtime::raw::in_replicated_execution() {
         return Ok(());
     }
     Err(Error::NonReplicated)

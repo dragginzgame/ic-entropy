@@ -26,7 +26,10 @@ fn complete<T>(future: impl Future<Output = T>) -> T {
 
 #[test]
 fn source_decodes_platform_protocol_without_consumer_zero_policy() {
-    assert_eq!(ic_platform::raw_rand::encode(), b"DIDL\0\0");
+    assert_eq!(
+        ic_platform_protocol::raw_rand::encode(6).unwrap(),
+        b"DIDL\0\0"
+    );
     let source = Rc::new(RefCell::new(Source::default()));
     for seed in [[37; 32], [0; 32]] {
         let reply = reply(seed);

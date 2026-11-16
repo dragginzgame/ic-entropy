@@ -2,17 +2,30 @@
 
 use entropy_probe::*;
 use ic_testkit::{
-    pic::PocketIcStartupConfig,
     pocket_ic::{
         CanisterId as Principal, PocketIcBuilder,
         common::rest::{CanisterHttpReply, CanisterHttpResponse, MockCanisterHttpResponse},
         nonblocking::PocketIc,
     },
+    server::{Deletion, Limits as ServerLimits, PreparedServer, Server},
 };
 use serde::de::DeserializeOwned;
 use std::{path::PathBuf, time::Duration};
 
 const EXPECTED_POOL_CAPACITY: u32 = 256;
+
+fn prepared_server() -> PreparedServer {
+    let directory =
+        PathBuf::from(std::env::var_os("ENTROPY_POCKET_IC_DIRECTORY").expect(
+            "run make install-qualification-tools and select the prepared server directory",
+        ));
+    PreparedServer::check(&directory).unwrap()
+}
+
+#[test]
+fn prepared_server_is_admitted() {
+    prepared_server();
+}
 
 fn request(id: u64) -> Vec<u8> {
     ic_wire::encode(
@@ -90,16 +103,24 @@ async fn background_refill_and_lifecycle() {
             .expect("run make test-installed to build and select the probe artifact"),
     );
     let wasm = std::fs::read(path).unwrap();
-    let owned = PocketIcStartupConfig::from_env(Duration::from_secs(30))
-        .unwrap()
-        .build_instance(
-            PocketIcBuilder::new()
-                .with_max_request_time_ms(Some(120_000))
-                .with_application_subnet(),
+    let mut server = Server::start(
+        prepared_server(),
+        ServerLimits {
+            startup: Duration::from_secs(30),
+            lifetime: Duration::from_secs(180),
+            stdout_bytes: 1024 * 1024,
+            stderr_bytes: 1024 * 1024,
+        },
+    )
+    .unwrap();
+    let owned = server
+        .instance(
+            PocketIcBuilder::new().with_application_subnet(),
+            Duration::from_secs(120),
         )
         .await
         .unwrap();
-    let pic = owned.instance();
+    let pic = owned.client();
     let pid = pic.create_canister().await;
     pic.add_cycles(pid, 10_000_000_000_000).await;
     pic.install_canister(pid, wasm.clone(), request(INIT), None)
@@ -200,9 +221,11 @@ async fn background_refill_and_lifecycle() {
     let _: (ic_wire::ByteBuf, u64) = update(pic, pid, "draw", DRAW).await;
 
     // Upgrades start a fresh heap and reconstruct the provider and entropy state.
+    pic.stop_canister(pid, None).await.unwrap();
     pic.upgrade_canister(pid, wasm.clone(), request(INIT), None)
         .await
         .unwrap();
+    pic.start_canister(pid, None).await.unwrap();
     assert_eq!(inspect(pic, pid).await.remaining, 0);
     full_pool(pic, pid).await;
     let (_, budget): (ic_wire::ByteBuf, u64) = update(pic, pid, "draw", DRAW).await;
@@ -211,5 +234,12 @@ async fn background_refill_and_lifecycle() {
         .await
         .unwrap();
     assert_eq!(full_pool(pic, pid).await.remaining, 0);
-    owned.close().await;
+    assert_eq!(
+        owned.close(Duration::from_secs(30)).await,
+        Deletion::Attempted
+    );
+    let stopped = server.stop().unwrap();
+    assert_eq!(stopped.abandoned, 0);
+    assert!(stopped.process.status.is_some());
+    assert!(stopped.process.cleanup.is_empty());
 }

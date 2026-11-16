@@ -11,14 +11,14 @@ publish = false
 
 [workspace.dependencies]
 ic-entropy-ic = { path = "../crates/ic-entropy-ic", default-features = false }
-ic-platform = { version = "0.33.0", default-features = false }
-ic-platform-runtime = { version = "0.22.5", default-features = false }
-ic-platform-types = { version = "0.20.3", default-features = false }
-ic-testkit = { version = "0.106.0", default-features = false }
+ic-platform-protocol = { version = "0.2.7", default-features = false }
+ic-platform-runtime = { version = "0.23.14", default-features = false }
+ic-platform-types = { version = "0.21.2", default-features = false }
+ic-testkit = { version = "0.107.3", default-features = false }
 ic-wire = { version = "0.24.1", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread"] }
-toko-tooling = "=0.44.4"
+toko-tooling = "=0.44.11"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"

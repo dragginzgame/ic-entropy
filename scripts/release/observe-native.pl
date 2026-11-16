@@ -55,7 +55,7 @@ for my $manifest ('Cargo.toml','qualification/Cargo.toml') {
 tree("$root/.tools/host");
 tree("$root/.tools/rust/common");
 for my $selector (glob("$root/.tools/rust/selected-*")) { tree($selector); }
-tree("$root/.tools/pocket-ic");
+tree("$root/.tools/pocket-ic-managed");
 my $sysroot=command('rustc','--print','sysroot'); chomp $sysroot;
 tree("$sysroot/bin"); tree("$sysroot/lib");
 command('uname','-s') eq "Linux\n" or die "native reuse only qualified for Linux\n";
@@ -69,7 +69,7 @@ for my $tool (qw(bash make cargo rustc rustup cc as ld ar git perl jq yq env una
     my $dependencies=do { local $/; <$ldd> }; close $ldd;
     for my $library ($dependencies =~ m{(/[^\s()]+)}g) { tree($library) if -f $library; }
 }
-for my $binary (glob("$root/.tools/host/bin/*"),glob("$root/.tools/rust/common/bin/*"),glob("$root/.tools/rust/selected-*/bin/*"),glob("$root/.tools/pocket-ic/*/pocket-ic")) {
+for my $binary (glob("$root/.tools/host/bin/*"),glob("$root/.tools/rust/common/bin/*"),glob("$root/.tools/rust/selected-*/bin/*"),"$root/.tools/pocket-ic-managed/pocket-ic") {
     next unless -f $binary && -x $binary;
     open my $ldd,'-|','ldd',$binary or die $!;
     my $dependencies=do {local $/; <$ldd>}; close $ldd;
@@ -79,6 +79,6 @@ for my $path (glob('/lib/*/libc.so.*'),glob('/lib/*/libm.so.*'),glob('/lib/*/lib
 tree($_) for values %INC;
 for my $file (keys %files) { $modes{$file}=(stat($file))[2] & 07777; }
 print $json->encode({schema=>1,files=>[sort keys %files],configuration=>{
-    contract=>'ic-entropy-native/1',links=>\%links,modes=>\%modes,
+    contract=>'ic-entropy-native/2',links=>\%links,modes=>\%modes,
     compiler=>command('rustc','-vV'),cargo=>command('cargo','-vV'),cc=>command('cc','--version'),
 }}),"\n";

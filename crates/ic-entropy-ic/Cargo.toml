@@ -21,10 +21,11 @@ buffered = ["dep:ic-entropy", "dep:ic-timers"]
 
 [dependencies]
 ic-entropy = { workspace = true, optional = true }
-ic-platform = { workspace = true, features = ["raw-rand"] }
+ic-platform-protocol = { workspace = true, features = ["raw-rand"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-ic-platform-runtime = { workspace = true, features = ["runtime"] }
+ic-platform-runtime = { workspace = true, features = ["call-ic0", "system-raw"] }
+ic-platform-types.workspace = true
 ic-timers = { workspace = true, optional = true }
 
 [dev-dependencies]

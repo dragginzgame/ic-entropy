@@ -1,7 +1,7 @@
 # IC Entropy IC adapter
 
 Reusable IC entropy acquisition for IcyDB, Canic, Auth and other consumers.
-This package depends on Platform and optionally IC Timers and IC Entropy; it
+This package uses Platform Protocol and Runtime, and optionally IC Timers and IC Entropy; it
 has no dependency on those consumers.
 
 The default selection provides `fresh_seed().await`: one bounded-wait management
@@ -11,13 +11,15 @@ commitment when fresh-after-commitment randomness is required.
 
 ## Runtime compatibility
 
-The adapter selects Platform Runtime 0.22.5 and buffered builds select Timers 0.45.
+The adapter selects Platform Runtime 0.23.14 and buffered builds select Timers 0.46.
 Canister hosts with direct Runtime or Timers dependencies must use the matching
 generations so the complete canister retains one executor and its exact guard.
-Use Platform Types 0.20 for Principal values exchanged with Runtime APIs.
-Timers 0.45 requires the host to settle accepted work before upgrading, or use
+Use Platform Types 0.21 for Principal values exchanged with Runtime APIs.
+Timers 0.46 requires the host to settle accepted work before upgrading, or use
 a separately qualified reconciliation procedure. Reconstruction creates fresh
 volatile state; it does not reconcile uncertain business effects.
+Stop the canister, wait until its status is Stopped, upgrade, then start it.
+Runtime callbacks and suspended futures are heap-local and must drain first.
 
 ## Background pool
 

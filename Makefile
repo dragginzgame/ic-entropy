@@ -59,10 +59,11 @@ release-files:
 
 # Installed qualification stays outside the product dependency graph.
 QUALIFICATION_TARGET := $(CURDIR)/target/qualification
+QUALIFICATION_SERVER_DIRECTORY := $(CURDIR)/.tools/pocket-ic-managed
 .PHONY: install-qualification-tools qualification-check build-entropy-probe test-installed
-install-qualification-tools:
-	@server="$$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.106.0 --bin ic-testkit-server --profile debug --features cli)" && \
-	  bash scripts/dev/setup-pocket-ic.sh "$$server" "$(CURDIR)/.tools/pocket-ic"
+install-qualification-tools: qualification-server-setup
+	@server="$$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.107.3 --example prepare_server --profile debug --features managed-server --check)" && \
+	  bash scripts/dev/setup-pocket-ic.sh "$$server" "$(QUALIFICATION_SERVER_DIRECTORY)"
 qualification-check:
 	cargo fmt --manifest-path qualification/Cargo.toml --all --check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --all-targets
@@ -72,10 +73,8 @@ qualification-check:
 build-entropy-probe:
 	cargo build --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --lib --release --target wasm32-unknown-unknown
 test-installed: build-entropy-probe
-	cargo test --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --test installed --no-run
-	@server="$$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.106.0 --bin ic-testkit-server --profile debug --features cli --check)" && \
+	ENTROPY_POCKET_IC_DIRECTORY="$(QUALIFICATION_SERVER_DIRECTORY)" \
 	  ENTROPY_PROBE_WASM="$(QUALIFICATION_TARGET)/wasm32-unknown-unknown/release/entropy_probe.wasm" \
-	  "$$server" run --directory "$(CURDIR)/.tools/pocket-ic" -- \
 	  cargo test --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --test installed -- --nocapture
 
 .PHONY: test-release-metadata
@@ -84,11 +83,11 @@ test-release-metadata:
 
 .PHONY: release-editor-check qualification-tools-check qualification-server-setup qualification-server-check
 qualification-server-setup:
-	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.106.0 --bin ic-testkit-server --profile debug --features cli
+	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.107.3 --example prepare_server --profile debug --features managed-server
 qualification-server-check:
-	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.106.0 --bin ic-testkit-server --profile debug --features cli --check > /dev/null
+	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.107.3 --example prepare_server --profile debug --features managed-server --check > /dev/null
 release-editor-check:
 	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli --check > /dev/null
 qualification-tools-check:
-	@server="$$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.106.0 --bin ic-testkit-server --profile debug --features cli --check)" && \
-	  "$$server" check --directory "$(CURDIR)/.tools/pocket-ic" > /dev/null
+	ENTROPY_POCKET_IC_DIRECTORY="$(QUALIFICATION_SERVER_DIRECTORY)" \
+	  cargo test --locked --offline --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --test installed prepared_server_is_admitted -- --exact

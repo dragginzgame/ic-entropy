@@ -30,12 +30,13 @@ recipes included in the cache key and ordered setup/check hooks. Restored Cargo
 tools always pass their existing receipt and byte checks; missing or corrupt
 generations retain the installer's rebuild/refusal behavior. Common tool cache
 keys include compiler, native build environment, catalogs and installer inputs.
-Compiled-tool setup and checks include the Testkit CLI, while PocketIC acquisition
+Compiled-tool setup and checks include Testkit's `prepare_server` example, while PocketIC acquisition
 is a separate CI step. Successfully admitted compiled tools can therefore be
 saved before a transient simulator download failure. Explicit simulator setup
-retries at most three times only for recognized transient curl failures from
-Testkit's retained evidence. Checksum, HTTP, version and cancellation failures
-retain their failure status; Testkit still owns downloads and admission. CI
+uses curl's bounded transient retries with sanitized download diagnostics.
+Checksum, preparation and cancellation failures retain their failure status;
+the consumer explicitly downloads Testkit's selected asset, and Testkit owns
+authentication and bounded decompression. CI
 uploads redacted setup diagnostics and does not cancel other hosts on failure.
 
 Compilation caches are limited to declared Cargo output directories, never
@@ -57,6 +58,6 @@ Deployment latency runs from the authorized request through pushed GitHub refs
 and registry availability. Use existing release/publication attempts to report
 preparation, validation, packaging, Git delivery, upload and registry waiting.
 Local source changes cannot establish deployment savings. The next authorized
-release supplies the before/after comparison for issue #1; no benchmark release
+release supplies the before/after comparison for [Entropy #1](https://github.com/dragginzgame/ic-entropy/issues/1); no benchmark release
 or additional recurring gate is required. Hosted cache hit/miss and macOS times
 remain separate, pending CI evidence.
