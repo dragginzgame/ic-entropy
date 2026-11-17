@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.2] - Unreleased
+
+### 🔧 Tooling
+
+- Retain bounded, sanitized scanner setup diagnostics and original failure status
+  in CI, with a linked artifact even when installation fails before scanning.
+- Update native qualification's TLS dependency lock to Zeroize 1.9.2.
+
 ## [0.5.1] - 2026-11-17
 
 ### 🔧 Changed

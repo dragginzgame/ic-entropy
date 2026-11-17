@@ -60,6 +60,21 @@ each bounded to 2 minutes. Validation output streams to the job log and a retain
 artifact, with Bash failure and pipeline status preserved. Setup logs retain their
 existing redaction. Uploads are best effort if the overall job limit or runner
 termination is reached; they do not turn a failed or timed-out step into success.
+
+The secrets job prepares its pinned Gitleaks scanner separately from scanning.
+Setup retains only `status.txt` and the hidden `.attempt/install.log` under
+`$RUNNER_TEMP/scanner-setup/`; the sanitized log is capped at 64 KiB, with
+oversized lines and truncation identified. URLs, known credential fields,
+sensitive environment values and private keys are redacted or omitted before
+retention. No scanner findings, executable downloads or installer archives are
+uploaded. Installation keeps its original exit status; collector failures are
+recorded separately and also fail setup. The always-run artifact/report steps
+include the selected hidden log, print a 4 KiB excerpt, link the 14-day artifact
+and explicitly fail on missing evidence or upload failure. Setup has 3 minutes
+and upload has 1 minute within the secrets job's existing 5-minute budget.
+Run `bash scripts/ci/test-scanner-setup.sh` for offline caller failure checks;
+these do not establish hosted artifact upload/retrieval.
+
 Compilation caches are limited to declared Cargo output directories, never
 release/publication evidence. Keys include host/architecture, runner image,
 compiler, source, manifests, locks and the tooling snapshot. A fallback restore

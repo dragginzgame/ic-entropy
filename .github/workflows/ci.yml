@@ -129,10 +129,40 @@ jobs:
           persist-credentials: false
       - name: Restore pinned tool downloads
         uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
-      - name: Scan history once
+      - id: scanner-setup
+        name: Prepare pinned scanner
+        timeout-minutes: 3
+        run: bash scripts/ci/setup-scanner.sh
+      - id: scanner-diagnostics
+        name: Retain scanner setup diagnostics
+        if: always()
+        timeout-minutes: 1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: scanner-setup-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/scanner-setup/status.txt
+            ${{ runner.temp }}/scanner-setup/.attempt/install.log
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+      - name: Report scanner setup evidence
+        if: always()
+        env:
+          ARTIFACT_OUTCOME: ${{ steps.scanner-diagnostics.outcome }}
+          ARTIFACT_URL: ${{ steps.scanner-diagnostics.outputs.artifact-url }}
         run: |
-          scanner="$(bash vendor/toko-tooling/scripts/ci/install-ci-tool.sh gitleaks --install-dir "$RUNNER_TEMP/entropy-tools")"
-          "$scanner" git --redact=100 --no-banner --no-color --log-level error
+          status=0
+          perl scripts/ci/scanner-setup-log.pl report "$RUNNER_TEMP/scanner-setup" || status=$?
+          if [[ "$ARTIFACT_OUTCOME" == success && -n "$ARTIFACT_URL" ]]; then
+            printf '[Scanner setup diagnostics](%s)\n' "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '::error::Scanner setup artifact upload failed or produced no link.'
+            status=1
+          fi
+          exit "$status"
+      - name: Scan history once
+        run: '"$RUNNER_TEMP/entropy-tools/gitleaks" git --redact=100 --no-banner --no-color --log-level error'
       - name: Save pinned tool downloads
         uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
         with:
