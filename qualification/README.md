@@ -25,7 +25,7 @@ make qualification-check
 make test-installed
 ```
 
-Setup uses the shared Rust-tool installer for IC Testkit 0.107.3's
+Setup uses the shared Rust-tool installer for IC Testkit 0.108.0's
 `prepare_server` example with `managed-server`. The setup script explicitly
 downloads Testkit's selected archive; Testkit authenticates the archive and
 executable and performs bounded decompression. Prepared server bytes live under
@@ -65,10 +65,12 @@ The journey verifies:
   refill again.
 
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
-protocol. The canister selects Protocol 0.2.7 for bounded randomness/HTTP codecs
-and Types 0.21.2 identities. Runtime 0.23.14 and Timers 0.46 share one exact
-Runtime/guard selection in the locks. Testkit 0.107.3 supplies native server and
+protocol. The canister selects Protocol 0.3.5 for bounded randomness/HTTP codecs
+and Types 0.21.2 identities. Runtime 0.23.16 and Timers 0.46.3 share one exact
+Runtime/guard selection in the locks. Testkit 0.108.0 supplies native server and
 instance ownership; neither workspace retains the legacy Platform facade.
+Native qualification and the setup helper use Host Artifacts/Fs 0.80.3 and
+Host Process 0.80.4; these remain outside the product dependency graph.
 Native model tests retain failure-budget, cancellation and stale-reply cases.
 The installed contention fixture holds a simulator-controlled HTTP reply only
 to keep the fresh request's IC invocation alive while its source claim is held.

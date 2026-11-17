@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Consumer policy for one product version and an independently versioned probe.
-# Shared helpers own the transaction; IC Build owns manifest/lock rendering.
+# Shared helpers own the transaction; IC Cargo Metadata owns manifest/lock rendering.
 set -euo pipefail
 script="$PWD/scripts/release/metadata.sh"
 case "${1:-}" in

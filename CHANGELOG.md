@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.5.1] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Protocol 0.3.5 in the product and qualification workspaces, preserving
+  bounded management randomness and HTTP framing. Types remains current at
+  0.21.2.
+- Adopt Timers 0.46.3 and Runtime 0.23.16 in both workspace graphs, keeping one
+  executor and its matching macros/guard cohort.
+
+### 🔧 Tooling
+
+- Use standalone `ic-cargo-metadata` 0.1.0 for release manifest and lock rendering,
+  replacing the legacy Build metadata editor.
+- Bound CI jobs with measured host-specific timeout budgets and retain streamed
+  validation diagnostics alongside the existing setup logs.
+- Adopt Testkit 0.108.0 for native qualification and its setup helper, with Host
+  Artifacts/Fs 0.80.3 and Host Process 0.80.4 supplying asset and process ownership.
+
 ## [0.5.0] - 2026-11-16
 
 ### ⚠️ Breaking

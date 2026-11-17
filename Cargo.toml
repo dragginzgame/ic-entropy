@@ -15,10 +15,10 @@ repository = "https://github.com/dragginzgame/ic-entropy"
 ic-entropy = { path = "crates/ic-entropy", version = "0.5.0" }
 
 # Production dependencies
-ic-platform-protocol = { version = "0.2.7", default-features = false }
-ic-platform-runtime = { version = "0.23.14", default-features = false }
+ic-platform-protocol = { version = "0.3.5", default-features = false }
+ic-platform-runtime = { version = "0.23.16", default-features = false }
 ic-platform-types = { version = "0.21.2", default-features = false }
-ic-timers = { version = "0.46.0", default-features = false }
+ic-timers = { version = "0.46.3", default-features = false }
 rand_chacha = { version = "0.10.0", default-features = false }
 
 # Development tooling

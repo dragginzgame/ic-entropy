@@ -10,11 +10,23 @@ concurrency:
   cancel-in-progress: true
 jobs:
   core:
+    name: core (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, macos-15, macos-15-intel]
+        # Measured durations and headroom: docs/testing/release-validation.md.
+        include:
+          - os: ubuntu-24.04
+            job-timeout: 20
+            tools-timeout: 8
+          - os: macos-15
+            job-timeout: 30
+            tools-timeout: 12
+          - os: macos-15-intel
+            job-timeout: 45
+            tools-timeout: 20
     runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.job-timeout }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
@@ -34,15 +46,18 @@ jobs:
           cargo fetch --locked
           cargo fetch --locked --manifest-path qualification/Cargo.toml
       - name: Prepare admitted tools with compiled cache
+        timeout-minutes: ${{ matrix.tools-timeout }}
         uses: ./vendor/toko-tooling/.github/actions/prepare-common-tools
         with:
           cache: 'true'
           cache-save: 'true'
           cache-extra-key: ${{ hashFiles('Makefile') }}
       - name: Prepare admitted PocketIC server
+        timeout-minutes: 5
         run: make install-qualification-tools
       - name: Retain setup diagnostics
         if: always()
+        timeout-minutes: 2
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: setup-${{ runner.os }}-${{ runner.arch }}-${{ github.run_attempt }}
@@ -73,9 +88,22 @@ jobs:
       - name: Admit restored build bytes
         run: bash scripts/ci/build-cache.sh restore
       - name: Validate core and IC adapter
+        timeout-minutes: 15
+        shell: bash
         run: |
-          make ci fmt-check
-          PATH="$PWD/.tools/host/bin:$PATH" bash vendor/toko-tooling/scripts/ci/check-dependency-pins.sh
+          {
+            make ci fmt-check
+            PATH="$PWD/.tools/host/bin:$PATH" bash vendor/toko-tooling/scripts/ci/check-dependency-pins.sh
+          } 2>&1 | tee "$RUNNER_TEMP/validation.log"
+      - name: Retain validation diagnostics
+        if: always()
+        timeout-minutes: 2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: validation-${{ runner.os }}-${{ runner.arch }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/validation.log
+          if-no-files-found: ignore
+          retention-days: 14
       - id: seal-build-cache
         if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build-cache.outputs.cache-hit != 'true'
         run: |
@@ -93,6 +121,7 @@ jobs:
           key: entropy-build-v2-${{ runner.os }}-${{ runner.arch }}-${{ steps.build-key.outputs.key }}-${{ hashFiles('**/*.rs', '**/Cargo.toml', '**/Cargo.lock', 'Makefile', 'rust-toolchain.toml', '.toko-tooling.snapshot') }}
   secrets:
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:

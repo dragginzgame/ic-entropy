@@ -3,7 +3,7 @@
 set -euo pipefail
 export PATH="$PWD/.tools/host/bin:$PWD/.tools/rust/common/bin:$PATH"
 export CARGO_RELEASE_METADATA_EDITOR
-CARGO_RELEASE_METADATA_EDITOR="$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$PWD" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli --check)"
+CARGO_RELEASE_METADATA_EDITOR="$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$PWD" --package ic-cargo-metadata --version 0.1.0 --bin ic-cargo-metadata --profile debug --check)"
 export CARGO_RELEASE_METADATA_MAX_BYTES=8388608
 export RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE=2026-11-09
 RELEASE_PREVIOUS="$(bash vendor/toko-tooling/scripts/ci/read-cargo-workspace-version.sh --stable Cargo.toml)"

@@ -39,6 +39,27 @@ the consumer explicitly downloads Testkit's selected asset, and Testkit owns
 authentication and bounded decompression. CI
 uploads redacted setup diagnostics and does not cancel other hosts on failure.
 
+CI job budgets use four successful runs from 2026-11-13 through 2026-11-16,
+including the [latest run](https://github.com/dragginzgame/ic-entropy/actions/runs/43965638971)
+and the [oldest sampled run](https://github.com/dragginzgame/ic-entropy/actions/runs/43470720840).
+Durations exclude runner queue time. The headroom accommodates cache misses and
+runner/download variation; these limits bound hangs rather than speed up passing runs.
+
+| Job/host | Longest observed | Job budget |
+| --- | --- | --- |
+| Core, Ubuntu 24.04 | 6m 51s | 20m |
+| Core, macOS 15 ARM | 8m 58s | 30m |
+| Core, macOS 15 Intel | 18m 19s | 45m |
+| Secrets | 10s | 5m |
+
+Tool preparation has an 8/12/20-minute step limit for Linux/macOS ARM/macOS
+Intel respectively (observed maxima 3m 11s / 4m 15s / 10m 14s). PocketIC setup
+has 5 minutes (observed maximum 45s); validation has 15 minutes (observed maximum
+4m 8s). Shorter step limits leave time for the `always()` diagnostic uploads,
+each bounded to 2 minutes. Validation output streams to the job log and a retained
+artifact, with Bash failure and pipeline status preserved. Setup logs retain their
+existing redaction. Uploads are best effort if the overall job limit or runner
+termination is reached; they do not turn a failed or timed-out step into success.
 Compilation caches are limited to declared Cargo output directories, never
 release/publication evidence. Keys include host/architecture, runner image,
 compiler, source, manifests, locks and the tooling snapshot. A fallback restore

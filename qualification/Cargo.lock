@@ -102,20 +102,19 @@ checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
 
 [[package]]
 name = "bindgen"
-version = "0.72.1"
+version = "0.73.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "993776b509cfb49c750f11b8f07a46fa23e0a1386ffc01fb1e7d343efc387895"
+checksum = "787ef8ef523575546b106a58213d6e6b06198a05c2f757258c68a74273670cfa"
 dependencies = [
  "bitflags",
  "cexpr",
  "clang-sys",
- "itertools",
  "proc-macro2",
  "quote",
  "regex",
  "rustc-hash",
- "shlex 1.3.0",
- "syn 2.0.119",
+ "shlex",
+ "syn 3.0.10",
 ]
 
 [[package]]
@@ -233,7 +232,7 @@ dependencies = [
  "find-msvc-tools",
  "jobserver",
  "libc",
- "shlex 2.0.1",
+ "shlex",
 ]
 
 [[package]]
@@ -838,9 +837,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-artifacts"
-version = "0.80.2"
+version = "0.80.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8645c876c9f26469c46e0ec764b639b192d2f2336d71815a2fd11d4c86b6f1e"
+checksum = "54cd6b9013ecab7db68af690e5c77157289ec007faec965e1d8b1ad1d5f6a43f"
 dependencies = [
  "sha2 0.11.1",
  "thiserror 2.0.18",
@@ -848,9 +847,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-fs"
-version = "0.80.2"
+version = "0.80.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81c73a53b929355c2056a2783c0f61676251c0ddba2d6e0109c3ac53841b396b"
+checksum = "90a8189bf22f96b959a03c16c11db97c69032825be4dae8e5078249a17034d41"
 dependencies = [
  "ic-host-artifacts",
  "rustix",
@@ -859,9 +858,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-process"
-version = "0.80.2"
+version = "0.80.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4189c2a9262d34336c59ca7b22851cab1c629cd9afa98cd28a878e124d2e6d1"
+checksum = "a88492b7a656509c3664f4f4ea68d5cf5303c3ec1c22bc64d6f4c41ded6128a3"
 dependencies = [
  "errno",
  "libproc",
@@ -882,9 +881,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-macros"
-version = "0.23.14"
+version = "0.23.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0376721a68d30392d7005bfaeca422bb0674cfa3c1778ca69b6661183327792c"
+checksum = "affde65d589d002a963eaaac97538eee39021c805125223076c65f55593cac2b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -893,15 +892,15 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-protocol"
-version = "0.2.7"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db4ea27c2705897b24b1c7c239db916abbb4c15eb97c1adcda896d0ca3891ff4"
+checksum = "a2ae9adc784809f210d491f301a9b4549bf619dbbeac835dc7c8d49d1eb152b0"
 
 [[package]]
 name = "ic-platform-runtime"
-version = "0.23.14"
+version = "0.23.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f91abeacf7b1602e67b49391ea1e66d1c8f7e45779de79a5835b9c8dac3afb8"
+checksum = "0724826cb1344a689458e60d0e3ddcc92331ae5b82264ecdaff887923645018d"
 dependencies = [
  "ic-platform-macros",
  "ic-platform-runtime-guard",
@@ -910,9 +909,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-runtime-guard"
-version = "0.23.14"
+version = "0.23.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "239aeacc00fa6015ea4656defdfe643cdd6116f180887ea27b8164105c58a2ce"
+checksum = "153f322c800d2bb8e428bd597305834e5750d1f52d357b68aadc73fc2a9690a7"
 
 [[package]]
 name = "ic-platform-types"
@@ -929,9 +928,9 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.107.3"
+version = "0.108.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1abdecdc13e767e8f5f7f83f2c19e48a414d6a7eea2e2ffdbfe95222c56d6c2"
+checksum = "6fa2e6157d27d15ba1bc93923adc3221e1c09f9f28ec2f8bdde09b04b528cf80"
 dependencies = [
  "ic-host-artifacts",
  "ic-host-fs",
@@ -944,9 +943,9 @@ dependencies = [
 
 [[package]]
 name = "ic-timers"
-version = "0.46.0"
+version = "0.46.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5824a0528889edf09e57818528e5dda36f6ce9ab9819650e07a7d9867add9a17"
+checksum = "978acbba1761d3d45e0e8424368ab0ab69b2bfbb996ac1fe3321cc6f8358f2c5"
 dependencies = [
  "ic-platform-runtime",
 ]
@@ -1115,15 +1114,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "791930b43c0d5973160d90a8f3894509f2b273430f5c5c73b668636d0287c5c0"
 
 [[package]]
-name = "itertools"
-version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
-dependencies = [
- "either",
-]
-
-[[package]]
 name = "itoa"
 version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1229,9 +1219,9 @@ dependencies = [
 
 [[package]]
 name = "libproc"
-version = "0.14.11"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a54ad7278b8bc5301d5ffd2a94251c004feb971feba96c971ea4063645990757"
+checksum = "564c269d134dc8276288e18bf00b30e7fe2136ff8f0974f9bf65477cd5ad82fe"
 dependencies = [
  "bindgen",
  "errno",
@@ -2057,12 +2047,6 @@ checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
 dependencies = [
  "lazy_static",
 ]
-
-[[package]]
-name = "shlex"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "shlex"

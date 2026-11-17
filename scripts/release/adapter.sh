@@ -27,7 +27,7 @@ case "$1" in
         ;;
     prepare)
         bash vendor/toko-tooling/scripts/ci/check-release-source.sh --allow Cargo.toml --allow Cargo.lock --allow CHANGELOG.md --allow qualification/Cargo.lock
-        CARGO_RELEASE_METADATA_EDITOR="$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$PWD" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli --check)"
+        CARGO_RELEASE_METADATA_EDITOR="$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$PWD" --package ic-cargo-metadata --version 0.1.0 --bin ic-cargo-metadata --profile debug --check)"
         export CARGO_RELEASE_METADATA_EDITOR
         export CARGO_RELEASE_METADATA_MAX_BYTES=8388608
         exec bash scripts/release/metadata.sh prepare
