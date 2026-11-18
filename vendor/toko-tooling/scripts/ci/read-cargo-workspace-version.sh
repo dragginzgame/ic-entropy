@@ -10,7 +10,7 @@ if [[ "${1:-}" == --stable ]]; then stable=true; shift; fi
 [[ -f "$1" && ! -L "$1" ]] || { echo 'manifest must be a regular file' >&2; exit 1; }
 # yq projects TOML but does not reject duplicate keys. Cargo owns manifest
 # validity; locate-project parses without resolving dependencies or building.
-CARGO_NET_OFFLINE=true RUSTUP_AUTO_INSTALL=0 cargo locate-project --workspace \
+RUSTUP_AUTO_INSTALL=0 cargo locate-project --workspace \
     --message-format plain --manifest-path "$1" >/dev/null || exit 1
 temporary="$(mktemp -d "${TMPDIR:-/tmp}/workspace-version.XXXXXX")"
 trap 'rm -rf "$temporary"' EXIT

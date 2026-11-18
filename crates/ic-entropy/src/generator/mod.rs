@@ -1,5 +1,8 @@
 //! Explicitly owned ChaCha20 state with a caller-selected byte budget.
 
+#[cfg(test)]
+mod tests;
+
 use crate::Seed;
 use rand_chacha::{
     ChaCha20Rng,
@@ -73,6 +76,3 @@ impl Generator {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests;

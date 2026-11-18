@@ -7,6 +7,7 @@ use std::{
     task::Poll,
 };
 
+/// Hold a real request while the driver observes exclusive source custody.
 #[runtime::update(
     runtime = runtime,
     name = "contend",
@@ -51,6 +52,7 @@ async fn contend(_input: ()) -> bool {
     request.await.is_ok()
 }
 
+/// Observe source contention and refill recovery without consuming entropy.
 #[runtime::query(
     runtime = runtime,
     name = "source_state",
@@ -69,6 +71,7 @@ fn source_state(_input: ()) -> SourceState {
     }
 }
 
+/// Drop an accepted request and verify that a replacement can acquire the source.
 #[runtime::update(
     runtime = runtime,
     name = "cancel",
@@ -89,6 +92,7 @@ async fn cancel(_input: ()) -> bool {
     entropy::fresh_seed().await.is_ok()
 }
 
+/// Verify that an old completion cannot release a replacement request claim.
 #[runtime::update(
     runtime = runtime,
     name = "stale",

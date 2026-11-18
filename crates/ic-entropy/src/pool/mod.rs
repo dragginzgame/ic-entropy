@@ -1,5 +1,8 @@
 //! Fixed-capacity FIFO of externally acquired seeds; no allocation or expansion.
 
+#[cfg(test)]
+mod tests;
+
 use crate::Seed;
 
 /// The pool is full. No existing seed was overwritten.
@@ -83,6 +86,3 @@ impl<const N: usize> Default for SeedPool<N> {
         Self::new()
     }
 }
-
-#[cfg(test)]
-mod tests;

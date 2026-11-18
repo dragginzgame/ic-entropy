@@ -11,6 +11,7 @@ cp scripts/ci/build-cache.sh scripts/ci/build-cache.pl "$fixture/scripts/ci/"
 cat > "$fixture/.tools/host/bin/make" <<'EOF'
 #!/usr/bin/env bash
 printf '%s\n' "$*" >> calls
+printf '%s\n' "${CARGO_NET_OFFLINE-unset}" >> cargo-network
 exit "${FIXTURE_STATUS:-0}"
 EOF
 chmod +x "$fixture/.tools/host/bin/make"
@@ -42,6 +43,13 @@ printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/scripts/release/metadata.sh"
     status=$?
     set -e
     [[ "$status" == 23 ]]
+    # Explicit Cargo network settings select the ordinary gate unchanged.
+    CARGO_NET_OFFLINE=true bash scripts/release/native-stage.sh > offline.log
+    [[ "$(tail -n 1 cargo-network)" == true ]]
+    rg -q 'environment override: CARGO_NET_OFFLINE' offline.log
+    CARGO_NET_OFFLINE=false bash scripts/release/native-stage.sh > online.log
+    [[ "$(tail -n 1 cargo-network)" == false ]]
+    rg -q 'environment override: CARGO_NET_OFFLINE' online.log
     export GITHUB_ACTIONS=true
     bash scripts/ci/build-cache.sh restore > cold.log 2>&1
     mkdir -p target/debug
@@ -55,4 +63,4 @@ printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/scripts/release/metadata.sh"
     ln -s "$fixture/calls" target/debug/unsafe
     if bash scripts/ci/build-cache.sh seal > unsafe.log 2>&1; then exit 1; fi
 )
-printf 'Consumer dispatch, failed validation, cold cache, warm cache and corrupt-cache recovery passed: %s\n' "$fixture"
+printf 'Consumer dispatch, Cargo settings, failed validation and cache recovery passed: %s\n' "$fixture"

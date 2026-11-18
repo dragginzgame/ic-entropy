@@ -62,6 +62,9 @@ fn discard_streams() {
 /// # Errors
 /// Refuses non-replicated execution or returns the adapter's scheduling error.
 /// Caller-owned streams are discarded before adapter reconstruction is attempted.
+///
+/// # Panics
+/// Traps if the adapter's logical lifecycle generation is exhausted.
 pub fn reconstruct() -> Result<(), Error> {
     require_update_context()?;
     discard_streams();
@@ -73,6 +76,9 @@ pub fn reconstruct() -> Result<(), Error> {
 /// # Errors
 /// Refuses non-replicated execution or returns the adapter's scheduling error.
 /// The host must handle suspension failure before proceeding with its lifecycle.
+///
+/// # Panics
+/// Traps if the adapter's logical lifecycle generation is exhausted.
 pub fn suspend() -> Result<(), Error> {
     require_update_context()?;
     discard_streams();

@@ -78,7 +78,7 @@ admit_workspace_graph() {
     local metadata_status=(0 0)
     mkdir -p "$evidence" || return
     lock_packages "$lock_directory" "$version" > "$evidence/local-packages" || return
-    if (cd "$directory" && cargo metadata --locked --offline --format-version 1) \
+    if (cd "$directory" && cargo metadata --locked --format-version 1) \
         2>&1 > "$evidence/metadata.json" | tee "$evidence/metadata.stderr" >&2; then
         :
     else

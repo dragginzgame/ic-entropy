@@ -1,6 +1,9 @@
 //! Volatile buffered demand, source-attempt custody and bounded draw state.
 //! No transport, scheduler, persistence, query mutation or seed serialization.
 
+#[cfg(test)]
+mod tests;
+
 use super::{BYTE_BUDGET, MAX_DRAW_BYTES, POOL_CAPACITY, RefillState, Status};
 use crate::Error;
 use ic_entropy::{Generator, SeedPool};
@@ -163,6 +166,3 @@ impl Model {
             .map_err(|_| Error::Exhausted)
     }
 }
-
-#[cfg(test)]
-mod tests;

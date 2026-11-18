@@ -39,4 +39,3 @@ and source/lock admission. Hosted macOS qualification runs in CI.
 The IC adapter, Timers and standalone Wasm qualification probe must select a
 compatible Runtime generation with one executor guard. Their manifests and locks
 own exact supplier selections.
-The previous Runtime 0.20.3 exception is retired.

@@ -34,11 +34,15 @@ for name in $(compgen -e); do
             ordinary "environment override: $name"; exit ;;
     esac
 done
+# Retrieve missing locked inputs with the caller's Cargo settings before sealing
+# the bounded reusable environment. Publication may enter without release setup.
+cargo fetch --locked
+cargo fetch --locked --manifest-path qualification/Cargo.toml
 mkdir -p target/release-validation
 environment="$(mktemp "$PWD/target/release-validation/environment.XXXXXX")"
 export ENTROPY_STAGE_PATH="$PATH"
 perl -MJSON::PP -e '
-    my %e=(PATH=>$ENV{ENTROPY_STAGE_PATH},HOME=>$ENV{HOME},LANG=>"C",LC_ALL=>"C",CARGO_NET_OFFLINE=>"true");
+    my %e=(PATH=>$ENV{ENTROPY_STAGE_PATH},HOME=>$ENV{HOME},LANG=>"C",LC_ALL=>"C");
     for (qw(CARGO_HOME RUSTUP_HOME)) { $e{$_}=$ENV{$_} if exists $ENV{$_}; }
     print JSON::PP->new->canonical->encode(\%e),"\n";
 ' > "$environment"

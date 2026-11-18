@@ -205,6 +205,11 @@ file or separate review framework.
 
 ## Validation and evidence
 
+- Cargo may retrieve missing locked dependencies during normal work and releases.
+  Offline mode requires explicit authorization for the invocation or job. Preserve
+  the caller’s Cargo settings and report Cargo’s error if a selected package is
+  unavailable. Complete dependency preparation before sealing reusable evidence.
+
 - Ordinary coding and cleanup end after the relevant focused checks pass. Do not
   turn that handoff into release preparation, fleet adoption or qualification of
   every supported host. Those are separately requested workflows; missing broad
@@ -240,6 +245,10 @@ file or separate review framework.
   Offline admission checks every member, Cargo.lock and installed bytes together.
   See the
   [tooling selection rule](https://github.com/dragginzgame/toko-tooling/blob/d4b09ceb6dd94d825adee2b894fa26dac4618ae0/rules/cargo-dependencies.md#toko-tooling-during-dependency-updates).
+- When adding or widening a release check, record the failure it detects, the
+  changes that require it, its existing callers and its observed elapsed cost in
+  the owning release plan or review. Use existing timing evidence. If the cost
+  is unknown, record it on the next ordinary delivery.
 - Give repeated validation one execution owner: selected group scope must reach
   the leaf commands, and aggregate gates must not repeat full lint/setup through
   nested targets. Reuse unchanged release-stage evidence only through the
@@ -601,6 +610,57 @@ archive and registry admission, required product/native checks and recovery
 boundaries. Missing or changed evidence still requires execution or refusal;
 speed alone never authorises skipping a gate.
 
+### Consistent validation and delivery flows
+
+Consumers must distinguish ordinary development, changed-tooling qualification,
+repository CI, selected release validation, publication admission and failed-phase
+recovery. Document their actual entrypoints in existing local guidance. Each
+required check has a named guarantee, owner, input scope and execution trigger;
+do not create a new report, policy engine or approval gate to record that mapping.
+
+Use the shared Make entrypoints and release adapter protocol, not repository-local
+commands with conflicting meanings. Setup installs; tool checks inspect; release
+verification validates the selected product; publication admits and uploads; resume
+recovers the selected attempt. Product leaf commands may differ. Keep group and
+validation declarations in the existing release catalogs, not a second workflow
+configuration. Shared mechanics own sequencing, timing, metadata transactions,
+proof admission and delivery recovery; adapters supply product decisions and
+checks. A missing reusable capability belongs upstream before another local engine
+is introduced. Qualify these boundaries with affected consumer fixtures, not a new
+mandatory release-time conformance suite.
+
+- Product tests and required native/installed guarantees remain consumer-owned.
+  Generic tooling regressions remain upstream. Consumer orchestration fixtures run
+  for affected wiring changes or selected CI coverage, not unconditionally for
+  every product release or upload merely because they exist.
+- Selected release groups must reach leaf package/feature/target commands and
+  affected reverse consumers. Independent versions alone do not prove independent
+  validation. Common work in a multi-group batch needs one qualified execution
+  arrangement or admitted reuse, not an unconditional full gate per group.
+- Publication performs fresh final-source, archive and destination admission.
+  Do not make full CI the default publication prerequisite or routinely stack
+  `publish-check` and `publish` with identical expensive gates. A necessary
+  repeated product check must identify changed inputs, a distinct guarantee or
+  an explicit limitation of the available evidence admission.
+- Use shared execution, metadata, evidence and recovery mechanics with thin local
+  policy. Prefer removing unnecessary work before adding reuse machinery. A
+  compiler-cache hit is not test evidence; missing or changed proof still requires
+  execution or refusal through the qualified contract.
+- During authorised delivery reconstruction, old stage counts, scripts and local
+  gate wording are research inputs, not compatibility requirements. Replace them
+  coherently, retaining product coverage and safety guarantees; retire superseded
+  callers and guidance. Preserve historical attempts with their original recovery
+  semantics. This is not permission to change an active frozen attempt.
+
+Qualify actual dispatch, input invalidation and failure recovery, then compare
+end-to-end and phase timings under stated tool/cache conditions. Separate real
+delivery from simulated effects; fewer stage names or an isolated reuse probe do
+not demonstrate faster releases. Until replacement is qualified, retain the
+existing gate and disclose its fallback cost. This transition rule is not a
+permanent exemption from simplifying a demonstrated repeated-work problem.
+
+### Release execution and recovery
+
 Plan deployment as one selected validation pass followed by fresh artifact and
 delivery admission. Inspect the actual nested commands first; do not stack full
 gates under release, version preparation and publication. Keep optional dependency,
@@ -628,7 +688,8 @@ local adapter before authorized release work. Normal releases start fresh;
 specific-attempt recovery uses `release-resume`. Preserve complete qualification
 of the selected release. Independent groups may adopt an explicitly qualified
 [group validation plan](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/docs/release-group-validation.md); until adoption, keep
-the existing full gate. Repository-wide CI remains separate and unchanged.
+the existing full gate. Repository-wide CI coverage remains required; authorised
+reconstruction may replace its orchestration under the flow rules above.
 
 ## Changelogs and artifact preservation
 
@@ -639,6 +700,9 @@ repository budget; raw output belongs under `target/evidence/`. See the
 [retention contract](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/engineering-details.md#changelogs-and-artifact-preservation)
 for exceptions, historical cleanup and protected release/recovery records.
 
+Use `### 🎯 Qualification` for results such as cursor behavior across an upgrade
+or the workload budget at which an operation completes. Use `### 🧪 Testing`
+for changes to test tooling or coverage.
 Use IcyDB-style emoji category sections in the owning release changelog; read the
 [changelog rules](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/changelogs.md) when updating them. Every issue fixed must
 have a direct link in that changelog before handoff, except legal and licensing
@@ -667,6 +731,27 @@ storage allocation, admission, backing access or persistence integrations.
 
 ## Rust workspaces and portable tooling
 
+Prefer one grouped `use` declaration per crate in each scope. Factor out shared
+path prefixes with nested braces. Group imports that share visibility and
+attributes, and preserve the names each import brings into scope.
+
+Keep shared Rust logic visible on every supported target. When a group of items
+requires Wasm, put it in an ordinary module and apply
+`#[cfg(target_arch = "wasm32")]` once to its module declaration. Keep its
+target-only imports and helpers inside. Use an item-level guard only when the
+target distinction belongs to that individual item.
+
+In handwritten and generated Rust, leave a blank line between the import block,
+item-level macro invocations and function definitions. Separate adjacent functions
+with a blank line, including methods, tests and test helpers. Keep comments and
+attributes attached to their item. Write endpoint mounts and endpoint attributes
+with several named arguments on multiple lines, one argument per line.
+Document each endpoint's caller-visible purpose, each guard's access policy and
+each mount's role. A shared mount needs one comment for the group.
+
+Place `mod tests;` with the module declarations at the top of its parent file,
+after module documentation and inner attributes and before implementation items.
+Keep its conditional compilation attributes attached to the declaration.
 Keep Rust tests and test-only helpers in `tests.rs`, `*_tests.rs` or `tests/`;
 declare fixture-only package roles explicitly. Adopt the naming layout as a
 hard cut, including references, under the
@@ -853,8 +938,12 @@ unused alias from its group's dependency roster when removing its declaration;
 retain the package in the group's member roster. Private product dependencies
 may use path-only entries; qualification owns its own workspace catalog.
 Remove unused workspace dependencies and their obsolete aliases; do not allow
-the unused-dependency lint merely to preserve a display catalog. Cargo.toml needs
-no release-group blocks, role sections or changelog comments. Keep group ownership
+the unused-dependency lint merely to preserve a display catalog. When
+`[workspace.dependencies]` contains multiple roles, group the used entries
+under `# Production`, `# Production and tests`, and `# Tests and tooling`,
+in that order. Omit empty groups and sort within each. Production includes
+normal and build dependencies across supported targets and features. Use the
+mixed heading for entries also declared for tests or tooling. Keep group ownership
 in the existing JSON policy under the
 [workspace versioning rules](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/rust-workspaces.md#coordinated-versions-and-workspace-boundaries).
 Dependency adoption must distinguish required compatibility/security changes from

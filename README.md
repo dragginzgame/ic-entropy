@@ -73,4 +73,6 @@ and `make test-installed`. CI runs this journey on its native host matrix.
 The selected repository license is the [Toko Studios Network Licence](LICENSE.md).
 Contributions follow the canonical [contribution policy](CONTRIBUTING.md).
 
-The published core is available as `ic-entropy = "0.1.0"`.
+Published packages are available on crates.io as
+[`ic-entropy`](https://crates.io/crates/ic-entropy) and
+[`ic-entropy-ic`](https://crates.io/crates/ic-entropy-ic).

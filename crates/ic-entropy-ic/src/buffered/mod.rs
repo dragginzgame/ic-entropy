@@ -2,16 +2,18 @@
 //! The host explicitly reconstructs/suspends; this module exports no lifecycle hooks.
 
 mod model;
+#[cfg(test)]
+mod tests;
+#[cfg(target_arch = "wasm32")]
+mod wasm;
 
 use crate::{Error, source};
-#[cfg(any(target_arch = "wasm32", test))]
-use core::mem::DropGuard;
-#[cfg(target_arch = "wasm32")]
-use ic_timers::{Lifetime, Watchdog, WatchdogDemand};
 use model::Model;
 use std::cell::RefCell;
+#[cfg(any(target_arch = "wasm32", test))]
+use std::mem::DropGuard;
 #[cfg(target_arch = "wasm32")]
-use std::num::NonZeroU64;
+use wasm::{now_ns, reconcile};
 
 /// Maximum number of independently acquired seeds buffered in memory.
 pub const POOL_CAPACITY: usize = 256;
@@ -54,8 +56,6 @@ pub struct Status {
 
 thread_local! {
     static BUFFER: RefCell<Model> = const { RefCell::new(Model::new()) };
-    #[cfg(target_arch = "wasm32")]
-    static REFILL: RefCell<Option<Watchdog>> = const { RefCell::new(None) };
 }
 
 /// Reset volatile entropy and schedule bounded refill after host restoration.
@@ -67,6 +67,9 @@ thread_local! {
 ///
 /// # Panics
 /// Traps if the logical lifecycle generation is exhausted.
+///
+/// # Errors
+/// Refuses non-replicated execution or a timer registration/control failure.
 pub fn reconstruct() -> Result<(), Error> {
     source::require_replicated()?;
     source::invalidate(false);
@@ -75,6 +78,10 @@ pub fn reconstruct() -> Result<(), Error> {
 }
 
 /// Consume one previously buffered independent seed, never a freshly requested one.
+///
+/// # Errors
+/// Refuses non-replicated execution, failed scheduling, or an unavailable pool.
+/// The pool reports disabled, not-ready, exhausted or retry-limit state explicitly.
 pub fn take_seed() -> Result<[u8; 32], Error> {
     source::require_replicated()?;
     reconcile(true)?;
@@ -83,6 +90,10 @@ pub fn take_seed() -> Result<[u8; 32], Error> {
 
 /// Fill at most 1,024 bytes from the bounded local stream; no implicit fresh draw.
 /// Refusal leaves the output and generator unchanged. A replacement uses a pool seed.
+///
+/// # Errors
+/// Refuses non-replicated execution, an oversized draw, failed scheduling or an
+/// unavailable replacement seed. Empty draws still require replicated execution.
 pub fn fill_bytes(output: &mut [u8]) -> Result<(), Error> {
     source::require_replicated()?;
     if output.len() > MAX_DRAW_BYTES {
@@ -96,6 +107,10 @@ pub fn fill_bytes(output: &mut [u8]) -> Result<(), Error> {
 
 /// Explicitly reopen the bounded automatic refill budget after source recovery.
 /// This neither resets a live generator nor rotates any consumer-owned boot seed.
+///
+/// # Errors
+/// Refuses non-replicated execution, disabled buffering, an outstanding refill
+/// or a timer control failure.
 pub fn retry_refill() -> Result<(), Error> {
     source::require_replicated()?;
     BUFFER.with_borrow_mut(|state| state.retry(now_ns()))?;
@@ -118,44 +133,9 @@ fn reconcile(_will_draw: bool) -> Result<(), Error> {
     Err(Error::Scheduling)
 }
 
-#[cfg(target_arch = "wasm32")]
-fn reconcile(will_draw: bool) -> Result<(), Error> {
-    let status = status();
-    // Opt-out never creates even an inactive declaration.
-    if status.refill == RefillState::Disabled && REFILL.with_borrow(Option::is_none) {
-        return Ok(());
-    }
-    ic_timers::initialize().map_err(|_| Error::Scheduling)?;
-    let desired = match status.refill {
-        RefillState::Idle if will_draw => WatchdogDemand::At(status.next_refill_ns),
-        RefillState::Disabled | RefillState::Idle | RefillState::Paused => WatchdogDemand::Inactive,
-        RefillState::Pending => WatchdogDemand::KeepCadence,
-        RefillState::Scheduled => WatchdogDemand::At(status.next_refill_ns),
-    };
-    REFILL
-        .with_borrow_mut(|slot| {
-            if slot.is_none() {
-                *slot = Some(ic_timers::bind_watchdog(
-                    ["ic-entropy-ic", "buffer", "refill"],
-                    NonZeroU64::new(1_000_000_000).expect("positive refill cadence"),
-                    Lifetime::Retained,
-                    drive,
-                )?);
-            }
-            slot.as_ref().expect("bound refill watchdog").set(desired)
-        })
-        .map_err(|_| Error::Scheduling)
-}
-
+#[cfg(not(target_arch = "wasm32"))]
 fn now_ns() -> u64 {
-    #[cfg(target_arch = "wasm32")]
-    {
-        ic_platform_runtime::system::time()
-    }
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        panic!("entropy runtime requires replicated Wasm execution")
-    }
+    panic!("entropy runtime requires replicated Wasm execution")
 }
 
 #[cfg(any(target_arch = "wasm32", test))]
@@ -166,36 +146,3 @@ fn refill_cancellation(generation: u64, started_ns: u64) -> DropGuard<(), impl F
         });
     })
 }
-
-#[cfg(target_arch = "wasm32")]
-fn drive() -> ic_timers::WatchdogResult {
-    use ic_timers::{Observation, WatchdogNext, WatchdogResult};
-    if let Some(generation) = BUFFER.with_borrow_mut(|state| state.begin(now_ns())) {
-        let cancellation = refill_cancellation(generation, now_ns());
-        // Timers invokes this synchronous watchdog directly from its self-update
-        // export, outside executor polling. Timers owns the dispatch reply; this
-        // root only awaits acquisition and never issues a reply of its own.
-        ic_platform_runtime::executor::run_update(async move {
-            let cancellation = cancellation;
-            let result = source::fresh_seed().await;
-            BUFFER.with_borrow_mut(|state| state.finish(generation, result, now_ns()));
-            DropGuard::dismiss(cancellation);
-            // Reconcile even on a stale completion: current demand remains authoritative.
-            reconcile(false).expect("entropy refill scheduling");
-        })
-        .expect("entropy refill task admission");
-    }
-    let status = status();
-    let decision = match status.refill {
-        RefillState::Disabled | RefillState::Idle | RefillState::Paused => WatchdogNext::Stop,
-        RefillState::Pending => WatchdogNext::Continue,
-        RefillState::Scheduled => WatchdogNext::At(status.next_refill_ns),
-    };
-    WatchdogResult {
-        observation: Observation::NoWork,
-        next: decision,
-    }
-}
-
-#[cfg(test)]
-mod tests;

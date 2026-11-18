@@ -7,6 +7,24 @@
 - Retain bounded, sanitized scanner setup diagnostics and original failure status
   in CI, with a linked artifact even when installation fails before scanning.
 - Update native qualification's TLS dependency lock to Zeroize 1.9.2.
+- Adopt Testkit 0.110.0 for qualification and its setup helper, including its
+  required Host Process 0.81.0 ownership implementation.
+- Adopt Wire 0.25.0 for the qualification canister and native driver, retaining
+  their framed RPC schemas and explicit codec limits.
+- Adopt Toko Tooling 0.45.8 in both workspaces and the installed snapshot, with
+  streamed input hashing and detailed phase timings for release validation.
+- Preserve caller-selected Cargo network settings during metadata and validation;
+  prepare locked inputs before sealing reusable validation evidence.
+- Bound PocketIC download attempts and update the setup fixture for Testkit's
+  current archive-preparation interface, preserving failure diagnostics and status.
+
+### 🔧 Changed
+
+- Refresh locked Runtime 0.23.17 and Timers 0.46.6 in the product and qualification
+  workspaces, retaining one executor and its matching guard.
+- Isolate Wasm transport and timer driving from the adapter's shared custody model,
+  document public refusals and lifecycle panics, and classify qualification-only
+  code and dependency roles for tooling.
 
 ## [0.5.1] - 2026-11-17
 

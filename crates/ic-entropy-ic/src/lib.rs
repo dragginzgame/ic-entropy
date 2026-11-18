@@ -42,6 +42,12 @@ pub enum Error {
 ///
 /// With `buffered`, also discard all buffered seeds/stream state and cancel refill.
 /// This installs no lifecycle exports. The host must call it before taking a snapshot.
+///
+/// # Errors
+/// Refuses non-replicated execution or a failed timer cancellation.
+///
+/// # Panics
+/// Traps if the logical lifecycle generation is exhausted.
 pub fn suspend() -> Result<(), Error> {
     source::require_replicated()?;
     source::invalidate(true);
@@ -54,6 +60,13 @@ pub fn suspend() -> Result<(), Error> {
 ///
 /// Buffered hosts use `reconstruct` instead. No request or timer is started here.
 /// Refuses while buffering is active, so feature unification cannot resume an old stream.
+///
+/// # Errors
+/// Returns [`Error::NonReplicated`] outside replicated execution, or [`Error::Busy`]
+/// while buffering remains active.
+///
+/// # Panics
+/// Traps if the logical lifecycle generation is exhausted.
 pub fn resume_fresh_requests() -> Result<(), Error> {
     source::require_replicated()?;
     #[cfg(feature = "buffered")]

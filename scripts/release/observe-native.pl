@@ -45,7 +45,7 @@ while ($ancestor =~ s{/[^/]+\z}{}) {
     for my $file ("$ancestor/.cargo/config","$ancestor/.cargo/config.toml") { tree($file) if -e $file; }
 }
 for my $manifest ('Cargo.toml','qualification/Cargo.toml') {
-    my $metadata=$json->decode(command('cargo','metadata','--locked','--offline','--all-features','--format-version','1','--manifest-path',$manifest));
+    my $metadata=$json->decode(command('cargo','metadata','--locked','--all-features','--format-version','1','--manifest-path',$manifest));
     for my $package (@{$metadata->{packages}}) {
         my $path=$package->{manifest_path}; $path =~ s{/Cargo.toml\z}{} or die "invalid manifest\n";
         tree($path) unless index($path,"$root/")==0;

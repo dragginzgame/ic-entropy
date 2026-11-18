@@ -38,6 +38,7 @@ fn encode_unit<const ID: u64>((): ()) -> Result<Vec<u8>, &'static str> {
     encode::<_, ID>(())
 }
 
+/// Admit every caller to the private probe; hosts own production consumer admission.
 fn guard() -> Result<(), std::convert::Infallible> {
     Ok(())
 }
@@ -46,6 +47,7 @@ fn fail<E: std::fmt::Debug>(error: E) -> ! {
     runtime::system::trap(&format!("{error:?}"))
 }
 
+/// Reconstruct fresh volatile entropy after installation.
 #[runtime::init(
     runtime = runtime,
     guard = guard,
@@ -57,6 +59,7 @@ fn init(_input: ()) {
     entropy::reconstruct().unwrap();
 }
 
+/// Reconstruct entropy after an upgrade without restoring seeds or stream state.
 #[runtime::post_upgrade(
     runtime = runtime,
     guard = guard,
@@ -68,6 +71,7 @@ fn post_upgrade(_input: ()) {
     entropy::reconstruct().unwrap();
 }
 
+/// Observe readiness and budget without consuming randomness.
 #[runtime::query(
     runtime = runtime,
     name = "inspect",
@@ -87,6 +91,7 @@ fn inspect(_input: ()) -> State {
     }
 }
 
+/// Consume one buffered seed and return the resulting pool state.
 #[runtime::update(
     runtime = runtime,
     name = "take",
@@ -101,6 +106,7 @@ fn take(_input: ()) -> ([u8; 32], State) {
     (seed, inspect(()))
 }
 
+/// Draw a bounded buffer and return its remaining expansion budget.
 #[runtime::update(
     runtime = runtime,
     name = "draw",
@@ -116,6 +122,7 @@ fn draw(_input: ()) -> (ic_wire::ByteBuf, u64) {
     (bytes.into(), entropy::status().remaining_bytes)
 }
 
+/// Request new management randomness without consuming buffered entropy.
 #[runtime::update(
     runtime = runtime,
     name = "fresh",
@@ -129,6 +136,7 @@ async fn fresh(_input: ()) -> [u8; 32] {
     entropy::fresh_seed().await.unwrap()
 }
 
+/// Discard volatile entropy and stop background acquisition.
 #[runtime::update(
     runtime = runtime,
     name = "suspend",
@@ -142,6 +150,7 @@ fn suspend(_input: ()) {
     entropy::suspend().unwrap();
 }
 
+/// Reconstruct acquisition and resume background refill.
 #[runtime::update(
     runtime = runtime,
     name = "resume",
@@ -155,6 +164,7 @@ fn resume(_input: ()) {
     entropy::reconstruct().unwrap();
 }
 
+/// Verify that query execution refuses mutating draws without changing output.
 #[runtime::query(
     runtime = runtime,
     name = "query_refusal",
@@ -169,6 +179,7 @@ fn query_refusal(_input: ()) -> bool {
     entropy::fill_bytes(&mut bytes) == Err(Error::NonReplicated) && bytes == [7; 32]
 }
 
+/// Verify that oversized draws preserve output and buffered state.
 #[runtime::update(
     runtime = runtime,
     name = "oversized_refusal",

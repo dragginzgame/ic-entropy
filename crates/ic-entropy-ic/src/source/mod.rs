@@ -1,8 +1,17 @@
 //! Platform-owned raw_rand transport and one in-flight source capability.
 //! No seed pool, timer, fresh-request retry or consumer admission policy.
 
+#[cfg(test)]
+mod tests;
+#[cfg(target_arch = "wasm32")]
+mod wasm;
+
 use crate::Error;
 use std::{cell::RefCell, future::Future, rc::Rc};
+#[cfg(target_arch = "wasm32")]
+pub(super) use wasm::require_replicated;
+#[cfg(target_arch = "wasm32")]
+use wasm::transport;
 
 #[derive(Default)]
 struct Source {
@@ -66,6 +75,10 @@ impl Drop for Request {
 ///
 /// Never consumes buffered or seeded bytes. Call after the relevant commitment.
 /// Concurrent requests refuse; failures return without automatic retries.
+///
+/// # Errors
+/// Refuses non-replicated execution, suspension or an outstanding request. Returns
+/// a transport or framing error on failure, or [`Error::Stale`] after reconstruction.
 pub async fn fresh_seed() -> Result<[u8; 32], Error> {
     require_replicated()?;
     request_with(SOURCE.with(Rc::clone), transport()).await
@@ -83,47 +96,16 @@ async fn request_with(
     ic_platform_protocol::raw_rand::decode(&reply?, 42).map_err(|_| Error::MalformedReply)
 }
 
-#[cfg(target_arch = "wasm32")]
-async fn transport() -> Result<Vec<u8>, Error> {
-    use ic_platform_protocol::raw_rand;
-    use ic_platform_runtime::call::{Call, Outcome, Wait};
-    use ic_platform_types::Principal;
-    let completion = Call::new(
-        Principal::management_canister(),
-        raw_rand::METHOD,
-        Wait::Bounded { seconds: 300 },
-    )
-    .args(raw_rand::encode(6).expect("fixed raw_rand request"))
-    .execute()
-    .await
-    .map_err(|_| Error::Transport)?;
-    match completion.into_parts().0 {
-        Outcome::Reply(bytes) => Ok(bytes),
-        Outcome::Rejected(_) | Outcome::OutcomeUnknown(_) => Err(Error::Transport),
-    }
-}
-
 #[cfg(not(target_arch = "wasm32"))]
 fn transport() -> std::future::Ready<Result<Vec<u8>, Error>> {
     std::future::ready(Err(Error::NonReplicated))
 }
 
-#[cfg(target_arch = "wasm32")]
-pub fn require_replicated() -> Result<(), Error> {
-    if ic_platform_runtime::raw::in_replicated_execution() {
-        return Ok(());
-    }
-    Err(Error::NonReplicated)
-}
-
 #[cfg(not(target_arch = "wasm32"))]
-pub const fn require_replicated() -> Result<(), Error> {
+pub(super) const fn require_replicated() -> Result<(), Error> {
     Err(Error::NonReplicated)
 }
 
-pub fn invalidate(suspended: bool) {
+pub(super) fn invalidate(suspended: bool) {
     SOURCE.with(|source| source.borrow_mut().invalidate(suspended));
 }
-
-#[cfg(test)]
-mod tests;

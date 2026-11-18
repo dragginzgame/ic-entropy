@@ -1,5 +1,23 @@
 # Release validation and CI caches
 
+Shared tooling owns execution, metadata transactions, evidence admission and
+delivery recovery. Entropy's Make recipes and thin release adapter own the
+product packages, feature modes and installed qualification obligations.
+
+| Flow | Entrypoints and trigger | Guarantee and input scope |
+| --- | --- | --- |
+| Development | Focused package tests, Clippy and Wasm selections in `AGENTS.md`, after affected product edits | Product behavior and compilation for the changed package, features and callers. |
+| Changed tooling | `make toko-tooling-check tools-check`; affected metadata, validation-dispatch and scanner fixtures | Installed registry bytes, prepared tools and actual consumer caller/failure contracts. Run fixtures when their wiring changes. |
+| Repository CI | `make ci fmt-check`, workflow pin checks and one history scan, on pushes/PRs | Both product packages and adapter modes, Wasm, docs and installed qualification on every declared host; one repository secret scan. |
+| Release | `make release-patch`, `release-minor` or `release-major`, after explicit release authority | Fresh graph/pin/format admission, two-lock version preparation, the complete native stage on final-version source, commit/tag and Git delivery. |
+| Publication | `make publish`, for an affected publishable release | Fresh final-source and Cargo archive/registry admission; the native stage reuses an exact-input proof or executes. |
+| Recovery | `make release-resume VERSION=X.Y.Z`, for one saved failed release | Saved source, payload and destination admission; preserve failed evidence. Publication attempts separately require registry reconciliation before any retry. |
+
+Consumer orchestration fixtures do not become unconditional release/upload gates.
+The two-lock metadata fixture remains selected in repository CI; generic tooling
+regressions stay upstream. A normal release starts fresh, while recovery selects
+its saved attempt explicitly.
+
 The release adapter admits graph, pins and formatting before preparation. It
 runs native lint, tests, Wasm and installed qualification from the committed
 final-version source before tagging/pushing. Publication invokes the same stage;
@@ -10,7 +28,9 @@ belong to the observation. Versions are never normalized or projected.
 The consumer observer inventories local source (including new files), expanded
 registry packages, compiler/sysroot, native headers/linker inputs, executable
 bundles/receipts and the PocketIC server. Commands run with an explicit bounded
-environment. Unknown build/simulator overrides and unqualified hosts retain the
+environment, after fetching missing locked dependencies with the caller's Cargo
+settings. Explicit offline mode and other build/simulator overrides retain the
+ordinary gate and their original environment. Unqualified hosts also retain the
 ordinary gate; observation/custody failures refuse rather than silently skip.
 Linux reuse is qualified locally. macOS always executes until separately
 qualified. Source changes, missing proof, damaged logs and changed tool inputs
@@ -74,6 +94,9 @@ and explicitly fail on missing evidence or upload failure. Setup has 3 minutes
 and upload has 1 minute within the secrets job's existing 5-minute budget.
 Run `bash scripts/ci/test-scanner-setup.sh` for offline caller failure checks;
 these do not establish hosted artifact upload/retrieval.
+The streaming collector retains completed diagnostic lines before setup exits.
+Tooling's optional `SetupDiagnostics` helper returns its excerpt after completion,
+so it does not yet replace this retained evidence during a stalled setup.
 
 Compilation caches are limited to declared Cargo output directories, never
 release/publication evidence. Keys include host/architecture, runner image,

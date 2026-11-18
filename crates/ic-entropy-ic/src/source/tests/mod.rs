@@ -152,13 +152,11 @@ fn suspended_source_refuses_without_polling_transport() {
     );
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 #[test]
 fn native_public_api_refuses_without_mutating_source() {
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        let generation = SOURCE.with(|source| source.borrow().generation);
-        assert_eq!(complete(fresh_seed()), Err(Error::NonReplicated));
-        assert_eq!(crate::suspend(), Err(Error::NonReplicated));
-        assert_eq!(SOURCE.with(|source| source.borrow().generation), generation);
-    }
+    let generation = SOURCE.with(|source| source.borrow().generation);
+    assert_eq!(complete(fresh_seed()), Err(Error::NonReplicated));
+    assert_eq!(crate::suspend(), Err(Error::NonReplicated));
+    assert_eq!(SOURCE.with(|source| source.borrow().generation), generation);
 }

@@ -25,7 +25,7 @@ make qualification-check
 make test-installed
 ```
 
-Setup uses the shared Rust-tool installer for IC Testkit 0.108.0's
+Setup uses the shared Rust-tool installer for IC Testkit 0.110.0's
 `prepare_server` example with `managed-server`. The setup script explicitly
 downloads Testkit's selected archive; Testkit authenticates the archive and
 executable and performs bounded decompression. Prepared server bytes live under
@@ -41,10 +41,12 @@ The native driver uses Testkit's upstream PocketIC re-export, including its
 Principal identities and async client. Explicit close awaits upstream best-effort
 deletion; it does not independently prove remote deletion.
 Typed Wire calls live in the separate `ic-testkit-wire` adapter.
-This driver uses raw PocketIC calls and its own Wire codecs, so it needs no
+This driver uses raw PocketIC calls and its own Wire 0.25 codecs, so it needs no
 additional adapter dependency.
-The native test starts the server after its binary is built. The offline
-`make qualification-tools-check` runs only prepared-server admission.
+The native test starts the server after its binary is built.
+`make qualification-tools-check` admits the prepared server without downloading
+or installing it. Cargo may retrieve missing locked dependencies using the caller's
+settings; offline mode is an explicit caller choice.
 
 The journey verifies:
 
@@ -66,11 +68,11 @@ The journey verifies:
 
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
 protocol. The canister selects Protocol 0.3.5 for bounded randomness/HTTP codecs
-and Types 0.21.2 identities. Runtime 0.23.16 and Timers 0.46.3 share one exact
-Runtime/guard selection in the locks. Testkit 0.108.0 supplies native server and
+and Types 0.21.2 identities. The locked Runtime and Timers graph retains one
+executor and its matching guard. Testkit 0.110.0 supplies native server and
 instance ownership; neither workspace retains the legacy Platform facade.
 Native qualification and the setup helper use Host Artifacts/Fs 0.80.3 and
-Host Process 0.80.4; these remain outside the product dependency graph.
+Host Process 0.81.0; these remain outside the product dependency graph.
 Native model tests retain failure-budget, cancellation and stale-reply cases.
 The installed contention fixture holds a simulator-controlled HTTP reply only
 to keep the fresh request's IC invocation alive while its source claim is held.

@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 # A bounded setup-only projection; never retain download archives or scan output.
+# Keep completed diagnostic lines on disk while setup runs. SetupDiagnostics currently
+# returns its excerpt only after completion, so it cannot replace this live log.
 use strict;
 use warnings;
 use Fcntl qw(:DEFAULT S_ISREG);

@@ -9,6 +9,9 @@ license-file.workspace = true
 [package.metadata.cargo-machete]
 ignored = ["toko-tooling"]
 
+[package.metadata.toko-tooling.loc]
+category = "tests"
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 

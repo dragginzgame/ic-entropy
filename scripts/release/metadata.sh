@@ -6,7 +6,7 @@ script="$PWD/scripts/release/metadata.sh"
 case "${1:-}" in
     admit)
         bash vendor/toko-tooling/scripts/ci/cargo-release-metadata.sh check-graph ic-entropy
-        cargo metadata --locked --offline --manifest-path qualification/Cargo.toml --format-version 1 > /dev/null
+        cargo metadata --locked --manifest-path qualification/Cargo.toml --format-version 1 > /dev/null
         ;;
     selected)
         if [[ -z "${RELEASE_COMMIT:-}" ]]; then
@@ -25,8 +25,8 @@ case "${1:-}" in
         editor="${CARGO_RELEASE_METADATA_EDITOR:?}"
         limit="${CARGO_RELEASE_METADATA_MAX_BYTES:?}"
         evidence="${candidate%/*}"
-        cargo metadata --locked --offline --format-version 1 > "$evidence/product.json"
-        cargo metadata --locked --offline --manifest-path qualification/Cargo.toml --format-version 1 > "$evidence/qualification.json"
+        cargo metadata --locked --format-version 1 > "$evidence/product.json"
+        cargo metadata --locked --manifest-path qualification/Cargo.toml --format-version 1 > "$evidence/qualification.json"
         # Every product is qualified from the same local manifest/version, not a registry copy.
         jq -e --slurpfile product "$evidence/product.json" '
             . as $q | $product[0] as $p |

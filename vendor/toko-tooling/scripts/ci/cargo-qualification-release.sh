@@ -18,15 +18,15 @@ qualification_admit() {
         [[ "$ordering" != --manifest-order-grouped ]] || sort_arguments+=(--grouped)
         (cd "$directory" && cargo "${sort_arguments[@]}") || return
     fi
-    if (cd "$directory" && cargo metadata --locked --offline --format-version 1) \
+    if (cd "$directory" && cargo metadata --locked --format-version 1) \
         2>&1 > "$evidence/qualification/metadata.json" | tee "$evidence/qualification/metadata.stderr" >&2; then :
     else statuses=("${PIPESTATUS[@]}"); fi
     printf '%s\n' "${statuses[0]}" > "$evidence/qualification/cargo-status"
     printf '%s\n' "${statuses[1]}" > "$evidence/qualification/log-status"
     [[ "${statuses[0]}" == 0 ]] || return "${statuses[0]}"
     [[ "${statuses[1]}" == 0 ]] || return "${statuses[1]}"
-    "${YQ:-yq}" -p toml -o json '.' "$directory/Cargo.toml" > "$evidence/qualification/root.json" || return
-    "${YQ:-yq}" -p toml -o json '.' "$directory/Cargo.lock" > "$evidence/qualification/lock.json" || return
+    decode_toml "$directory/Cargo.toml" > "$evidence/qualification/root.json" || return
+    decode_toml "$directory/Cargo.lock" > "$evidence/qualification/lock.json" || return
     jq -L "$script_dir" -e --slurpfile product "$evidence/metadata.json" \
         --slurpfile lock "$evidence/qualification/lock.json" \
         --slurpfile manifest "$evidence/qualification/root.json" --slurpfile plan "$evidence/plan.json" \
@@ -50,7 +50,7 @@ qualification_admit() {
             index($path) | not' "$root/$policy" > /dev/null || return
         # Product requirements must inherit this workspace's catalog, so no
         # hidden member requirement can lag the selected version transition.
-        "${YQ:-yq}" -p toml -o json '.' "$manifest" | jq -L "$script_dir" -e \
+        decode_toml "$manifest" | jq -L "$script_dir" -e \
             --slurpfile plan "$evidence/qualification/plan.json" --slurpfile product "$evidence/metadata.json" '
             include "cargo-qualification-release";
             qualification_member_catalog($product[0]; $plan[0].catalog)' > /dev/null || return

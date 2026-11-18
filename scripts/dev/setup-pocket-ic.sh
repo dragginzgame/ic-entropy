@@ -14,6 +14,7 @@ mkdir -p target/setup-pocket-ic
 install -d -m 700 "$directory"
 logs="$(mktemp -d "$PWD/target/setup-pocket-ic/attempt.XXXXXX")"
 redact() { perl -pe 's{https?://[^\s<>"\x27]+}{<download-url>}g'; }
-curl --proto '=https' --tlsv1.2 --fail --location --retry 2 --retry-delay 2 \
+curl --proto '=https' --proto-redir '=https' --tlsv1.2 --fail --location \
+    --connect-timeout 15 --max-time 180 --retry 2 --retry-delay 2 --retry-max-time 30 \
     "$url" --output "$logs/server.gz" 2>&1 | redact | tee "$logs/download.log"
 "$helper" "$logs/server.gz" "$directory" "$gzip" 2>&1 | redact | tee "$logs/prepare.log"

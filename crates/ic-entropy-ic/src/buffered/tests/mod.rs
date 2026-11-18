@@ -1,4 +1,8 @@
 use super::*;
+use std::{
+    future::{Future, pending},
+    task::{Context, Waker},
+};
 
 #[test]
 fn dropped_refill_reopens_demand_but_cannot_clear_replacement_instance() {
@@ -19,11 +23,6 @@ fn dropped_refill_reopens_demand_but_cannot_clear_replacement_instance() {
 
 #[test]
 fn cancelling_refill_future_before_or_after_poll_reopens_demand_once() {
-    use std::{
-        future::{Future, pending},
-        task::{Context, Waker},
-    };
-
     for poll_first in [false, true] {
         BUFFER.with_borrow_mut(|state| state.reset(true, 10));
         let generation = BUFFER.with_borrow_mut(|state| state.begin(10)).unwrap();
