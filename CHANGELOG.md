@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.4] - Unreleased
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.45.16 in both workspaces and the authenticated snapshot.
+- Refresh locked Timers to 0.46.8 across both workspaces, and qualification's Wire
+  to 0.25.1, Testkit to 0.110.2, Host Artifacts/Fs to 0.80.5 and Host Process to 0.81.2.
+- Retain the prepared metadata editor 0.1.0 and Testkit server preparer 0.110.0;
+  defer their optional 0.1.1/0.110.2 refreshes to the next tooling-maintenance batch.
+- Remove redundant target predicates from qualification dev-dependencies and the
+  native unit-test harness. Document the IC API build failures that require the
+  remaining transport, watchdog, canister-binding and example admission guards.
+
 ## [0.5.3] - 2026-11-19
 
 ### 🔧 Tooling

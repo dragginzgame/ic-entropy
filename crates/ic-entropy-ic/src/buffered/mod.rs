@@ -4,6 +4,8 @@
 mod model;
 #[cfg(test)]
 mod tests;
+// Timers' Watchdog binding and Runtime's executor/time exports are Wasm-only.
+// Keep the portable model and cancellation cleanup outside this IC boundary.
 #[cfg(target_arch = "wasm32")]
 mod wasm;
 

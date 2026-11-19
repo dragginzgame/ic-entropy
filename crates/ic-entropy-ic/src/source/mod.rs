@@ -3,6 +3,8 @@
 
 #[cfg(test)]
 mod tests;
+// Runtime exposes raw IC admission and Call::execute only on Wasm; host tests
+// require fresh requests to refuse before claiming source custody.
 #[cfg(target_arch = "wasm32")]
 mod wasm;
 

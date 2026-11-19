@@ -1,5 +1,7 @@
 //! Private Wire protocol and standalone canister for installed entropy qualification.
 
+// The native installed driver imports this crate's Wire types. Runtime raw,
+// system and awaited-call APIs used by the canister do not exist on native.
 #[cfg(target_arch = "wasm32")]
 mod canister;
 

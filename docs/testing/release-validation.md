@@ -124,3 +124,29 @@ Local source changes cannot establish deployment savings. The next authorized
 release supplies the before/after comparison for [Entropy #1](https://github.com/dragginzgame/ic-entropy/issues/1); no benchmark release
 or additional recurring gate is required. Hosted cache hit/miss and macOS times
 remain separate, pending CI evidence.
+
+## Target selection
+
+The adapter supports native refusal/model tests, and the qualification driver
+imports the probe's shared Wire types on native hosts. With Runtime 0.23.18 and
+Timers 0.46.7, removing the following IC boundaries fails those supported builds,
+even after selecting the same dependency features on native:
+
+| Boundary | Concrete native failure |
+| --- | --- |
+| Adapter source transport and replication admission | Runtime omits `raw` and `Call::execute`. |
+| Buffered IC watchdog | Timers omits `Watchdog`, `initialize` and `bind_watchdog`; Runtime omits `system` and `executor`. |
+| Qualification canister bindings | Runtime omits `raw`, `system` and `Call::execute` from the native client library. |
+| Consumer-owned example's admission check | Runtime omits `raw`; the native example must refuse before accessing streams. |
+
+The corresponding native fallbacks preserve explicit refusal. Shared custody,
+refill transitions and cancellation cleanup compile without target selection.
+The native unit-test harness needs no extra target predicate. Qualification's
+Testkit/Tokio declarations use ordinary dev-dependencies: the shipped Wasm library
+does not compile those dependencies, and its strict Wasm check passes without a
+Cargo target predicate.
+
+Review these boundaries with the owning native adapter tests, example Clippy,
+qualification all-target Clippy and shipped Wasm library check. The retained
+guards protect missing IC APIs and supported callers; warnings on an unsupported
+host are not the reason for them.
