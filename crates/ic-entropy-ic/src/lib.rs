@@ -53,6 +53,7 @@ pub fn suspend() -> Result<(), Error> {
     source::invalidate(true);
     #[cfg(feature = "buffered")]
     buffered::suspend()?;
+
     Ok(())
 }
 
@@ -74,5 +75,6 @@ pub fn resume_fresh_requests() -> Result<(), Error> {
         return Err(Error::Busy);
     }
     source::invalidate(false);
+
     Ok(())
 }

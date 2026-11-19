@@ -3,16 +3,10 @@
 
 #[cfg(test)]
 mod tests;
-// Runtime exposes raw IC admission only on Wasm; host tests
-// require fresh requests to refuse before claiming source custody.
-#[cfg(target_arch = "wasm32")]
-mod wasm;
 
 use crate::Error;
 use ic_platform_runtime::raw_rand;
 use std::{cell::RefCell, future::Future, rc::Rc};
-#[cfg(target_arch = "wasm32")]
-pub(super) use wasm::require_replicated;
 
 #[derive(Default)]
 struct Source {
@@ -36,25 +30,11 @@ thread_local! {
     static SOURCE: Rc<RefCell<Source>> = Rc::new(RefCell::new(Source::default()));
 }
 
-#[cfg_attr(
-    all(not(target_arch = "wasm32"), not(test)),
-    expect(
-        dead_code,
-        reason = "native callers refuse; custody is exercised by native tests"
-    )
-)]
 struct Request {
     source: Rc<RefCell<Source>>,
     generation: u64,
 }
 
-#[cfg_attr(
-    all(not(target_arch = "wasm32"), not(test)),
-    expect(
-        dead_code,
-        reason = "native callers refuse; custody is exercised by native tests"
-    )
-)]
 impl Request {
     fn claim(source: Rc<RefCell<Source>>) -> Result<Self, Error> {
         let generation = {
@@ -66,13 +46,16 @@ impl Request {
                 return Err(Error::Busy);
             }
             state.pending = true;
+
             state.generation
         };
+
         Ok(Self { source, generation })
     }
 
     fn is_current(&self) -> bool {
         let state = self.source.borrow();
+
         state.generation == self.generation && !state.suspended
     }
 }
@@ -95,26 +78,11 @@ impl Drop for Request {
 /// Refuses non-replicated execution, suspension or an outstanding request. Returns
 /// a transport or framing error on failure, or [`Error::Stale`] after reconstruction.
 pub async fn fresh_seed() -> Result<[u8; 32], Error> {
-    // Runtime 0.23.20 exports this IC operation only on Wasm. Native callers
-    // refuse directly; custody tests supply controlled Platform outcomes.
-    #[cfg(target_arch = "wasm32")]
-    {
-        require_replicated()?;
-        request_with(SOURCE.with(Rc::clone), raw_rand::request(300)).await
-    }
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        Err(Error::NonReplicated)
-    }
+    require_replicated()?;
+
+    request_with(SOURCE.with(Rc::clone), raw_rand::request(300)).await
 }
 
-#[cfg_attr(
-    all(not(target_arch = "wasm32"), not(test)),
-    expect(
-        dead_code,
-        reason = "native callers refuse; custody is exercised by native tests"
-    )
-)]
 async fn request_with(
     source: Rc<RefCell<Source>>,
     operation: impl Future<Output = Result<[u8; 32], raw_rand::Error>>,
@@ -124,12 +92,24 @@ async fn request_with(
     if !request.is_current() {
         return Err(Error::Stale);
     }
+
     result.map_err(|error| match error {
         raw_rand::Error::Frame(_) => Error::MalformedReply,
         raw_rand::Error::Submission(_)
         | raw_rand::Error::Rejected(_)
         | raw_rand::Error::OutcomeUnknown(_) => Error::Transport,
     })
+}
+
+// Runtime 0.23.22 omits this IC observation on native. Public native requests
+// must refuse before claiming source custody; native tests exercise that contract.
+#[cfg(target_arch = "wasm32")]
+pub(super) fn require_replicated() -> Result<(), Error> {
+    if ic_platform_runtime::raw::in_replicated_execution() {
+        return Ok(());
+    }
+
+    Err(Error::NonReplicated)
 }
 
 #[cfg(not(target_arch = "wasm32"))]

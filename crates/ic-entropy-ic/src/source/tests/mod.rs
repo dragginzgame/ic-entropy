@@ -9,6 +9,7 @@ use std::{
 
 fn complete<T>(future: impl Future<Output = T>) -> T {
     let mut future = std::pin::pin!(future);
+
     match future
         .as_mut()
         .poll(&mut Context::from_waker(Waker::noop()))

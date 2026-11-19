@@ -50,6 +50,7 @@ impl Generator {
         let bytes = u64::try_from(output.len()).map_err(|_| Exhausted)?;
         self.reserve(bytes)?;
         self.rng.fill_bytes(output);
+
         Ok(())
     }
 
@@ -61,6 +62,7 @@ impl Generator {
         self.reserve(16)?;
         let hi = u128::from(self.rng.next_u64());
         let lo = u128::from(self.rng.next_u64());
+
         Ok((hi << 64) | lo)
     }
 
@@ -73,6 +75,7 @@ impl Generator {
 
     fn reserve(&mut self, bytes: u64) -> Result<(), Exhausted> {
         self.remaining = self.remaining.checked_sub(bytes).ok_or(Exhausted)?;
+
         Ok(())
     }
 }

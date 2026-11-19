@@ -13,13 +13,13 @@ repository = "https://github.com/dragginzgame/ic-entropy"
 [workspace.dependencies]
 # Production
 ic-entropy = { path = "crates/ic-entropy", version = "0.5.5" }
-ic-platform-protocol = { version = "0.3.6", default-features = false }
-ic-platform-runtime = { version = "0.23.20", default-features = false }
+ic-platform-runtime = { version = "0.23.22", default-features = false }
 ic-timers = { version = "0.46.3", default-features = false }
 rand_chacha = { version = "0.10.0", default-features = false }
 
 # Tests and tooling
-toko-tooling = "=0.45.18"
+ic-platform-protocol = { version = "0.3.7", default-features = false }
+toko-tooling = "=0.45.21"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"
@@ -49,3 +49,4 @@ wildcard_imports = "warn"
 missing_panics_doc = "warn"
 must_use_candidate = "warn"
 too_many_lines = "allow"
+empty_line_after_doc_comments = "allow"

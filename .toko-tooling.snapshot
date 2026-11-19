@@ -1,9 +1,9 @@
 # Toko Tooling snapshot v1
-# version	0.45.18
+# version	0.45.21
 # layout	vendor
 format	1
 source	https://crates.io/crates/toko-tooling
-revision	d24c2c13aacee2afda27e77ed8d6c13ff5ad383e08a2f80645561b2a9f935b11
+revision	af1ba8e16aaf1dae0951f08a228a4f00b928d09ff68997bd94ccc397ace5e4be
 # entrypoint	TOKO-TOOLING.md
 # entrypoint	vendor/toko-tooling/make/consumer.mk
 # entrypoint	vendor/toko-tooling/make/release.mk
@@ -23,7 +23,7 @@ revision	d24c2c13aacee2afda27e77ed8d6c13ff5ad383e08a2f80645561b2a9f935b11
 # entrypoint	vendor/toko-tooling/scripts/dev/install-rust-tools.sh
 # entrypoint	vendor/toko-tooling/.github/actions/cache-tool-downloads/action.yml
 # entrypoint	vendor/toko-tooling/.github/actions/prepare-common-tools/action.yml
-file	bb576dc6167ffb1e884a1b451229014b2dc3641b95bddbee4d207adee5cf8a70	-	TOKO-TOOLING.md
+file	5ad48a8fb19d0a83e48909947adfb2db853ea21d13898ae0e0a3963c0278cf94	-	TOKO-TOOLING.md
 file	e5be6f538ee619be119aef9b3fca9d156f35c08732d9775e4e2efd698db8cbd7	-	vendor/toko-tooling/make/consumer.mk
 file	4835699ea2ad56ede6f1f89b6b070854a86891cec62ac13af8884252476ede51	-	vendor/toko-tooling/make/release.mk
 file	f83e4bd3143a04e954f77eb23d38b1924658aa298b0c1d3486748197861d696d	-	vendor/toko-tooling/make/cargo-publication.mk

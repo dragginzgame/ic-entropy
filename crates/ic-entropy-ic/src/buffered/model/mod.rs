@@ -61,6 +61,7 @@ impl Model {
         } else {
             RefillState::Scheduled
         };
+
         Status {
             buffered_seeds: self.pool.len(),
             remaining_bytes: self
@@ -84,6 +85,7 @@ impl Model {
         self.failures = 0;
         self.last_error = None;
         self.next_ns = now;
+
         Ok(())
     }
 
@@ -101,6 +103,7 @@ impl Model {
         if !self.enabled {
             return Err(Error::Disabled);
         }
+
         self.pool.take().ok_or_else(|| self.unavailable())
     }
 
@@ -123,6 +126,7 @@ impl Model {
             let seed = self.take_seed()?;
             self.generator = Some(Generator::from_seed(seed, BYTE_BUDGET));
         }
+
         self.generator
             .as_mut()
             .expect("admitted generator")
@@ -145,6 +149,7 @@ impl Model {
             return None;
         }
         self.pending = true;
+
         Some(self.generation)
     }
 
@@ -153,6 +158,7 @@ impl Model {
             return;
         }
         self.pending = false;
+
         match result {
             Ok(seed) => {
                 // One claim and one bounded source result: nothing else inserts into the pool.

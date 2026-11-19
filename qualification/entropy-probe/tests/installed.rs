@@ -19,6 +19,7 @@ fn prepared_server() -> PreparedServer {
         PathBuf::from(std::env::var_os("ENTROPY_POCKET_IC_DIRECTORY").expect(
             "run make install-qualification-tools and select the prepared server directory",
         ));
+
     PreparedServer::check(&directory).unwrap()
 }
 
@@ -44,6 +45,7 @@ async fn update<T: DeserializeOwned>(pic: &PocketIc, pid: Principal, name: &str,
         .update_call(pid, Principal::anonymous(), name, request(id))
         .await
         .unwrap();
+
     ic_wire::decode(
         &bytes,
         ic_wire::Encoding::Frame {
@@ -60,6 +62,7 @@ async fn query<T: DeserializeOwned>(pic: &PocketIc, pid: Principal, name: &str, 
         .query_call(pid, Principal::anonymous(), name, request(id))
         .await
         .unwrap();
+
     ic_wire::decode(
         &bytes,
         ic_wire::Encoding::Frame {
@@ -90,6 +93,7 @@ async fn full_pool(pic: &PocketIc, pid: Principal) -> State {
         }
         advance(pic, 1).await;
     }
+
     panic!(
         "refill did not reach idle capacity: {:?}",
         inspect(pic, pid).await

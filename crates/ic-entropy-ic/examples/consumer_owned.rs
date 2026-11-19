@@ -48,6 +48,7 @@ fn require_update_context() -> Result<(), Error> {
     if ic_platform_runtime::raw::in_replicated_execution() {
         return Ok(());
     }
+
     Err(Error::NonReplicated)
 }
 
@@ -70,6 +71,7 @@ fn discard_streams() {
 pub fn reconstruct() -> Result<(), Error> {
     require_update_context()?;
     discard_streams();
+
     entropy::reconstruct()
 }
 
@@ -84,6 +86,7 @@ pub fn reconstruct() -> Result<(), Error> {
 pub fn suspend() -> Result<(), Error> {
     require_update_context()?;
     discard_streams();
+
     entropy::suspend()
 }
 
@@ -108,6 +111,7 @@ pub fn fill_bytes(consumer: Consumer, output: &mut [u8]) -> Result<(), Error> {
     if output.is_empty() {
         return Ok(());
     }
+
     STREAMS.with_borrow_mut(|streams| {
         let stream = &mut streams[consumer.index()];
         let needs_seed = stream
@@ -121,6 +125,7 @@ pub fn fill_bytes(consumer: Consumer, output: &mut [u8]) -> Result<(), Error> {
                 None => *stream = Some(Generator::from_seed(seed, consumer.budget())),
             }
         }
+
         stream
             .as_mut()
             .ok_or(Error::NotReady)?

@@ -12,18 +12,18 @@ publish = false
 [workspace.dependencies]
 # Production
 ic-entropy-ic = { path = "../crates/ic-entropy-ic", default-features = false }
-ic-platform-protocol = { version = "0.3.5", default-features = false }
-ic-platform-runtime = { version = "0.23.20", default-features = false }
-ic-platform-types = { version = "0.21.2", default-features = false }
+ic-platform-protocol = { version = "0.3.7", default-features = false }
+ic-platform-runtime = { version = "0.23.22", default-features = false }
+ic-platform-types = { version = "0.21.3", default-features = false }
 
 # Production and tests
-ic-wire = { version = "0.25.0", default-features = false }
+ic-wire = { version = "0.26.0", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 
 # Tests and tooling
 ic-testkit = { version = "0.110.0", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread"] }
-toko-tooling = "=0.45.18"
+toko-tooling = "=0.45.21"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"
@@ -53,6 +53,7 @@ wildcard_imports = "warn"
 missing_panics_doc = "warn"
 must_use_candidate = "warn"
 too_many_lines = "allow"
+empty_line_after_doc_comments = "allow"
 
 [profile.release]
 opt-level = "s"

@@ -1,6 +1,6 @@
 //! IC timer registration and callback driving; demand and custody stay shared.
 
-use super::{BUFFER, RefillState, refill_cancellation, status};
+use super::{BUFFER, RefillState, now_ns, refill_cancellation, status};
 use crate::{Error, source};
 use ic_timers::{Lifetime, Observation, Watchdog, WatchdogDemand, WatchdogNext, WatchdogResult};
 use std::{cell::RefCell, mem::DropGuard, num::NonZeroU64};
@@ -22,6 +22,7 @@ pub(super) fn reconcile(will_draw: bool) -> Result<(), Error> {
         RefillState::Pending => WatchdogDemand::KeepCadence,
         RefillState::Scheduled => WatchdogDemand::At(status.next_refill_ns),
     };
+
     REFILL
         .with_borrow_mut(|slot| {
             if slot.is_none() {
@@ -32,13 +33,10 @@ pub(super) fn reconcile(will_draw: bool) -> Result<(), Error> {
                     drive,
                 )?);
             }
+
             slot.as_ref().expect("bound refill watchdog").set(desired)
         })
         .map_err(|_| Error::Scheduling)
-}
-
-pub(super) fn now_ns() -> u64 {
-    ic_platform_runtime::system::time()
 }
 
 fn drive() -> ic_timers::WatchdogResult {
@@ -63,6 +61,7 @@ fn drive() -> ic_timers::WatchdogResult {
         RefillState::Pending => WatchdogNext::Continue,
         RefillState::Scheduled => WatchdogNext::At(status.next_refill_ns),
     };
+
     WatchdogResult {
         observation: Observation::NoWork,
         next: decision,

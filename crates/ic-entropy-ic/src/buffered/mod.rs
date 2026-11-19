@@ -1,19 +1,19 @@
 //! One retained Timers watchdog over volatile entropy demand.
 //! The host explicitly reconstructs/suspends; this module exports no lifecycle hooks.
 
+// Runtime 0.23.22 still hides executor::run_update from the supported native
+// adapter. Demand, cancellation and the clock API remain outside this boundary.
+#[cfg(target_arch = "wasm32")]
+mod driver;
 mod model;
 #[cfg(test)]
 mod tests;
-// Timers' Watchdog binding and Runtime's executor/time exports are Wasm-only.
-// Keep the portable model and cancellation cleanup outside this IC boundary.
-#[cfg(target_arch = "wasm32")]
-mod wasm;
 
 use crate::{Error, source};
+#[cfg(target_arch = "wasm32")]
+use driver::reconcile;
 use model::Model;
 use std::{cell::RefCell, mem::DropGuard};
-#[cfg(target_arch = "wasm32")]
-use wasm::{now_ns, reconcile};
 
 /// Maximum number of independently acquired seeds buffered in memory.
 pub const POOL_CAPACITY: usize = 256;
@@ -74,6 +74,7 @@ pub fn reconstruct() -> Result<(), Error> {
     source::require_replicated()?;
     source::invalidate(false);
     BUFFER.with_borrow_mut(|state| state.reset(true, now_ns()));
+
     reconcile(false)
 }
 
@@ -85,6 +86,7 @@ pub fn reconstruct() -> Result<(), Error> {
 pub fn take_seed() -> Result<[u8; 32], Error> {
     source::require_replicated()?;
     reconcile(true)?;
+
     BUFFER.with_borrow_mut(Model::take_seed)
 }
 
@@ -102,6 +104,7 @@ pub fn fill_bytes(output: &mut [u8]) -> Result<(), Error> {
     if !output.is_empty() {
         reconcile(true)?;
     }
+
     BUFFER.with_borrow_mut(|state| state.fill_bytes(output))
 }
 
@@ -114,6 +117,7 @@ pub fn fill_bytes(output: &mut [u8]) -> Result<(), Error> {
 pub fn retry_refill() -> Result<(), Error> {
     source::require_replicated()?;
     BUFFER.with_borrow_mut(|state| state.retry(now_ns()))?;
+
     reconcile(false)
 }
 
@@ -125,17 +129,17 @@ pub fn status() -> Status {
 
 pub fn suspend() -> Result<(), Error> {
     BUFFER.with_borrow_mut(|state| state.reset(false, 0));
+
     reconcile(false)
+}
+
+fn now_ns() -> u64 {
+    ic_platform_runtime::system::time()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
 fn reconcile(_will_draw: bool) -> Result<(), Error> {
     Err(Error::Scheduling)
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn now_ns() -> u64 {
-    panic!("entropy runtime requires replicated Wasm execution")
 }
 
 #[cfg_attr(

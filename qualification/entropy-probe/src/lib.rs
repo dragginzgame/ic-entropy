@@ -10,15 +10,8 @@ use std::{
 
 // init
 // Reconstruct fresh volatile entropy after installation.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); no reply
 #[runtime::init(
     runtime = runtime,
     guard = guard,
@@ -32,15 +25,8 @@ fn init(_input: ()) {
 
 // post_upgrade
 // Reconstruct entropy after an upgrade without restoring seeds or stream state.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); no reply
 #[runtime::post_upgrade(
     runtime = runtime,
     guard = guard,
@@ -54,15 +40,8 @@ fn post_upgrade(_input: ()) {
 
 // inspect
 // Observe readiness and budget without consuming randomness.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::query(
     runtime = runtime,
     name = "inspect",
@@ -74,6 +53,7 @@ fn post_upgrade(_input: ()) {
 )]
 fn inspect(_input: ()) -> State {
     let status = entropy::status();
+
     State {
         seeds: status.buffered_seeds as u32,
         remaining: status.remaining_bytes,
@@ -84,15 +64,8 @@ fn inspect(_input: ()) -> State {
 
 // take
 // Consume one buffered seed and return the resulting pool state.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::update(
     runtime = runtime,
     name = "take",
@@ -104,20 +77,14 @@ fn inspect(_input: ()) -> State {
 )]
 fn take(_input: ()) -> ([u8; 32], State) {
     let seed = entropy::take_seed().unwrap();
+
     (seed, inspect(()))
 }
 
 // draw
 // Draw a bounded buffer and return its remaining expansion budget.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::update(
     runtime = runtime,
     name = "draw",
@@ -130,20 +97,14 @@ fn take(_input: ()) -> ([u8; 32], State) {
 fn draw(_input: ()) -> (ic_wire::ByteBuf, u64) {
     let mut bytes = vec![0; 1024];
     entropy::fill_bytes(&mut bytes).unwrap();
+
     (bytes.into(), entropy::status().remaining_bytes)
 }
 
 // fresh
 // Request new management randomness without consuming buffered entropy.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::update(
     runtime = runtime,
     name = "fresh",
@@ -159,15 +120,8 @@ async fn fresh(_input: ()) -> [u8; 32] {
 
 // suspend
 // Discard volatile entropy and stop background acquisition.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::update(
     runtime = runtime,
     name = "suspend",
@@ -183,15 +137,8 @@ fn suspend(_input: ()) {
 
 // resume
 // Reconstruct acquisition and resume background refill.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::update(
     runtime = runtime,
     name = "resume",
@@ -207,15 +154,8 @@ fn resume(_input: ()) {
 
 // query_refusal
 // Verify that query execution refuses mutating draws without changing output.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::query(
     runtime = runtime,
     name = "query_refusal",
@@ -227,20 +167,14 @@ fn resume(_input: ()) {
 )]
 fn query_refusal(_input: ()) -> bool {
     let mut bytes = [7; 32];
+
     entropy::fill_bytes(&mut bytes) == Err(Error::NonReplicated) && bytes == [7; 32]
 }
 
 // oversized_refusal
 // Verify that oversized draws preserve output and buffered state.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::update(
     runtime = runtime,
     name = "oversized_refusal",
@@ -253,15 +187,17 @@ fn query_refusal(_input: ()) -> bool {
 fn oversized_refusal(_input: ()) -> bool {
     let before = entropy::status();
     let mut bytes = [7; 1025];
+
     entropy::fill_bytes(&mut bytes) == Err(Error::DrawTooLarge)
         && bytes == [7; 1025]
         && before == entropy::status()
 }
 
+// Runtime 0.23.22 omits HTTP request pricing from the native Wire client.
 // contend
 // Hold a real request while the driver observes exclusive source custody.
-// scope  : public
-// limits : 4096 request bytes; HTTP barrier uses Wasm-only Runtime APIs
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[cfg(target_arch = "wasm32")]
 #[runtime::update(
     runtime = runtime,
@@ -277,6 +213,7 @@ async fn contend(_input: ()) -> bool {
     let mut request = Box::pin(entropy::fresh_seed());
     poll_fn(|cx| {
         assert!(request.as_mut().poll(cx).is_pending());
+
         Poll::Ready(())
     })
     .await;
@@ -304,20 +241,14 @@ async fn contend(_input: ()) -> bool {
         completion.outcome(),
         runtime::call::Outcome::Reply(_)
     ));
+
     request.await.is_ok()
 }
 
 // source_state
 // Observe source contention and refill recovery without consuming entropy.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::query(
     runtime = runtime,
     name = "source_state",
@@ -329,6 +260,7 @@ async fn contend(_input: ()) -> bool {
 )]
 fn source_state(_input: ()) -> SourceState {
     let status = entropy::status();
+
     SourceState {
         failures: status.consecutive_failures,
         busy: status.last_error == Some(Error::Busy),
@@ -338,15 +270,8 @@ fn source_state(_input: ()) -> SourceState {
 
 // cancel
 // Drop an accepted request and verify that a replacement can acquire the source.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::update(
     runtime = runtime,
     name = "cancel",
@@ -360,24 +285,19 @@ async fn cancel(_input: ()) -> bool {
     let mut request = Box::pin(entropy::fresh_seed());
     poll_fn(|cx| {
         assert!(request.as_mut().poll(cx).is_pending());
+
         Poll::Ready(())
     })
     .await;
     drop(request);
+
     entropy::fresh_seed().await.is_ok()
 }
 
 // stale
 // Verify that an old completion cannot release a replacement request claim.
-// scope  : public
-// limits : 4096 request bytes
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
+// guard  : guard (unrestricted private probe)
+// limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
 #[runtime::update(
     runtime = runtime,
     name = "stale",
@@ -391,6 +311,7 @@ async fn stale(_input: ()) -> bool {
     let mut old = Box::pin(entropy::fresh_seed());
     poll_fn(|cx| {
         assert!(old.as_mut().poll(cx).is_pending());
+
         Poll::Ready(())
     })
     .await;
@@ -399,6 +320,7 @@ async fn stale(_input: ()) -> bool {
     let mut replacement = Box::pin(entropy::fresh_seed());
     poll_fn(|cx| {
         assert!(replacement.as_mut().poll(cx).is_pending());
+
         Poll::Ready(())
     })
     .await;
@@ -406,6 +328,7 @@ async fn stale(_input: ()) -> bool {
     // Old completion/cleanup must not release the replacement's source claim.
     assert_eq!(entropy::fresh_seed().await, Err(Error::Busy));
     assert_eq!(entropy::status().buffered_seeds, 0);
+
     replacement.await.is_ok()
 }
 
@@ -468,13 +391,6 @@ pub struct State {
     pub disabled: bool,
 }
 
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
 fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, &'static str> {
     ic_wire::decode(
         bytes,
@@ -487,13 +403,6 @@ fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, &'stati
     .map_err(|_| "fixture request")
 }
 
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
 fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, &'static str> {
     ic_wire::encode(
         &value,
@@ -506,31 +415,15 @@ fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, &'static str
     .map_err(|_| "fixture response")
 }
 
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
 fn encode_unit<const ID: u64>((): ()) -> Result<Vec<u8>, &'static str> {
     encode::<_, ID>(())
 }
 
 /// Admit every caller to the private probe; hosts own production consumer admission.
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "native clients use Wire types; IC exports call this on Wasm"
-    )
-)]
 fn guard() -> Result<(), std::convert::Infallible> {
     Ok(())
 }
 
-// Runtime 0.23.20 does not export system::trap for the native Wire client.
-#[cfg(target_arch = "wasm32")]
 fn fail<E: std::fmt::Debug>(error: E) -> ! {
     runtime::system::trap(&format!("{error:?}"))
 }

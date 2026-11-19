@@ -11,7 +11,7 @@ commitment when fresh-after-commitment randomness is required.
 
 ## Runtime compatibility
 
-The adapter requires Platform Runtime 0.23.20 or a compatible 0.23 patch;
+The adapter requires Platform Runtime 0.23.22 or a compatible 0.23 patch;
 buffered builds require Timers 0.46.3 or a compatible 0.46 patch.
 The workspace lockfiles select exact supplier versions.
 Canister hosts with direct Runtime or Timers dependencies must use the matching

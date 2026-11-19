@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.5.6] - Unreleased
+
+### 🔧 Tooling
+
+- Adopt IC Wire 0.26.0 for the qualification probe and native driver, retaining
+  their bounded framed RPC schemas.
+- Adopt Toko Tooling 0.45.21, Platform Runtime/macros/guard 0.23.22 and Protocol
+  0.3.7 across product and qualification; preserve locked Timers 0.46.10.
+- Keep fresh-request custody and the trap reporter unconditional, remove obsolete
+  native lint expectations, and align endpoint guard/budget headers and return
+  spacing with the current hygiene rules. Remaining native primitive exports
+  are tracked in [Platform #34 — Expose management observations and prepared call pricing to native type-checking](https://github.com/dragginzgame/ic-platform/issues/34).
+- Retain metadata editor 0.1.0 and Testkit server preparer 0.110.0; defer optional
+  0.1.1/0.110.2 setup-tool refreshes to the next tooling-maintenance batch.
+
 ## [0.5.5] - 2026-11-19
 
 ### 🔧 Changed

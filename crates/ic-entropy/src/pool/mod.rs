@@ -66,6 +66,7 @@ impl<const N: usize> SeedPool<N> {
         };
         self.seeds[tail] = seed;
         self.len += 1;
+
         Ok(())
     }
 
@@ -77,6 +78,7 @@ impl<const N: usize> SeedPool<N> {
         let seed = core::mem::take(&mut self.seeds[self.head]);
         self.head = if self.head == N - 1 { 0 } else { self.head + 1 };
         self.len -= 1;
+
         Some(seed)
     }
 }
