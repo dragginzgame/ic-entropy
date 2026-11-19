@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.5.5] - Unreleased
+
+### 🔧 Changed
+
+- Use published Platform Runtime 0.23.20's bounded `raw_rand` operation in both
+  workspaces, retaining the 300-second wait, source custody and lifecycle fencing.
+  Remove the native transport stand-in and redundant production Protocol/Types
+  dependencies. Fix [Entropy #3 — Adopt the Platform raw_rand primitive while preserving source custody](https://github.com/dragginzgame/ic-entropy/issues/3).
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.45.18 in both workspaces and the authenticated snapshot.
+- Refresh locked Timers to 0.46.9 in both workspaces and qualification Wire to
+  0.25.2.
+- Group qualification endpoints at the library root with explicit access and
+  bounds headers. Compile portable handlers on native hosts, narrowing Wasm
+  conditions to the HTTP contention barrier and trap reporter.
+- Retain metadata editor 0.1.0 and Testkit server preparer 0.110.0; defer their
+  optional 0.1.1/0.110.2 setup refreshes to the next tooling-maintenance batch.
+
 ## [0.5.4] - 2026-11-19
 
 ### 🔧 Tooling

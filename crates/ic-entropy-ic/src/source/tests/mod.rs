@@ -1,17 +1,11 @@
 use super::*;
+use ic_platform_runtime::call::{Completion, Outcome, SubmitError};
 use std::{
     cell::Cell,
     future::{pending, poll_fn, ready},
+    num::NonZeroU32,
     task::{Context, Poll, Waker},
 };
-
-// Fixed management-canister producer framing: one vec nat8 result.
-// Platform owns decoding; the adapter does not need a general Candid dependency.
-fn reply(seed: [u8; 32]) -> Vec<u8> {
-    let mut bytes = b"DIDL\x01\x6d\x7b\x01\x00\x20".to_vec();
-    bytes.extend_from_slice(&seed);
-    bytes
-}
 
 fn complete<T>(future: impl Future<Output = T>) -> T {
     let mut future = std::pin::pin!(future);
@@ -25,16 +19,11 @@ fn complete<T>(future: impl Future<Output = T>) -> T {
 }
 
 #[test]
-fn source_decodes_platform_protocol_without_consumer_zero_policy() {
-    assert_eq!(
-        ic_platform_protocol::raw_rand::encode(6).unwrap(),
-        b"DIDL\0\0"
-    );
+fn source_returns_platform_seeds_without_consumer_zero_policy() {
     let source = Rc::new(RefCell::new(Source::default()));
     for seed in [[37; 32], [0; 32]] {
-        let reply = reply(seed);
         assert_eq!(
-            complete(request_with(Rc::clone(&source), ready(Ok(reply)))),
+            complete(request_with(Rc::clone(&source), ready(Ok(seed)))),
             Ok(seed)
         );
         assert!(!source.borrow().pending);
@@ -42,24 +31,20 @@ fn source_decodes_platform_protocol_without_consumer_zero_policy() {
 }
 
 #[test]
-fn source_refuses_malformed_truncated_trailing_and_oversized_replies() {
+fn source_maps_platform_framing_errors_and_releases_custody() {
     let source = Rc::new(RefCell::new(Source::default()));
-    let valid = reply([37; 32]);
-    let mut invalid: Vec<_> = (0..valid.len()).map(|end| valid[..end].to_vec()).collect();
-    let mut trailing = valid;
-    trailing.push(0);
-    let mut short = reply([1; 32]);
-    short[9] = 31;
-    short.pop();
-    let mut long = reply([1; 32]);
-    long[9] = 33;
-    long.push(1);
-    let mut wrong_type = reply([1; 32]);
-    wrong_type[6] = 0x71; // text, not nat8
-    invalid.extend([trailing, short, long, vec![0; 75], wrong_type]);
-    for reply in invalid {
+    // Framing validation belongs to Platform. Entropy projects the typed error
+    // while releasing its own single-flight claim.
+    for error in [
+        ic_platform_protocol::raw_rand::Error::Length,
+        ic_platform_protocol::raw_rand::Error::Framing,
+        ic_platform_protocol::raw_rand::Error::ByteLimit,
+    ] {
         assert_eq!(
-            complete(request_with(Rc::clone(&source), ready(Ok(reply)))),
+            complete(request_with(
+                Rc::clone(&source),
+                ready(Err(raw_rand::Error::Frame(error))),
+            )),
             Err(Error::MalformedReply)
         );
         assert!(!source.borrow().pending);
@@ -67,14 +52,14 @@ fn source_refuses_malformed_truncated_trailing_and_oversized_replies() {
 }
 
 #[test]
-fn single_flight_refuses_before_polling_second_transport() {
+fn single_flight_refuses_before_polling_second_operation() {
     let source = Rc::new(RefCell::new(Source::default()));
     let claim = Request::claim(Rc::clone(&source)).unwrap();
     let polled = Cell::new(false);
     assert_eq!(
         complete(request_with(Rc::clone(&source), async {
             polled.set(true);
-            Ok(Vec::new())
+            Ok([37; 32])
         })),
         Err(Error::Busy)
     );
@@ -84,7 +69,7 @@ fn single_flight_refuses_before_polling_second_transport() {
 }
 
 #[test]
-fn cancellation_releases_claim_and_transport_failure_never_retries() {
+fn cancellation_releases_claim_and_transport_failures_never_retry() {
     let source = Rc::new(RefCell::new(Source::default()));
     let mut future = Box::pin(request_with(Rc::clone(&source), pending()));
     assert!(matches!(
@@ -96,58 +81,85 @@ fn cancellation_releases_claim_and_transport_failure_never_retries() {
     assert!(source.borrow().pending);
     drop(future);
     assert!(!source.borrow().pending);
-    let calls = Cell::new(0);
-    assert_eq!(
-        complete(request_with(Rc::clone(&source), async {
-            calls.set(calls.get() + 1);
+    let rejection = |code| match Completion::from_rejection(
+        NonZeroU32::new(code).unwrap(),
+        "refused".into(),
+        None,
+    )
+    .into_parts()
+    .0
+    {
+        Outcome::Rejected(error) => raw_rand::Error::Rejected(error),
+        Outcome::OutcomeUnknown(error) => raw_rand::Error::OutcomeUnknown(error),
+        Outcome::Reply(_) => panic!("fixture must reject"),
+    };
+    for error in [
+        raw_rand::Error::Submission(SubmitError::CallbackCapacity),
+        rejection(4),
+        rejection(6),
+    ] {
+        let calls = Cell::new(0);
+        assert_eq!(
+            complete(request_with(Rc::clone(&source), async {
+                calls.set(calls.get() + 1);
+                Err(error)
+            })),
             Err(Error::Transport)
-        })),
-        Err(Error::Transport)
-    );
-    assert_eq!(calls.get(), 1);
-    assert!(!source.borrow().pending);
+        );
+        assert_eq!(calls.get(), 1);
+        assert!(!source.borrow().pending);
+    }
 }
 
 #[test]
 fn stale_reply_and_cleanup_cannot_publish_or_release_replacement_claim() {
-    let source = Rc::new(RefCell::new(Source::default()));
-    let released = Cell::new(false);
-    let mut old = Box::pin(request_with(
-        Rc::clone(&source),
-        poll_fn(|_| {
-            if released.get() {
-                Poll::Ready(Ok(reply([37; 32])))
-            } else {
-                Poll::Pending
-            }
-        }),
-    ));
-    assert!(matches!(
-        old.as_mut().poll(&mut Context::from_waker(Waker::noop())),
-        Poll::Pending
-    ));
-    source.borrow_mut().invalidate(false);
-    let replacement = Request::claim(Rc::clone(&source)).unwrap();
-    released.set(true);
-    assert_eq!(complete(old), Err(Error::Stale));
-    assert!(source.borrow().pending);
-    drop(replacement);
-    assert!(!source.borrow().pending);
+    for result in [
+        Ok([37; 32]),
+        Err(raw_rand::Error::Frame(
+            ic_platform_protocol::raw_rand::Error::Length,
+        )),
+        Err(raw_rand::Error::Submission(SubmitError::CallbackCapacity)),
+    ] {
+        let source = Rc::new(RefCell::new(Source::default()));
+        let released = Cell::new(false);
+        let mut result = Some(result);
+        let mut old = Box::pin(request_with(
+            Rc::clone(&source),
+            poll_fn(|_| {
+                if released.get() {
+                    Poll::Ready(result.take().unwrap())
+                } else {
+                    Poll::Pending
+                }
+            }),
+        ));
+        assert!(matches!(
+            old.as_mut().poll(&mut Context::from_waker(Waker::noop())),
+            Poll::Pending
+        ));
+        source.borrow_mut().invalidate(false);
+        let replacement = Request::claim(Rc::clone(&source)).unwrap();
+        released.set(true);
+        assert_eq!(complete(old), Err(Error::Stale));
+        assert!(source.borrow().pending);
+        drop(replacement);
+        assert!(!source.borrow().pending);
+    }
 }
 
 #[test]
-fn suspended_source_refuses_without_polling_transport() {
+fn suspended_source_refuses_without_polling_operation() {
     let source = Rc::new(RefCell::new(Source::default()));
     source.borrow_mut().invalidate(true);
     assert_eq!(
         complete(request_with(Rc::clone(&source), async {
-            panic!("suspended transport")
+            panic!("suspended operation")
         })),
         Err(Error::Disabled)
     );
     source.borrow_mut().invalidate(false);
     assert_eq!(
-        complete(request_with(source, ready(Ok(reply([9; 32]))))),
+        complete(request_with(source, ready(Ok([9; 32])))),
         Ok([9; 32])
     );
 }

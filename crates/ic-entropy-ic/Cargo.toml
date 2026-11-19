@@ -21,14 +21,13 @@ buffered = ["dep:ic-entropy", "dep:ic-timers"]
 
 [dependencies]
 ic-entropy = { workspace = true, optional = true }
-ic-platform-protocol = { workspace = true, features = ["raw-rand"] }
+ic-platform-runtime = { workspace = true, features = ["raw-rand", "system-raw"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-ic-platform-runtime = { workspace = true, features = ["call-ic0", "system-raw"] }
-ic-platform-types.workspace = true
 ic-timers = { workspace = true, optional = true }
 
 [dev-dependencies]
+ic-platform-protocol = { workspace = true, features = ["raw-rand"] }
 toko-tooling.workspace = true
 
 [lints]

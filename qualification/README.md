@@ -66,8 +66,11 @@ The journey verifies:
 - Stop/drain, upgrade/start and reinstall reconstruct fresh volatile state and
   refill again.
 
-The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
-protocol. The locked Protocol and Types supply bounded randomness/HTTP codecs
+The endpoint group is at the top of `entropy-probe/src/lib.rs`, with public access
+and request bounds recorded on each handler. Portable bodies also compile for the
+native Wire client; only the HTTP contention barrier and trap reporter require
+Wasm-only Runtime APIs. The RPCs use bounded Wire codecs. IC `raw_rand` remains
+Platform's external protocol. The locked Protocol and Types supply bounded randomness/HTTP codecs
 and identities. The Runtime and Timers graph retains one executor and its
 matching guard. The locked Testkit supplies native server and instance ownership;
 neither workspace retains the legacy Platform facade. Native qualification's

@@ -128,19 +128,24 @@ remain separate, pending CI evidence.
 ## Target selection
 
 The adapter supports native refusal/model tests, and the qualification driver
-imports the probe's shared Wire types on native hosts. With Runtime 0.23.18 and
-Timers 0.46.7, removing the following IC boundaries fails those supported builds,
+imports the probe's shared Wire types on native hosts. With Runtime 0.23.20 and
+Timers 0.46.9, removing the following IC boundaries fails those supported builds,
 even after selecting the same dependency features on native:
 
 | Boundary | Concrete native failure |
 | --- | --- |
-| Adapter source transport and replication admission | Runtime omits `raw` and `Call::execute`. |
+| Adapter source operation and replication admission | Runtime omits `raw_rand::request` and `raw`. |
 | Buffered IC watchdog | Timers omits `Watchdog`, `initialize` and `bind_watchdog`; Runtime omits `system` and `executor`. |
-| Qualification canister bindings | Runtime omits `raw`, `system` and `Call::execute` from the native client library. |
+| Qualification HTTP contention barrier | Runtime omits `raw` and `Call::execute` from the native client library. |
+| Qualification trap reporter | Runtime omits `system::trap` from the native client library. |
 | Consumer-owned example's admission check | Runtime omits `raw`; the native example must refuse before accessing streams. |
 
 The corresponding native fallbacks preserve explicit refusal. Shared custody,
 refill transitions and cancellation cleanup compile without target selection.
+The qualification endpoint group lives at the top of its library root. Its
+portable handler bodies compile for the native Wire client too; Runtime's macros
+select only their generated IC exports for Wasm. Only the HTTP barrier and trap
+reporter retain target conditions, at the functions calling the missing APIs.
 The native unit-test harness needs no extra target predicate. Qualification's
 Testkit/Tokio declarations use ordinary dev-dependencies: the shipped Wasm library
 does not compile those dependencies, and its strict Wasm check passes without a

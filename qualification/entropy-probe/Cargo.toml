@@ -16,6 +16,8 @@ category = "tests"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+ic-entropy-ic = { workspace = true, features = ["buffered"] }
+ic-platform-runtime = { workspace = true, features = ["entrypoint-macros", "system-raw"] }
 ic-wire.workspace = true
 serde.workspace = true
 
@@ -25,9 +27,7 @@ tokio.workspace = true
 toko-tooling.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-ic-entropy-ic = { workspace = true, features = ["buffered"] }
 ic-platform-protocol = { workspace = true, features = ["http-request"] }
-ic-platform-runtime = { workspace = true, features = ["entrypoint-macros", "system-raw"] }
 ic-platform-types.workspace = true
 
 [lints]
