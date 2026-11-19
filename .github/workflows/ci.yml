@@ -33,14 +33,16 @@ jobs:
           persist-credentials: false
       - name: Prepare selected compiler
         run: |
-          compiler="$(sed -n 's/^channel = "\([^"]*\)"$/\1/p' rust-toolchain.toml)"
-          test -n "$compiler"
-          rustup toolchain install "$compiler" --profile minimal --component rustfmt --component clippy
-          rustup target add --toolchain "$compiler" wasm32-unknown-unknown
+          make --no-print-directory install-host-tools host-tools-check
+          export PATH="$PWD/.tools/host/bin:$PATH"
+          bash vendor/toko-tooling/scripts/dev/prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml
+          compiler="$(yq -p toml -o yaml -r '.toolchain.channel' rust-toolchain.toml)"
           rustc -vV
           cargo -vV
           test "$(rustc --version | cut -d ' ' -f 2)" = "$compiler"
           test "$(cargo --version | cut -d ' ' -f 2)" = "$compiler"
+          rustup component list --toolchain "$compiler" --installed
+          rustup target list --toolchain "$compiler" --installed
       - name: Fetch locked dependencies
         run: |
           cargo fetch --locked

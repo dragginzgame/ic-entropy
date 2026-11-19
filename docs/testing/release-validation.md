@@ -44,6 +44,14 @@ execution; the changed context inventories explain the mismatch. Interrupted or
 failed executions produce no success proof. Do not edit or copy stage evidence
 between checkouts or inject it into hosted build caches.
 
+CI first installs and admits the pinned host tools so the shared
+`prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml` entrypoint can
+parse the compiler policy. That file owns the channel, profile, components and
+Wasm target. Each host verifies the effective rustc/Cargo versions and reports
+installed components and targets before dependency fetching. Qualify this setup
+with the workflow's `Prepare selected compiler` step; Linux execution does not
+establish execution on either macOS runner.
+
 CI uses the shared `vendor/toko-tooling/.github/actions/prepare-common-tools`
 action with custom Testkit/editor
 recipes included in the cache key and ordered setup/check hooks. Restored Cargo

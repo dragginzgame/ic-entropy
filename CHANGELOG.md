@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.7] - Unreleased
+
+### 🔧 Tooling
+
+- Prepare CI's selected compiler through the shared Toko Tooling installer and
+  `rust-toolchain.toml`, including rustfmt, Clippy and the Wasm target. Retain
+  compiler/Cargo version checks and report installed components and targets on
+  every host. Fix [Entropy #4 — Use the shared Rust toolchain installer in CI](https://github.com/dragginzgame/ic-entropy/issues/4).
+- Include the reviewed lockfile refresh to Platform Runtime/guard/macros 0.23.23,
+  Types 0.21.4 and Timers 0.46.11 across product and qualification; qualification
+  also selects Wire 0.26.1, Testkit 0.110.3, Host Artifacts/Fs 0.80.6 and Host
+  Process 0.81.3.
+- Retain prepared metadata editor 0.1.0 and Testkit server preparer 0.110.0;
+  defer optional 0.1.2/0.110.3 setup-tool refreshes to the next tooling-maintenance
+  batch. Toko Tooling 0.45.21 and Protocol 0.3.7 remain current.
+
 ## [0.5.6] - 2026-11-19
 
 ### 🔧 Tooling
