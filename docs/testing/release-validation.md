@@ -86,14 +86,18 @@ Setup retains only `status.txt` and the hidden `.attempt/install.log` under
 `$RUNNER_TEMP/scanner-setup/`; the sanitized log is capped at 64 KiB, with
 oversized lines and truncation identified. URLs, known credential fields,
 sensitive environment values and private keys are redacted or omitted before
-retention. No scanner findings, executable downloads or installer archives are
+retention. Bare Bearer credentials and labelled payload lines are omitted; report
+output neutralizes hosted workflow commands without altering retained log text.
+No scanner findings, executable downloads or installer archives are
 uploaded. Installation keeps its original exit status; collector failures are
 recorded separately and also fail setup. The always-run artifact/report steps
 include the selected hidden log, print a 4 KiB excerpt, link the 14-day artifact
 and explicitly fail on missing evidence or upload failure. Setup has 3 minutes
 and upload has 1 minute within the secrets job's existing 5-minute budget.
 Run `bash scripts/ci/test-scanner-setup.sh` for offline caller failure checks;
-these do not establish hosted artifact upload/retrieval.
+Linux repository CI selects that fixture once after common tool setup, with a
+one-minute budget. It substitutes installer and artifact effects and performs no
+secret scan; these checks do not establish hosted artifact upload/retrieval.
 The streaming collector retains completed diagnostic lines before setup exits.
 Tooling's optional `SetupDiagnostics` helper returns its excerpt after completion,
 so it does not yet replace this retained evidence during a stalled setup.

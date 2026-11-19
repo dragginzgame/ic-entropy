@@ -52,6 +52,10 @@ jobs:
           cache: 'true'
           cache-save: 'true'
           cache-extra-key: ${{ hashFiles('Makefile') }}
+      - name: Check scanner setup diagnostics
+        if: runner.os == 'Linux'
+        timeout-minutes: 1
+        run: bash scripts/ci/test-scanner-setup.sh
       - name: Prepare admitted PocketIC server
         timeout-minutes: 5
         run: make install-qualification-tools

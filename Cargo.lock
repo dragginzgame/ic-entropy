@@ -45,15 +45,15 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-protocol"
-version = "0.3.5"
+version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2ae9adc784809f210d491f301a9b4549bf619dbbeac835dc7c8d49d1eb152b0"
+checksum = "34a9e427266040f66a8a1734942cb8adecfeee30ad84e186bbe155ed5eafcae6"
 
 [[package]]
 name = "ic-platform-runtime"
-version = "0.23.17"
+version = "0.23.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dfc857c146215a6f2ae50e724c70b7afffaebeb407c54c283f6860357d5da439"
+checksum = "b7381b5315043417fe9c309223c516f0c43a4c1c5dc5620726b72f1a4785746e"
 dependencies = [
  "ic-platform-runtime-guard",
  "ic-platform-types",
@@ -61,15 +61,15 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-runtime-guard"
-version = "0.23.17"
+version = "0.23.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32124ec3fa34eb2a21a2818a8578757057d9fb2eb57f6355f73d925bc46e2258"
+checksum = "d55a56b4aa7dd39d2217d73481899f3b28bb00ca78670b3095917531dd316502"
 
 [[package]]
 name = "ic-platform-types"
-version = "0.21.2"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b08201b2ebbb9a9f0e1c8ee2854f48ff3f68a777c441147273c600bf6723d7d"
+checksum = "1ebaae959b3a485c68803aa242a967568ed15411208670de5a858da84324dba0"
 dependencies = [
  "crc32fast",
  "data-encoding",
@@ -80,9 +80,9 @@ dependencies = [
 
 [[package]]
 name = "ic-timers"
-version = "0.46.6"
+version = "0.46.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1deb15b51dca613fccec3f2cb900651992a2b242751135f54c0bb63f94035810"
+checksum = "cbec831e2563118cb095cb7c6331f75cae333a62170b1c53a9408dd5f2bcc10b"
 dependencies = [
  "ic-platform-runtime",
 ]
@@ -214,9 +214,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.45.8"
+version = "0.45.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adbc76769b2231de6704851c363550ddc486bb6204a0f89c2ad365eb7cf740a3"
+checksum = "8e5ed346b3e29656bd1521a24ec326e40236bd1ba9101e807684cfd77d8dcbe9"
 
 [[package]]
 name = "unicode-ident"

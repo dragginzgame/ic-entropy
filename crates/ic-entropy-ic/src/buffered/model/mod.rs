@@ -9,7 +9,6 @@ use crate::Error;
 use ic_entropy::{Generator, SeedPool};
 
 pub(super) const MAX_FAILURES: u8 = 8;
-#[cfg(any(target_arch = "wasm32", test))]
 const SECOND: u64 = 1_000_000_000;
 
 pub(super) struct Model {
@@ -88,41 +87,6 @@ impl Model {
         Ok(())
     }
 
-    #[cfg(any(target_arch = "wasm32", test))]
-    pub(super) fn begin(&mut self, now: u64) -> Option<u64> {
-        if self.status().refill != RefillState::Scheduled || now < self.next_ns {
-            return None;
-        }
-        self.pending = true;
-        Some(self.generation)
-    }
-
-    #[cfg(any(target_arch = "wasm32", test))]
-    pub(super) fn finish(&mut self, generation: u64, result: Result<[u8; 32], Error>, now: u64) {
-        if generation != self.generation || !self.pending {
-            return;
-        }
-        self.pending = false;
-        match result {
-            Ok(seed) => {
-                // One claim and one bounded source result: nothing else inserts into the pool.
-                self.pool
-                    .insert(seed)
-                    .expect("refill claim reserves a free pool slot");
-                self.seeded = true;
-                self.failures = 0;
-                self.last_error = None;
-                self.next_ns = now.saturating_add(SECOND);
-            }
-            Err(error) => {
-                self.failures += 1;
-                self.last_error = Some(error);
-                let seconds = (1_u64 << (self.failures - 1)).min(60);
-                self.next_ns = now.saturating_add(seconds * SECOND);
-            }
-        }
-    }
-
     const fn unavailable(&self) -> Error {
         if self.failures == MAX_FAILURES {
             Error::RetryLimit
@@ -164,5 +128,48 @@ impl Model {
             .expect("admitted generator")
             .fill_bytes(output)
             .map_err(|_| Error::Exhausted)
+    }
+}
+
+// Only the IC watchdog and native tests drive refill attempts.
+#[cfg_attr(
+    all(not(target_arch = "wasm32"), not(test)),
+    expect(
+        dead_code,
+        reason = "native libraries type-check the watchdog transitions"
+    )
+)]
+impl Model {
+    pub(super) fn begin(&mut self, now: u64) -> Option<u64> {
+        if self.status().refill != RefillState::Scheduled || now < self.next_ns {
+            return None;
+        }
+        self.pending = true;
+        Some(self.generation)
+    }
+
+    pub(super) fn finish(&mut self, generation: u64, result: Result<[u8; 32], Error>, now: u64) {
+        if generation != self.generation || !self.pending {
+            return;
+        }
+        self.pending = false;
+        match result {
+            Ok(seed) => {
+                // One claim and one bounded source result: nothing else inserts into the pool.
+                self.pool
+                    .insert(seed)
+                    .expect("refill claim reserves a free pool slot");
+                self.seeded = true;
+                self.failures = 0;
+                self.last_error = None;
+                self.next_ns = now.saturating_add(SECOND);
+            }
+            Err(error) => {
+                self.failures += 1;
+                self.last_error = Some(error);
+                let seconds = (1_u64 << (self.failures - 1)).min(60);
+                self.next_ns = now.saturating_add(seconds * SECOND);
+            }
+        }
     }
 }

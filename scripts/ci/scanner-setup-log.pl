@@ -34,6 +34,7 @@ if ($mode eq 'report') {
     print "[scanner setup] $_\n" for split /\n/, $status;
     my $log = read_regular("$path/.attempt/install.log", $limit);
     my $excerpt = length($log) > 4096 ? substr($log, -4096) : $log;
+    $excerpt =~ s/::/: :/g; # Render installer text without hosted workflow commands.
     print "[scanner setup] $_\n" for split /\n/, $excerpt;
     print "Excerpt limited to the last 4 KiB; see the retained setup log.\n" if length($log) > 4096;
     $collector eq '0' && $step ne 'running'
@@ -46,7 +47,7 @@ sysopen my $out, $path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW, 0600
 $out->autoflush(1);
 my @secrets = sort { length($b) <=> length($a) }
     map { $ENV{$_} } grep {
-        /TOKEN|SECRET|PASSWORD|PASSWD|PRIVATE_KEY|CREDENTIAL|ACCESS_KEY|AUTHORIZATION/i
+        /TOKEN|SECRET|PASSWORD|PASSWD|PRIVATE_KEY|CREDENTIAL|API_KEY|ACCESS_KEY|AUTHORIZATION/i
             && length($ENV{$_}) >= 4
     } keys %ENV;
 my ($pending, $discarding, $private_key, $written, $truncated, $received) = ('', 0, 0, 0, 0, 0);
@@ -67,11 +68,17 @@ sub sanitize {
         $private_key = 0 if $line =~ /-----END [A-Z0-9 ]*PRIVATE KEY-----/;
         return;
     }
+    # Credentials need not have an Authorization label; payloads can contain
+    # structured or whitespace-separated secrets that value substitution misses.
+    if ($line =~ /\bBearer\s+\S+/i || $line =~ /payload\s*["']?\s*[:=]/i) {
+        retain("<sensitive diagnostic line omitted>\n");
+        return;
+    }
     $line =~ s/\Q$_\E/<redacted>/g for @secrets;
     $line =~ s{https?://[^\s<>"']+}{<url-redacted>}gi;
     $line =~ s{\b(?:gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)\b}{<redacted>}g;
     $line =~ s{(\b(?:Proxy-)?Authorization\s*[:=]\s*)[^\r\n]*}{$1<redacted>}gi;
-    $line =~ s{("?[\w-]*(?:token|password|passwd|secret|credential|private[_-]?key|access[_-]?key)[\w-]*"?\s*[:=]\s*)(?:"[^"\n]*"|'[^'\n]*'|[^\s,;]+)}{$1<redacted>}gi;
+    $line =~ s{("?[\w-]*(?:token|password|passwd|secret|credential|private[_-]?key|(?:api|access)[_-]?key)[\w-]*"?\s*[:=]\s*)(?:"[^"\n]*"|'[^'\n]*'|[^\s,;]+)}{$1<redacted>}gi;
     $line =~ s{([^\x09\x0a\x20-\x7e])}{sprintf('\\x%02x', ord $1)}ge;
     retain(length($line) <= 4096 ? $line : "<oversized diagnostic line omitted>\n");
 }

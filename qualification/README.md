@@ -67,12 +67,12 @@ The journey verifies:
   refill again.
 
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external
-protocol. The canister selects Protocol 0.3.5 for bounded randomness/HTTP codecs
-and Types 0.21.2 identities. The locked Runtime and Timers graph retains one
-executor and its matching guard. Testkit 0.110.0 supplies native server and
-instance ownership; neither workspace retains the legacy Platform facade.
-Native qualification and the setup helper use Host Artifacts/Fs 0.80.3 and
-Host Process 0.81.0; these remain outside the product dependency graph.
+protocol. The locked Protocol and Types supply bounded randomness/HTTP codecs
+and identities. The Runtime and Timers graph retains one executor and its
+matching guard. The locked Testkit supplies native server and instance ownership;
+neither workspace retains the legacy Platform facade. Native qualification's
+Host suppliers are bound by `Cargo.lock`; the setup helper's own supplier graph
+is bound by its build receipt. These remain outside the product dependency graph.
 Native model tests retain failure-budget, cancellation and stale-reply cases.
 The installed contention fixture holds a simulator-controlled HTTP reply only
 to keep the fresh request's IC invocation alive while its source claim is held.

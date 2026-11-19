@@ -9,9 +9,7 @@ mod wasm;
 
 use crate::{Error, source};
 use model::Model;
-use std::cell::RefCell;
-#[cfg(any(target_arch = "wasm32", test))]
-use std::mem::DropGuard;
+use std::{cell::RefCell, mem::DropGuard};
 #[cfg(target_arch = "wasm32")]
 use wasm::{now_ns, reconcile};
 
@@ -138,7 +136,13 @@ fn now_ns() -> u64 {
     panic!("entropy runtime requires replicated Wasm execution")
 }
 
-#[cfg(any(target_arch = "wasm32", test))]
+#[cfg_attr(
+    all(not(target_arch = "wasm32"), not(test)),
+    expect(
+        dead_code,
+        reason = "the IC watchdog and native cancellation tests own this guard"
+    )
+)]
 fn refill_cancellation(generation: u64, started_ns: u64) -> DropGuard<(), impl FnOnce(())> {
     DropGuard::new((), move |()| {
         BUFFER.with_borrow_mut(|state| {

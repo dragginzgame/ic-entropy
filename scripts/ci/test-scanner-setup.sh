@@ -18,6 +18,12 @@ case "$SCENARIO" in
         printf '%s\n' 'curl: (22) The requested URL returned error: 503' >&2
         printf '%s\n' 'https://user:password@example.invalid/path?token=url-secret' >&2
         printf '%s\n' 'Authorization: Bearer header-secret' 'TOKEN=assignment-secret' >&2
+        printf '%s\n' 'Bearer bare-bearer-value' 'request failed (bEaReR embedded-bearer-value)' >&2
+        printf '%s\n' '{"payload":"json-payload-value"}' "payload='plain-payload-value'" >&2
+        printf '%s\n' '{"request_payload":"prefixed-payload-value"}' >&2
+        printf '%s\n' "'PaYlOaD': ['nested-payload-value']" >&2
+        printf '%s\n' "$FIXTURE_API_KEY" "embedded=$FIXTURE_ACCESS_KEY!" 'api_key=labelled-api-value' >&2
+        printf '%s\n' '::notice title=setup::diagnostic message' >&2
         printf '%s\n' 'github_pat_tokenSecret123' "$FIXTURE_SECRET" >&2
         printf '%s\n' '-----BEGIN PRIVATE KEY-----' 'private-material' '-----END PRIVATE KEY-----' >&2
         mkdir -p "$3/.gitleaks-install.supplier"
@@ -48,7 +54,8 @@ run() {
         extra_path="$fixture/bin:"
     else extra_path=''; fi
     (cd "$fixture/repo" && RUNNER_TEMP="$fixture/$scenario" SCENARIO="$scenario" \
-        FIXTURE_SECRET=environment-secret PATH="$extra_path$PATH" bash scripts/ci/setup-scanner.sh) \
+        FIXTURE_SECRET=environment-secret FIXTURE_API_KEY=api-environment-value \
+        FIXTURE_ACCESS_KEY=access-environment-value PATH="$extra_path$PATH" bash scripts/ci/setup-scanner.sh) \
         > "$fixture/$scenario.stdout" 2> "$fixture/$scenario.stderr" || status=$?
     [[ "$status" == "$expected" ]]
     [[ -f "$fixture/$scenario/scanner-setup/status.txt" ]]
@@ -87,7 +94,11 @@ rg -q 'curl: \(22\).*503' "$fixture/report"
 rg -q '^installer_status=22$' "$evidence/status.txt"
 rg -q '<url-redacted>' "$evidence/.attempt/install.log"
 rg -q '<private key omitted>' "$evidence/.attempt/install.log"
-if rg -i 'url-secret|password@example|header-secret|assignment-secret|tokenSecret123|environment-secret|private-material' "$evidence"; then exit 1; fi
+rg -q '<sensitive diagnostic line omitted>' "$evidence/.attempt/install.log"
+if rg -i 'url-secret|password@example|header-secret|assignment-secret|tokenSecret123|environment-secret|private-material|bearer-value|payload-value|api-environment-value|access-environment-value|labelled-api-value' "$evidence" "$fixture/report"; then exit 1; fi
+rg -q '::notice title=setup::diagnostic message' "$evidence/.attempt/install.log"
+rg -q ': :notice title=setup: :diagnostic message' "$fixture/report"
+if rg -q '::notice|::diagnostic' "$fixture/report"; then exit 1; fi
 [[ "$(find "$evidence" -type f | wc -l)" -eq 2 ]]
 [[ -f "$fixture/early/entropy-tools/.gitleaks-install.supplier/archive.tar.gz" ]]
 rg -q 'No installer output' "$fixture/no-output/scanner-setup/.attempt/install.log"

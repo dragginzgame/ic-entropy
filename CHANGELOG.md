@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.5.3] - Unreleased
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.45.13 in both workspaces and the authenticated snapshot.
+- Refresh qualification's locked Testkit to 0.110.1 and Host Artifacts/Fs to
+  0.80.4 and Host Process to 0.81.1.
+- Retain the prepared metadata editor 0.1.0 and Testkit server preparer 0.110.0.
+  Defer their optional 0.1.1/0.110.1 refreshes and Tooling 0.45.15 to the next
+  tooling-maintenance batch; their reviewed changes do not block this release.
+
+### 🩹 Fixed
+
+- Omit bare Bearer credentials and labelled payloads from retained scanner setup
+  diagnostics, redact API-key environment values, and neutralize workflow commands
+  in report output. Exercise these refusals in Linux CI while retaining live logs.
+
+### 🔧 Changed
+
+- Keep portable refill transitions and cancellation cleanup compiled on native
+  targets, with scoped expectations for their IC-only production callers.
+- Refresh locked Protocol 0.3.6, Runtime 0.23.18, Types 0.21.3 and Timers 0.46.7
+  across product and qualification, retaining one executor and matching guard.
+
 ## [0.5.2] - 2026-11-18
 
 ### 🔧 Tooling
