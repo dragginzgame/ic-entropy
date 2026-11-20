@@ -90,7 +90,7 @@ fn refill_transitions_log_after_releasing_model_custody() {
     }
     fn sink(level: ic_logging::Level, source: &'static str, message: &str) {
         let status = status();
-        assert_eq!(source, "ic-entropy-ic");
+        assert_eq!(source, "ic-entropy");
         match EVENTS.get() {
             0 => {
                 assert_eq!(status.refill, RefillState::Paused);

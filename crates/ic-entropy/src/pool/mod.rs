@@ -86,7 +86,7 @@ impl<const N: usize> SeedPool<N> {
             return None;
         }
 
-        let seed = core::mem::take(&mut self.seeds[self.head]);
+        let seed = std::mem::take(&mut self.seeds[self.head]);
         self.head = if self.head == N - 1 { 0 } else { self.head + 1 };
         self.len -= 1;
 

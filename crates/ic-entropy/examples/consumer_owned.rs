@@ -1,13 +1,12 @@
 //! Host component illustrating independent, volatile consumer streams.
 //!
-//! Compile with `cargo check -p ic-entropy-ic --example consumer_owned --features buffered`.
+//! Compile with `cargo check -p ic-entropy --example consumer_owned --features buffered`.
 //! This is a library example: integrate its functions into the host's existing
 //! lifecycle and update handlers. It exports no canister endpoints and starts
 //! no timers merely by being linked. Budgets are illustrative operational limits,
 //! not security ratings. These streams cannot serve fresh-after-commitment needs.
 
-use ic_entropy::Generator;
-use ic_entropy_ic::{self as entropy, Error};
+use ic_entropy::{self as entropy, Error, Generator};
 use std::cell::RefCell;
 
 ///

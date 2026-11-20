@@ -15,54 +15,54 @@ include vendor/toko-tooling/make/cargo-dependencies.mk
 
 test:
 	cargo test --locked -p ic-entropy
+	cargo test --locked -p ic-entropy --features buffered
+	cargo test --locked -p ic-entropy --features metrics
+	cargo test --locked -p ic-entropy --features buffered,metrics
+	cargo test --locked -p ic-entropy --features logging
+	cargo test --locked -p ic-entropy --features buffered,logging
+	cargo test --locked -p ic-entropy --features logging,metrics
+	cargo test --locked -p ic-entropy --features buffered,logging,metrics
 	cargo test --locked -p ic-entropy-ic
-	cargo test --locked -p ic-entropy-ic --features buffered
-	cargo test --locked -p ic-entropy-ic --features metrics
-	cargo test --locked -p ic-entropy-ic --features buffered,metrics
-	cargo test --locked -p ic-entropy-ic --features logging
-	cargo test --locked -p ic-entropy-ic --features buffered,logging
-	cargo test --locked -p ic-entropy-ic --features logging,metrics
-	cargo test --locked -p ic-entropy-ic --features buffered,logging,metrics
 lint:
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets --features buffered
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets --features metrics
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets --features buffered,metrics
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets --features logging
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets --features buffered,logging
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets --features logging,metrics
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets --features buffered,logging,metrics
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features metrics
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered,metrics
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features logging
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered,logging
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features logging,metrics
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered,logging,metrics
 check-wasm:
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --features buffered --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --features buffered --example consumer_owned --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --features metrics --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --features buffered,metrics --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --features buffered,metrics --example consumer_owned --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --features logging --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --features buffered,logging --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --features logging,metrics --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --features buffered,logging,metrics --target wasm32-unknown-unknown
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --target wasm32-unknown-unknown
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered --example consumer_owned --target wasm32-unknown-unknown
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features metrics --target wasm32-unknown-unknown
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered,metrics --target wasm32-unknown-unknown
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered,metrics --example consumer_owned --target wasm32-unknown-unknown
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features logging --target wasm32-unknown-unknown
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered,logging --target wasm32-unknown-unknown
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features logging,metrics --target wasm32-unknown-unknown
-	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered,logging,metrics --target wasm32-unknown-unknown
 .PHONY: doc-check
 doc-check:
 	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy -p ic-entropy-ic --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features buffered --no-deps
 	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy -p ic-entropy-ic --target wasm32-unknown-unknown --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features metrics --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,metrics --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features metrics --target wasm32-unknown-unknown --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,metrics --target wasm32-unknown-unknown --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features logging --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,logging --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features logging,metrics --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,logging,metrics --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features logging --target wasm32-unknown-unknown --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,logging --target wasm32-unknown-unknown --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features logging,metrics --target wasm32-unknown-unknown --no-deps
-	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,logging,metrics --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features buffered --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features metrics --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features buffered,metrics --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features metrics --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features buffered,metrics --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features logging --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features buffered,logging --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features logging,metrics --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features buffered,logging,metrics --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features logging --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features buffered,logging --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features logging,metrics --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy --features buffered,logging,metrics --target wasm32-unknown-unknown --no-deps
 .PHONY: check-rules
 check-rules:
 	bash vendor/toko-tooling/scripts/ci/check-dependency-pins.sh --cargo-inheritance

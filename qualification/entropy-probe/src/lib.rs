@@ -1,6 +1,6 @@
 //! Private Wire protocol and standalone canister for installed entropy qualification.
 
-use ic_entropy_ic::{self as entropy, Error, RefillState};
+use ic_entropy::{self as entropy, Error, RefillState};
 use ic_platform_runtime as runtime;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::{

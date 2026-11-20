@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.6.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Consolidate IC acquisition, allocation-free `Generator` and `SeedPool`, optional
+  buffering, metrics and logging into `ic-entropy` with Rust path `ic_entropy`.
+  Platform Runtime and upstream ChaCha20 are normal dependencies; the package
+  no longer promises `no_std` support.
+- Publish `ic-entropy-ic` as an empty retirement notice linking to `ic-entropy`,
+  with no APIs, features, forwarding dependency or compatibility exports. Remove
+  the unpublished core package instead of publishing another crate name.
+- Rename the fixed log source and refill watchdog prefix to `ic-entropy`; update
+  host filters and imports using the README migration instructions.
+
+### 🔧 Tooling
+
+- Keep one active runtime qualification target and check the empty retirement
+  package directly. Prepare the root and qualification locks together without
+  adding the retirement notice to the canister dependency graph.
+- Update package checks and release fixtures for the consolidated API and the
+  empty retirement artifact.
+
 ## [0.5.10] - 2026-11-20
 
 ### ➕ Added

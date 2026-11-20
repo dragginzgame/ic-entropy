@@ -1,83 +1,84 @@
 # IC Entropy
 
-Entropy primitives and an optional IC acquisition service, upstream of Canic,
-IcyDB, Auth and other consumers.
+One IC entropy crate for fresh management randomness, bounded local generation
+and optional background buffering, upstream of Canic, IcyDB and Auth.
 
-| Package | Responsibility |
-| --- | --- |
-| `ic-entropy` | Allocation-free `no_std` seed pool and bounded upstream ChaCha20 expansion. No Platform, Timers or consumer-framework dependencies. |
-| `ic-entropy-ic` | Fresh Platform `raw_rand` requests, plus opt-in background buffering through IC Timers. Hosts compose lifecycle hooks and retain consumer admission policy. |
+Use [`ic-entropy`](https://crates.io/crates/ic-entropy). Platform Runtime and
+upstream ChaCha20 are normal dependencies. Enable `buffered` for Timers-driven
+refill, `metrics` for host-shareable counters, and `logging` for a host log sink.
+The crate exports no canister endpoints or lifecycle entrypoints; hosts compose
+it into their existing lifecycle and retain consumer admission policy.
 
-`SeedPool<N>` buffers externally acquired 32-byte seeds in FIFO order, consuming
-each entry once and refusing insertion when full. `Generator` expands one seed
-with an explicit byte budget and atomic refusal on exhaustion. It preserves
-IcyDB's high-word/low-word u128 construction; `fill_bytes` supplies smaller values.
+## Acquisition and generation
 
-## Background acquisition
+`fresh_seed().await` makes one bounded-wait management `raw_rand` request with
+no attached cycles, no cached result and no automatic retry. Call it after the
+relevant decision commitment when fresh-after-commitment randomness is required.
 
-Enable `ic-entropy-ic`'s `buffered` feature and call
-`ic_entropy_ic::reconstruct()` from the host's existing synchronous init and
-post-upgrade participants after runtime restoration. One retained IC Timers
-watchdog fills a 256-seed pool through Platform `raw_rand`. It idles when full
-and resumes after consumption. Successful refills are spaced at least one second
-apart, with bounded backoff and an explicit retry after eight consecutive failures.
+With `buffered`, call `ic_entropy::reconstruct()` after restoring the complete
+host/shared timer provider during init or post-upgrade. One retained watchdog
+fills a 256-seed pool. Failures use bounded backoff and pause after eight
+consecutive failures; `retry_refill()` explicitly reopens the budget.
 
-Each consumer calls `take_seed()` and owns an `ic_entropy::Generator` with its own
-explicit output-byte budget. The pool capacity is fixed; expansion policy is
-consumer-selected. Handle `NotReady` and `Exhausted`; reconstruction schedules background
-work rather than synchronously obtaining entropy. For fresh-after-commitment
-randomness, use `fresh_seed().await` after the decision commitment instead.
+Each consumer can take a seed and retain an `ic_entropy::Generator` with its own
+explicit output-byte budget. `SeedPool<N>` and `Generator` are allocation-free
+modules within this crate. The shared `fill_bytes()` convenience API uses a
+64 KiB per-seed budget and admits at most 1 KiB per call. Buffered seeds and
+expanded bytes do not carry fresh-after-commitment guarantees.
 
-See the [IC adapter setup and lifecycle contract](crates/ic-entropy-ic/README.md).
-Its optional `metrics` feature records acquisition and buffering diagnostics into
-host-shareable `Rc<MetricsStorage>`, ready for projection by Canic's reporting
-adapter. Optional `logging` forwards fixed lifecycle and failure events to a
-host-selected IC Logging sink, compatible with Canic's shared logger. Neither
-adds a Canic dependency or reporting endpoint.
-Downstream adoption is separate from this package's release.
-Canic's existing local adapter must be replaced during migration;
-consumers must not run both services or retain a second refill implementation.
+See the [package setup, APIs and lifecycle contract](crates/ic-entropy/README.md)
+and its [consumer-owned generator example](crates/ic-entropy/examples/consumer_owned.rs).
+Metrics share host-owned `Rc<MetricsStorage>`; logging accepts a sink compatible
+with Canic's shared logger. Neither integration adds a Canic dependency or
+reporting endpoint.
 
 ## Entropy and lifecycle
 
-Hosts acquire seeds for the standalone core, choose budgets and compose lifecycle.
-Neither buffering nor deterministic expansion increases the entropy of a seed.
-Use full cryptographically secure seeds; never substitute clocks/counters, log
-seeds, or restore an old stream for new security-sensitive draws. Separate
-consumers need independent seeds. Reset and acquire fresh entropy after upgrades
-or restores. An output-byte budget describes usage, not entropy bits.
+Expansion does not increase seed entropy. Use independent cryptographically
+secure seeds, never clocks, counters or replayed output. Output-byte budgets
+limit usage; they do not measure remaining entropy bits.
 
-The IC adapter's snapshot contract requires suspension before capture and complete
-host/shared-provider reconstruction after restore. A restored heap alone is not
-safe to resume. Canister state is not assumed confidential from subnet operators,
-and no TEE protection is claimed.
+All entropy state is volatile. Suspend before supported snapshot/shutdown and
+discard every consumer-owned generator. Reconstruct the complete host/provider
+before resuming. Restoring a captured heap alone is not supported. Stop/drain
+before upgrading, then reconstruct fresh state. Canister state is not assumed
+confidential from subnet operators; no TEE protection is claimed.
+
+## Migration to 0.6
+
+All functionality now belongs to **`ic-entropy`**, with Rust import path
+`ic_entropy`. The package requires IC Runtime and `std`; it no longer offers a
+separate `no_std` product. Generator and pool operations remain allocation-free.
+
+Replace `ic-entropy-ic` dependencies and `ic_entropy_ic` imports with `ic-entropy`
+and `ic_entropy`. Existing generator/pool callers keep their `ic_entropy` paths.
+Enable `buffered`, `metrics` and `logging` on `ic-entropy` as needed.
+
+The latest [`ic-entropy-ic`](https://crates.io/crates/ic-entropy-ic) release is an
+empty retirement notice linking here. It has no APIs, features or forwarding
+dependency. The unpublished `ic-entropy-core` package was removed and will not be
+published. The active crate's log source and refill watchdog prefix are
+`ic-entropy`; update host filters alongside imports.
 
 ## Development
 
 Rust 1.100.0 with rustfmt and Clippy; Wasm uses `wasm32-unknown-unknown`.
-`make test`, `make lint`, `make check-wasm`, and `make doc-check` aggregate the core and adapter,
-including the adapter's fresh-only and buffered selections. For focused work,
-select `-p ic-entropy` or `-p ic-entropy-ic` and the appropriate feature set.
-Native and Wasm Clippy use `CARGO_BUILD_WARNINGS=deny`; Rustdoc retains explicit
-strict warnings. `make deps-list` inventories local product and qualification
-packages without display-only dependency aliases.
-Installed shared tooling lives under `vendor/toko-tooling/`; repository-owned
-setup, CI and release scripts stay under `scripts/`. Refresh the managed snapshot
-with `make toko-tooling-update`.
-Use `toko-cloc` for source counts, or `toko-cloc --manifest qualification/Cargo.toml`
-for the qualification workspace. Install the launcher once with
-`install -m 755 vendor/toko-tooling/scripts/dev/toko-cloc "$HOME/.local/bin/toko-cloc"`,
-with `$HOME/.local/bin` on PATH.
-Linux checks do not establish native macOS or installed IC execution.
+`make test`, `make lint`, `make check-wasm` and `make doc-check` aggregate all
+eight active-crate feature combinations and directly check the retirement notice.
+For focused work, select `-p ic-entropy` and the appropriate features. Native and
+Wasm Clippy use `CARGO_BUILD_WARNINGS=deny`; Rustdoc retains strict warnings.
 
 The independent [qualification workspace](qualification/README.md) exercises real
 management calls and timers on PocketIC without a framework dependency. Prepare
 it with `make install-qualification-tools`, then run `make qualification-check`
-and `make test-installed`. CI runs this journey on its native host matrix.
+and `make test-installed`. CI covers the declared native host matrix; local Linux
+checks do not establish macOS execution.
+
+`make check-rules` checks dependencies and source boundaries. Shared tooling lives
+under `vendor/toko-tooling/`; repository-owned adapters stay under `scripts/`.
+Refresh the authenticated snapshot with `make toko-tooling-update`. Use
+`make deps-list` for local package/version inventory and `toko-cloc` for source
+counts, including `toko-cloc --manifest qualification/Cargo.toml` for qualification.
 
 The selected repository license is the [Toko Studios Network Licence](LICENSE.md).
 Contributions follow the canonical [contribution policy](CONTRIBUTING.md).
-
-Published packages are available on crates.io as
-[`ic-entropy`](https://crates.io/crates/ic-entropy) and
-[`ic-entropy-ic`](https://crates.io/crates/ic-entropy-ic).

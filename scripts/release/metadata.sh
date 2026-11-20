@@ -27,11 +27,13 @@ case "${1:-}" in
         evidence="${candidate%/*}"
         cargo metadata --locked --format-version 1 > "$evidence/product.json"
         cargo metadata --locked --manifest-path qualification/Cargo.toml --format-version 1 > "$evidence/qualification.json"
-        # Every product is qualified from the same local manifest/version, not a registry copy.
+        # The installed probe qualifies the active crate from the same local source.
+        # The empty retirement package is checked directly, not linked into the probe.
         jq -e --slurpfile product "$evidence/product.json" '
             . as $q | $product[0] as $p |
-            [$p.packages[] | select(.id as $id | $p.workspace_members | index($id))] |
-            all(.[]; . as $member | any($q.packages[];
+            [$p.packages[] | select(.name == "ic-entropy") |
+                select(.id as $id | $p.workspace_members | index($id))] |
+            length == 1 and all(.[]; . as $member | any($q.packages[];
                 .source == null and .manifest_path == $member.manifest_path and .version == $member.version))
         ' "$evidence/qualification.json" > /dev/null
         yq -p toml -o json '.' "$original/Cargo.toml" > "$evidence/manifest.json"
@@ -48,7 +50,7 @@ case "${1:-}" in
         "$editor" --max-input-bytes "$limit" lock "$original/Cargo.lock" \
             "$RELEASE_PREVIOUS" "$RELEASE_VERSION" "${packages[@]}" > "$candidate/Cargo.lock"
         "$editor" --max-input-bytes "$limit" lock "$original/qualification/Cargo.lock" \
-            "$RELEASE_PREVIOUS" "$RELEASE_VERSION" "${packages[@]}" > "$candidate/qualification/Cargo.lock"
+            "$RELEASE_PREVIOUS" "$RELEASE_VERSION" ic-entropy > "$candidate/qualification/Cargo.lock"
         awk -v version="$RELEASE_VERSION" -v previous="$RELEASE_PREVIOUS" -v date="${RELEASE_DATE:?}" \
             -f vendor/toko-tooling/scripts/ci/finalize-release-changelog.awk "$original/CHANGELOG.md" > "$candidate/CHANGELOG.md"
         ;;

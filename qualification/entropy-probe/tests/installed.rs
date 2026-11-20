@@ -159,7 +159,7 @@ async fn background_refill_and_lifecycle() {
     ));
     assert!(has_log(
         &initial_logs,
-        "ic-entropy-ic",
+        "ic-entropy",
         "Entropy buffer reconstructed"
     ));
     assert_eq!(full.remaining, 0);
@@ -209,7 +209,7 @@ async fn background_refill_and_lifecycle() {
     assert!(inspect(pic, pid).await.disabled);
     assert!(has_log(
         &logs(pic, pid).await,
-        "ic-entropy-ic",
+        "ic-entropy",
         "Stale entropy reply discarded"
     ));
     let stale = metrics(pic, pid).await;
@@ -272,7 +272,7 @@ async fn background_refill_and_lifecycle() {
 
     assert!(has_log(
         &logs(pic, pid).await,
-        "ic-entropy-ic",
+        "ic-entropy",
         "Entropy refill recovered"
     ));
     let before_suspend = metrics(pic, pid).await;
@@ -294,14 +294,10 @@ async fn background_refill_and_lifecycle() {
         before_suspend.fresh_attempts
     );
     let retained_logs = logs(pic, pid).await;
+    assert!(has_log(&retained_logs, "ic-entropy", "Entropy suspended"));
     assert!(has_log(
         &retained_logs,
-        "ic-entropy-ic",
-        "Entropy suspended"
-    ));
-    assert!(has_log(
-        &retained_logs,
-        "ic-entropy-ic",
+        "ic-entropy",
         "Entropy refill recovered"
     ));
     assert_eq!(

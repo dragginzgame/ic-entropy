@@ -28,7 +28,7 @@ pub(super) fn reconcile(will_draw: bool) -> Result<(), Error> {
         .with_borrow_mut(|slot| {
             if slot.is_none() {
                 *slot = Some(ic_timers::bind_watchdog(
-                    ["ic-entropy-ic", "buffer", "refill"],
+                    ["ic-entropy", "buffer", "refill"],
                     NonZeroU64::new(1_000_000_000).expect("positive refill cadence"),
                     Lifetime::Retained,
                     drive,

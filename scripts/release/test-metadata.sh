@@ -28,8 +28,7 @@ for path in Cargo.lock qualification/Cargo.lock; do
 done
 yq -p toml -o json '.' "$scratch/original/Cargo.toml" |
     jq --arg version "$RELEASE_VERSION" '
-        .workspace.package.version = $version |
-        .workspace.dependencies["ic-entropy"].version = $version
+        .workspace.package.version = $version
     ' > "$scratch/expected.json"
 yq -p toml -o json '.' "$scratch/candidate/Cargo.toml" > "$scratch/actual.json"
 jq -e --slurpfile expected "$scratch/expected.json" '. == $expected[0]' "$scratch/actual.json" > /dev/null

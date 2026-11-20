@@ -3,7 +3,9 @@
 This independent workspace contains one unpublished `entropy-probe` package:
 its Wasm library is a standalone canister and its native integration test drives
 PocketIC through IC Testkit. Neither side depends on Canic, Auth or IcyDB.
-The product workspace excludes this tree. Its catalog, lockfile and private
+The product workspace excludes this tree. The probe consumes only `ic-entropy`;
+the empty `ic-entropy-ic` retirement notice is checked directly and is not linked
+into the canister. Its catalog, lockfile and private
 version are independent; only the local product entries in its lock advance
 when the product release adapter renders both locks in one shared transaction.
 

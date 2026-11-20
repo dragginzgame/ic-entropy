@@ -45,7 +45,7 @@ fn forwarding_uses_host_storage_and_can_be_disabled() {
         assert_eq!(rows.len(), 2);
         assert_eq!(rows[0].message, "Entropy suspended");
         assert_eq!(rows[1].message, "Fresh requests resumed");
-        assert!(rows.iter().all(|row| row.source == "ic-entropy-ic"
+        assert!(rows.iter().all(|row| row.source == "ic-entropy"
             && row.level == Level::Info
             && row.topic.is_none()
             && !row.truncated));

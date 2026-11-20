@@ -5,37 +5,15 @@ edition.workspace = true
 rust-version.workspace = true
 license-file.workspace = true
 repository.workspace = true
-description = "IC entropy acquisition with opt-in timer-driven buffering and bounded random generation"
+description = "Retired empty crate. Use ic-entropy instead."
+documentation = "https://docs.rs/ic-entropy"
 readme = "README.md"
 
 [package.metadata.cargo-machete]
 ignored = ["toko-tooling"]
 
-[package.metadata.docs.rs]
-all-features = true
-default-target = "wasm32-unknown-unknown"
-
-[features]
-default = []
-buffered = ["dep:ic-entropy", "dep:ic-timers"]
-logging = ["dep:ic-logging"]
-metrics = ["dep:ic-metrics"]
-
-[dependencies]
-ic-entropy = { workspace = true, optional = true }
-ic-logging = { workspace = true, optional = true }
-ic-metrics = { workspace = true, optional = true }
-ic-platform-runtime = { workspace = true, features = ["raw-rand", "system-raw"] }
-ic-timers = { workspace = true, optional = true }
-
 [dev-dependencies]
-ic-platform-protocol = { workspace = true, features = ["raw-rand"] }
 toko-tooling.workspace = true
 
 [lints]
 workspace = true
-
-[[example]]
-name = "consumer_owned"
-crate-type = ["rlib"]
-required-features = ["buffered"]

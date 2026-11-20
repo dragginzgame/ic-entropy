@@ -92,5 +92,5 @@ pub(super) fn record(event: Event) {
         #[cfg(feature = "buffered")]
         Event::RefillRecovered => (Level::Info, "Entropy refill recovered"),
     };
-    sink(level, "ic-entropy-ic", message);
+    sink(level, "ic-entropy", message);
 }
