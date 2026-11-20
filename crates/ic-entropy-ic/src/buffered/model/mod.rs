@@ -8,7 +8,7 @@ use super::{BYTE_BUDGET, MAX_DRAW_BYTES, POOL_CAPACITY, RefillState, Status};
 use crate::Error;
 use ic_entropy::{Generator, SeedPool};
 
-pub(super) const MAX_FAILURES: u8 = 8;
+const MAX_FAILURES: u8 = 8;
 const SECOND: u64 = 1_000_000_000;
 
 pub(super) struct Model {

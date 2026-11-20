@@ -17,13 +17,13 @@ ic-platform-runtime = { version = "0.23.23", default-features = false }
 ic-platform-types = { version = "0.21.3", default-features = false }
 
 # Production and tests
-ic-wire = { version = "0.26.0", default-features = false }
+ic-wire = { version = "0.27.0", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 
 # Tests and tooling
 ic-testkit = { version = "0.110.0", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread"] }
-toko-tooling = "=0.45.21"
+toko-tooling = "=0.45.22"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"

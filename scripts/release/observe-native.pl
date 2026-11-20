@@ -20,6 +20,7 @@ sub tree {
     return if $trees{$resolved}++;
     if (-f $resolved) { $files{$resolved}=1; return; }
     -d $resolved or die "nonregular input: $resolved\n";
+    local $SIG{__WARN__} = sub { die "required inventory traversal failed: @_" };
     find({no_chdir=>1,wanted=>sub {
         my $name=$File::Find::name;
         if ($resolved eq $root && ($name eq "$root/.git" || $name eq "$root/.tools" || $name eq "$root/target" || $name eq "$root/qualification/target")) {

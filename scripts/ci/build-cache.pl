@@ -11,6 +11,7 @@ my (%files,$total);
 for my $root (qw(target/debug target/release target/wasm32-unknown-unknown target/qualification)) {
     next unless -e $root || -l $root;
     -d $root && !-l $root or die "unsafe build cache root\n";
+    local $SIG{__WARN__} = sub { die "required inventory traversal failed: @_" };
     find({no_chdir=>1,wanted=>sub {
         my $file=$File::Find::name;
         !-l $file or die "symlink in compilation cache\n";

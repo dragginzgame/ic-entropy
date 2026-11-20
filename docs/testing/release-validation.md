@@ -7,7 +7,7 @@ product packages, feature modes and installed qualification obligations.
 | Flow | Entrypoints and trigger | Guarantee and input scope |
 | --- | --- | --- |
 | Development | Focused package tests, Clippy and Wasm selections in `AGENTS.md`, after affected product edits | Product behavior and compilation for the changed package, features and callers. |
-| Changed tooling | `make toko-tooling-check tools-check`; affected metadata, validation-dispatch and scanner fixtures | Installed registry bytes, prepared tools and actual consumer caller/failure contracts. Run fixtures when their wiring changes. |
+| Changed tooling | `make toko-tooling-check tools-check`; affected metadata, validation-dispatch, scanner and required-inventory fixtures | Installed registry bytes, prepared tools and actual consumer caller/failure contracts. Run fixtures when their wiring changes. |
 | Repository CI | `make ci fmt-check`, workflow pin checks and one history scan, on pushes/PRs | Both product packages and adapter modes, Wasm, docs and installed qualification on every declared host; one repository secret scan. |
 | Release | `make release-patch`, `release-minor` or `release-major`, after explicit release authority | Fresh graph/pin/format admission, two-lock version preparation, the complete native stage on final-version source, commit/tag and Git delivery. |
 | Publication | `make publish`, for an affected publishable release | Fresh final-source and Cargo archive/registry admission; the native stage reuses an exact-input proof or executes. |
@@ -17,6 +17,12 @@ Consumer orchestration fixtures do not become unconditional release/upload gates
 The two-lock metadata fixture remains selected in repository CI; generic tooling
 regressions stay upstream. A normal release starts fresh, while recovery selects
 its saved attempt explicitly.
+
+`make test-required-inventory` checks that unreadable directories fail both the
+compilation-cache inventory and the release source observer before an incomplete
+receipt or observation can be published. It also verifies readable cache
+seal/restore and that readable source reaches dependency observation. Repository
+CI selects this focused fixture; it has no release or publication effects.
 
 The release adapter admits graph, pins and formatting before preparation. It
 runs native lint, tests, Wasm and installed qualification from the committed

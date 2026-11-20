@@ -123,7 +123,7 @@ pub fn status() -> Status {
     BUFFER.with_borrow(Model::status)
 }
 
-pub fn suspend() -> Result<(), Error> {
+pub(super) fn suspend() -> Result<(), Error> {
     BUFFER.with_borrow_mut(|state| state.reset(false, 0));
 
     reconcile(false)

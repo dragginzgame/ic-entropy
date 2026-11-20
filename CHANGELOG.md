@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.5.9] - Unreleased
+
+### 🔧 Tooling
+
+- Adopt authenticated Toko Tooling 0.45.22 in both workspaces and the installed
+  snapshot; audit required lint settings and inheritance in all five Cargo
+  manifests.
+- Adopt IC Wire 0.27.0 for the private qualification probe and native driver,
+  retaining the existing framed schemas and request/reply limits.
+- Include the reviewed lockfile updates to Timers 0.46.12 in both workspaces
+  and qualification's native C compiler helper `cc` 1.11.3.
+- Retain prepared metadata editor 0.1.0 and Testkit server preparer 0.110.0;
+  revisit their optional 0.1.2/0.110.3 upgrades in the next installer-maintenance
+  batch.
+
+### 🧹 Cleanup
+
+- Narrow internal buffered suspension and failure-budget visibility, separate
+  the documented example's return value, and correct stale qualification and
+  core installation documentation.
+
+### 🩹 Fixed
+
+- Refuse incomplete cache and release-source inventories when directory traversal
+  reports an unreadable input. Exercise refusal and readable recovery through a
+  focused regression fixture selected by repository CI.
+
 ## [0.5.8] - 2026-11-20
 
 ### 🧹 Cleanup

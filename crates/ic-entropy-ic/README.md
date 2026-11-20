@@ -71,6 +71,7 @@ fn new_consumer_generator(
     byte_budget: u64,
 ) -> Result<ic_entropy::Generator, ic_entropy_ic::Error> {
     let seed = ic_entropy_ic::take_seed()?;
+
     Ok(ic_entropy::Generator::from_seed(seed, byte_budget))
 }
 ```

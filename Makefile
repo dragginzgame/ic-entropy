@@ -33,7 +33,7 @@ doc-check:
 	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy -p ic-entropy-ic --target wasm32-unknown-unknown --no-deps
 	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown --no-deps
 ci: toko-tooling-check
-	$(MAKE) lint test check-wasm doc-check qualification-check test-installed test-release-metadata
+	$(MAKE) lint test check-wasm doc-check qualification-check test-installed test-release-metadata test-required-inventory
 
 release-editor-setup:
 	bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-cargo-metadata --version 0.1.0 --bin ic-cargo-metadata --profile debug
@@ -80,6 +80,10 @@ test-installed: build-entropy-probe
 .PHONY: test-release-metadata
 test-release-metadata:
 	bash scripts/release/test-metadata.sh
+
+.PHONY: test-required-inventory
+test-required-inventory:
+	bash scripts/ci/test-required-inventory.sh
 
 .PHONY: release-editor-check qualification-tools-check qualification-server-setup qualification-server-check
 qualification-server-setup:
