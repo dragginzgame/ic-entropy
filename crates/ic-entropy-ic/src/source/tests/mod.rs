@@ -34,6 +34,7 @@ fn source_returns_platform_seeds_without_consumer_zero_policy() {
 #[test]
 fn source_maps_platform_framing_errors_and_releases_custody() {
     let source = Rc::new(RefCell::new(Source::default()));
+
     // Framing validation belongs to Platform. Entropy projects the typed error
     // while releasing its own single-flight claim.
     for error in [
@@ -60,6 +61,7 @@ fn single_flight_refuses_before_polling_second_operation() {
     assert_eq!(
         complete(request_with(Rc::clone(&source), async {
             polled.set(true);
+
             Ok([37; 32])
         })),
         Err(Error::Busy)
@@ -103,6 +105,7 @@ fn cancellation_releases_claim_and_transport_failures_never_retry() {
         assert_eq!(
             complete(request_with(Rc::clone(&source), async {
                 calls.set(calls.get() + 1);
+
                 Err(error)
             })),
             Err(Error::Transport)
@@ -167,8 +170,12 @@ fn suspended_source_refuses_without_polling_operation() {
 
 #[test]
 fn native_public_api_refuses_without_mutating_source() {
+    #[cfg(feature = "metrics")]
+    let metrics_before = crate::metrics();
     let generation = SOURCE.with(|source| source.borrow().generation);
     assert_eq!(complete(fresh_seed()), Err(Error::NonReplicated));
     assert_eq!(crate::suspend(), Err(Error::NonReplicated));
     assert_eq!(SOURCE.with(|source| source.borrow().generation), generation);
+    #[cfg(feature = "metrics")]
+    assert_eq!(crate::metrics(), metrics_before);
 }

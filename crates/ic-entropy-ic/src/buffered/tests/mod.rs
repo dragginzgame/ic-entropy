@@ -78,3 +78,59 @@ fn unwinding_refill_reopens_demand_once() {
     assert_eq!(status().consecutive_failures, 1);
     assert_eq!(status().last_error, Some(Error::Transport));
 }
+
+#[cfg(feature = "logging")]
+#[test]
+fn refill_transitions_log_after_releasing_model_custody() {
+    use crate::logging::{Event, record, tests::with_test_sink};
+    use std::cell::Cell;
+
+    thread_local! {
+        static EVENTS: Cell<u8> = const { Cell::new(0) };
+    }
+    fn sink(level: ic_logging::Level, source: &'static str, message: &str) {
+        let status = status();
+        assert_eq!(source, "ic-entropy-ic");
+        match EVENTS.get() {
+            0 => {
+                assert_eq!(status.refill, RefillState::Paused);
+                assert_eq!(level, ic_logging::Level::Warn);
+                assert_eq!(message, "Entropy refill paused after eight failures");
+            }
+            1 => {
+                assert_eq!(status.consecutive_failures, 0);
+                assert_eq!(level, ic_logging::Level::Info);
+                assert_eq!(message, "Entropy refill recovered");
+            }
+            _ => panic!("duplicate refill transition"),
+        }
+        EVENTS.set(EVENTS.get() + 1);
+    }
+
+    with_test_sink(sink, || {
+        BUFFER.with_borrow_mut(|state| state.reset(true, 0));
+        let mut now = 0;
+        for _ in 0..8 {
+            let generation = BUFFER.with_borrow_mut(|state| state.begin(now)).unwrap();
+            finish_refill(generation, Err(Error::Transport), now);
+            now = crate::status().next_refill_ns;
+        }
+        assert_eq!(crate::status().refill, crate::RefillState::Paused);
+        assert_eq!(EVENTS.get(), 1);
+
+        // Stale/duplicate completions cannot produce another transition.
+        finish_refill(0, Ok([13; 32]), now);
+        assert_eq!(EVENTS.get(), 1);
+        BUFFER.with_borrow_mut(|state| state.retry(now)).unwrap();
+        let generation = BUFFER.with_borrow_mut(|state| state.begin(now)).unwrap();
+        finish_refill(generation, Err(Error::Busy), now);
+        now = crate::status().next_refill_ns;
+        let generation = BUFFER.with_borrow_mut(|state| state.begin(now)).unwrap();
+        finish_refill(generation, Ok([13; 32]), now);
+        finish_refill(generation, Ok([13; 32]), now);
+        assert_eq!(EVENTS.get(), 2);
+        assert_eq!(crate::status().buffered_seeds, 1);
+    });
+    record(Event::Suspended);
+    assert_eq!(EVENTS.get(), 2);
+}

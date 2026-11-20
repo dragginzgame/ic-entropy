@@ -15,9 +15,16 @@ Focused checks: `cargo test --locked -p ic-entropy`,
 `CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets`, and
 `cargo check --locked -p ic-entropy --target wasm32-unknown-unknown`.
 Linux checks do not establish macOS execution. Keep tests in separate modules.
-For adapter changes, select `-p ic-entropy-ic` with both default fresh-only and
-`--features buffered` for tests, strict all-target Clippy and Wasm compilation.
+For adapter changes, select `-p ic-entropy-ic` with default fresh-only and
+all combinations of `buffered`, `metrics` and `logging` for tests, strict
+all-target Clippy and Wasm compilation. Instrumentation stays opt-in;
+the host can supply shared `Rc<MetricsStorage>` before acquisition, and owns
+reporting and incarnation identity. Logging forwards fixed events through a host
+sink into shared IC Logging storage. Neither adds a Canic dependency or endpoint.
 The Make test/lint/check-wasm targets aggregate both packages and adapter modes.
+`make check-rules` checks dependency declarations and Rust source boundaries in
+both roots. `make validate-native` aggregates lint, tests, Wasm, docs and installed
+qualification in order; CI and release adapters share this owner.
 Installed IC qualification lives in the independent `qualification/` workspace.
 Use `make install-qualification-tools`, `make qualification-check`, and
 `make test-installed` for its standalone PocketIC lifecycle journey. Its private

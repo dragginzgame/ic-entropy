@@ -11,6 +11,24 @@ use ic_entropy::{Generator, SeedPool};
 const MAX_FAILURES: u8 = 8;
 const SECOND: u64 = 1_000_000_000;
 
+///
+/// RefillChange
+///
+/// Current-generation refill transition reported after releasing model custody.
+///
+
+pub(super) enum RefillChange {
+    Unchanged,
+    Paused,
+    Recovered,
+}
+
+///
+/// Model
+///
+/// Volatile pool, generator and bounded refill policy for one lifecycle instance.
+///
+
 pub(super) struct Model {
     generation: u64,
     enabled: bool,
@@ -75,16 +93,19 @@ impl Model {
         }
     }
 
-    pub(super) const fn retry(&mut self, now: u64) -> Result<(), Error> {
+    pub(super) fn retry(&mut self, now: u64) -> Result<(), Error> {
         if !self.enabled {
             return Err(Error::Disabled);
         }
+
         if self.pending {
             return Err(Error::Busy);
         }
         self.failures = 0;
         self.last_error = None;
         self.next_ns = now;
+        #[cfg(feature = "metrics")]
+        crate::metrics::record(crate::metrics::Event::RefillRestarted);
 
         Ok(())
     }
@@ -104,19 +125,28 @@ impl Model {
             return Err(Error::Disabled);
         }
 
-        self.pool.take().ok_or_else(|| self.unavailable())
+        let result = self.pool.take().ok_or_else(|| self.unavailable());
+        #[cfg(feature = "metrics")]
+        if result.is_ok() {
+            crate::metrics::record(crate::metrics::Event::SeedConsumed);
+        }
+
+        result
     }
 
     pub(super) fn fill_bytes(&mut self, output: &mut [u8]) -> Result<(), Error> {
         if !self.enabled {
             return Err(Error::Disabled);
         }
+
         if output.len() > MAX_DRAW_BYTES {
             return Err(Error::DrawTooLarge);
         }
+
         if output.is_empty() {
             return Ok(());
         }
+
         let required = u64::try_from(output.len()).map_err(|_| Error::DrawTooLarge)?;
         if self
             .generator
@@ -133,21 +163,28 @@ impl Model {
             .fill_bytes(output)
             .map_err(|_| Error::Exhausted)
     }
-}
 
-impl Model {
     pub(super) fn begin(&mut self, now: u64) -> Option<u64> {
         if self.status().refill != RefillState::Scheduled || now < self.next_ns {
             return None;
         }
         self.pending = true;
+        #[cfg(feature = "metrics")]
+        if self.failures > 0 {
+            crate::metrics::record(crate::metrics::Event::RefillRetry);
+        }
 
         Some(self.generation)
     }
 
-    pub(super) fn finish(&mut self, generation: u64, result: Result<[u8; 32], Error>, now: u64) {
+    pub(super) fn finish(
+        &mut self,
+        generation: u64,
+        result: Result<[u8; 32], Error>,
+        now: u64,
+    ) -> RefillChange {
         if generation != self.generation || !self.pending {
-            return;
+            return RefillChange::Unchanged;
         }
         self.pending = false;
 
@@ -157,16 +194,38 @@ impl Model {
                 self.pool
                     .insert(seed)
                     .expect("refill claim reserves a free pool slot");
+                let change = if self.failures > 0 {
+                    RefillChange::Recovered
+                } else {
+                    RefillChange::Unchanged
+                };
+                #[cfg(feature = "metrics")]
+                if matches!(change, RefillChange::Recovered) {
+                    crate::metrics::record(crate::metrics::Event::RefillRecovered);
+                }
+
                 self.seeded = true;
                 self.failures = 0;
                 self.last_error = None;
                 self.next_ns = now.saturating_add(SECOND);
+
+                change
             }
             Err(error) => {
                 self.failures += 1;
+                #[cfg(feature = "metrics")]
+                if self.failures == MAX_FAILURES {
+                    crate::metrics::record(crate::metrics::Event::RefillPaused);
+                }
                 self.last_error = Some(error);
                 let seconds = (1_u64 << (self.failures - 1)).min(60);
                 self.next_ns = now.saturating_add(seconds * SECOND);
+
+                if self.failures == MAX_FAILURES {
+                    RefillChange::Paused
+                } else {
+                    RefillChange::Unchanged
+                }
             }
         }
     }

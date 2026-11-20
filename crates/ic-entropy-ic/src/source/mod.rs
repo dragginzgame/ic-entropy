@@ -5,8 +5,16 @@
 mod tests;
 
 use crate::Error;
+#[cfg(feature = "metrics")]
+use crate::metrics;
 use ic_platform_runtime::raw_rand;
 use std::{cell::RefCell, future::Future, rc::Rc};
+
+///
+/// Source
+///
+/// Lifecycle generation and exclusive custody for one outstanding acquisition.
+///
 
 #[derive(Default)]
 struct Source {
@@ -30,6 +38,12 @@ thread_local! {
     static SOURCE: Rc<RefCell<Source>> = Rc::new(RefCell::new(Source::default()));
 }
 
+///
+/// Request
+///
+/// A source claim whose drop releases custody only for its own generation.
+///
+
 struct Request {
     source: Rc<RefCell<Source>>,
     generation: u64,
@@ -42,6 +56,7 @@ impl Request {
             if state.suspended {
                 return Err(Error::Disabled);
             }
+
             if state.pending {
                 return Err(Error::Busy);
             }
@@ -77,10 +92,32 @@ impl Drop for Request {
 /// # Errors
 /// Refuses non-replicated execution, suspension or an outstanding request. Returns
 /// a transport or framing error on failure, or [`Error::Stale`] after reconstruction.
+///
+/// # Panics
+/// With `logging`, propagates a panic from the configured host sink.
 pub async fn fresh_seed() -> Result<[u8; 32], Error> {
-    require_replicated()?;
+    seed(
+        #[cfg(feature = "metrics")]
+        metrics::Kind::Fresh,
+    )
+    .await
+}
 
-    request_with(SOURCE.with(Rc::clone), raw_rand::request(300)).await
+pub(super) async fn seed(
+    #[cfg(feature = "metrics")] kind: metrics::Kind,
+) -> Result<[u8; 32], Error> {
+    require_replicated()?;
+    #[cfg(feature = "metrics")]
+    let observation = metrics::Acquisition::start(kind);
+    let result = request_with(SOURCE.with(Rc::clone), raw_rand::request(300)).await;
+    #[cfg(feature = "metrics")]
+    observation.finish(result.as_ref().map(|_| ()).map_err(|error| *error));
+    #[cfg(feature = "logging")]
+    if let Err(error) = result {
+        crate::logging::source_error(error);
+    }
+
+    result
 }
 
 async fn request_with(

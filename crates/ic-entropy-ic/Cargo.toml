@@ -18,9 +18,13 @@ default-target = "wasm32-unknown-unknown"
 [features]
 default = []
 buffered = ["dep:ic-entropy", "dep:ic-timers"]
+logging = ["dep:ic-logging"]
+metrics = ["dep:ic-metrics"]
 
 [dependencies]
 ic-entropy = { workspace = true, optional = true }
+ic-logging = { workspace = true, optional = true }
+ic-metrics = { workspace = true, optional = true }
 ic-platform-runtime = { workspace = true, features = ["raw-rand", "system-raw"] }
 ic-timers = { workspace = true, optional = true }
 

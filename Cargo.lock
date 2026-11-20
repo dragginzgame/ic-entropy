@@ -36,11 +36,25 @@ name = "ic-entropy-ic"
 version = "0.5.9"
 dependencies = [
  "ic-entropy",
+ "ic-logging",
+ "ic-metrics",
  "ic-platform-protocol",
  "ic-platform-runtime",
  "ic-timers",
  "toko-tooling",
 ]
+
+[[package]]
+name = "ic-logging"
+version = "0.25.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d953bdc17bc0642e0c09de2dbf6f5dca41730571499588ee904c564166a2e6e"
+
+[[package]]
+name = "ic-metrics"
+version = "0.30.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c00ef25ff7952d6b6e667ba64f5840fdf3c933cabe2e03a34a42ce4e92cad488"
 
 [[package]]
 name = "ic-platform-protocol"
@@ -80,9 +94,9 @@ dependencies = [
 
 [[package]]
 name = "ic-timers"
-version = "0.46.12"
+version = "0.46.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b9ce91549b76bca3d98558f0d34960592b54bb34253076c9bd4ab5cb54587fa"
+checksum = "091386bab84198cee55dbda031661fec8c962e467e94214e92d4a8ef22eb3999"
 dependencies = [
  "ic-platform-runtime",
 ]
@@ -214,9 +228,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.45.22"
+version = "0.46.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c4177a70760ea774fc0e14938593658b7b87facb3ee3f8848f65a402f778c7b"
+checksum = "4601d2785aaa14e01fd8656d6b3a57653337b214e027810c953595f1d91d6a8d"
 
 [[package]]
 name = "unicode-ident"

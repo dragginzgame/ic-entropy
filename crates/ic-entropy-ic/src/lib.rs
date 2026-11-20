@@ -2,6 +2,10 @@
 
 #[cfg(feature = "buffered")]
 mod buffered;
+#[cfg(feature = "logging")]
+mod logging;
+#[cfg(feature = "metrics")]
+mod metrics;
 mod source;
 
 #[cfg(feature = "buffered")]
@@ -9,12 +13,21 @@ pub use buffered::{
     BYTE_BUDGET, MAX_DRAW_BYTES, POOL_CAPACITY, RefillState, Status, fill_bytes, reconstruct,
     retry_refill, status, take_seed,
 };
+#[cfg(feature = "logging")]
+pub use logging::{LogSink, set_log_sink};
+#[cfg(feature = "metrics")]
+pub use metrics::{AcquisitionMetrics, Metrics, MetricsStorage, initialize_with_metrics, metrics};
 pub use source::fresh_seed;
 
+///
+/// Error
+///
 /// Failure to acquire or consume the explicitly requested quality of randomness.
+///
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Error {
-    /// Mutating draws and source requests require replicated Wasm execution.
+    /// Mutation requires replicated Wasm execution.
     NonReplicated,
     /// The host has not enabled buffering or has suspended it.
     Disabled,
@@ -24,7 +37,8 @@ pub enum Error {
     Exhausted,
     /// The requested local draw exceeds the fixed per-call work limit.
     DrawTooLarge,
-    /// Another fresh source request is already outstanding.
+    /// Source custody, active buffering or already-bound metrics storage conflicts
+    /// with the requested operation.
     Busy,
     /// The management request failed or timed out; no automatic fresh retry.
     Transport,
@@ -47,12 +61,15 @@ pub enum Error {
 /// Refuses non-replicated execution or a failed timer cancellation.
 ///
 /// # Panics
-/// Traps if the logical lifecycle generation is exhausted.
+/// Traps if the logical lifecycle generation is exhausted. With `logging`, also
+/// propagates a panic from the configured host sink.
 pub fn suspend() -> Result<(), Error> {
     source::require_replicated()?;
     source::invalidate(true);
     #[cfg(feature = "buffered")]
     buffered::suspend()?;
+    #[cfg(feature = "logging")]
+    logging::record(logging::Event::Suspended);
 
     Ok(())
 }
@@ -67,7 +84,8 @@ pub fn suspend() -> Result<(), Error> {
 /// while buffering remains active.
 ///
 /// # Panics
-/// Traps if the logical lifecycle generation is exhausted.
+/// Traps if the logical lifecycle generation is exhausted. With `logging`, also
+/// propagates a panic from the configured host sink.
 pub fn resume_fresh_requests() -> Result<(), Error> {
     source::require_replicated()?;
     #[cfg(feature = "buffered")]
@@ -75,6 +93,8 @@ pub fn resume_fresh_requests() -> Result<(), Error> {
         return Err(Error::Busy);
     }
     source::invalidate(false);
+    #[cfg(feature = "logging")]
+    logging::record(logging::Event::FreshResumed);
 
     Ok(())
 }

@@ -29,6 +29,11 @@ work rather than synchronously obtaining entropy. For fresh-after-commitment
 randomness, use `fresh_seed().await` after the decision commitment instead.
 
 See the [IC adapter setup and lifecycle contract](crates/ic-entropy-ic/README.md).
+Its optional `metrics` feature records acquisition and buffering diagnostics into
+host-shareable `Rc<MetricsStorage>`, ready for projection by Canic's reporting
+adapter. Optional `logging` forwards fixed lifecycle and failure events to a
+host-selected IC Logging sink, compatible with Canic's shared logger. Neither
+adds a Canic dependency or reporting endpoint.
 Downstream adoption is separate from this package's release.
 Canic's existing local adapter must be replaced during migration;
 consumers must not run both services or retain a second refill implementation.

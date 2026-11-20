@@ -16,7 +16,7 @@ case "$1" in
     verify|publication-verify)
         make --no-print-directory toko-tooling-check
         bash vendor/toko-tooling/scripts/ci/cargo-release-metadata.sh check-graph ic-entropy
-        bash vendor/toko-tooling/scripts/ci/check-dependency-pins.sh
+        make --no-print-directory check-rules
         make --no-print-directory fmt-check
         current="$(bash vendor/toko-tooling/scripts/ci/read-cargo-workspace-version.sh --stable Cargo.toml)"
         if [[ "$1" == verify && -n "${RELEASE_VERSION:-}" && "$current" != "$RELEASE_VERSION" ]]; then

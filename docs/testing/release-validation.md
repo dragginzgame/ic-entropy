@@ -8,7 +8,7 @@ product packages, feature modes and installed qualification obligations.
 | --- | --- | --- |
 | Development | Focused package tests, Clippy and Wasm selections in `AGENTS.md`, after affected product edits | Product behavior and compilation for the changed package, features and callers. |
 | Changed tooling | `make toko-tooling-check tools-check`; affected metadata, validation-dispatch, scanner and required-inventory fixtures | Installed registry bytes, prepared tools and actual consumer caller/failure contracts. Run fixtures when their wiring changes. |
-| Repository CI | `make ci fmt-check`, workflow pin checks and one history scan, on pushes/PRs | Both product packages and adapter modes, Wasm, docs and installed qualification on every declared host; one repository secret scan. |
+| Repository CI | `make ci fmt-check`, ordered rule checks and one history scan, on pushes/PRs | Both product packages and adapter modes, Wasm, docs and installed qualification on every declared host; one repository secret scan. |
 | Release | `make release-patch`, `release-minor` or `release-major`, after explicit release authority | Fresh graph/pin/format admission, two-lock version preparation, the complete native stage on final-version source, commit/tag and Git delivery. |
 | Publication | `make publish`, for an affected publishable release | Fresh final-source and Cargo archive/registry admission; the native stage reuses an exact-input proof or executes. |
 | Recovery | `make release-resume VERSION=X.Y.Z`, for one saved failed release | Saved source, payload and destination admission; preserve failed evidence. Publication attempts separately require registry reconciliation before any retry. |
@@ -17,6 +17,18 @@ Consumer orchestration fixtures do not become unconditional release/upload gates
 The two-lock metadata fixture remains selected in repository CI; generic tooling
 regressions stay upstream. A normal release starts fresh, while recovery selects
 its saved attempt explicitly.
+
+Adapter tests, native/Wasm Clippy and Rustdoc cover all combinations of the
+optional buffered, metrics and logging features. The metrics cases protect shared
+store binding, cancellation/outcome attribution, latency-clock quality and
+refill/consumption accounting; run affected modes when these paths or their
+dependencies change.
+Logging cases protect optional forwarding, native setup refusal, passive backend
+refusals and refill transition callbacks outside model custody. The existing Make
+leaves feed CI, native release validation and publication admission. Qualification
+enables all three features and exercises host-owned metrics and shared IC Logging
+storage on PocketIC. The incremental release-stage cost of these feature checks
+is not yet measured; record it on the next ordinary delivery.
 
 `make test-required-inventory` checks that unreadable directories fail both the
 compilation-cache inventory and the release source observer before an incomplete
@@ -50,7 +62,8 @@ execution; the changed context inventories explain the mismatch. Interrupted or
 failed executions produce no success proof. Do not edit or copy stage evidence
 between checkouts or inject it into hosted build caches.
 
-CI first installs and admits the pinned host tools so the shared
+CI restores pinned tool downloads before bootstrap, then installs and admits
+the pinned host tools so the shared
 `prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml` entrypoint can
 parse the compiler policy. That file owns the channel, profile, components and
 Wasm target. Each host verifies the effective rustc/Cargo versions and reports
@@ -127,8 +140,9 @@ the complete file/mode/digest inventory. Missing/corrupt or unsupported caches
 discard only those disposable output directories and rebuild normally. The
 cache is an acceleration input, never validation evidence.
 
-Run `bash scripts/release/test-validation.sh` for consumer dispatch, failure and
-cache recovery checks. The real Linux stage must also demonstrate execution,
+Run `make test-validation-dispatch` for consumer dispatch, failure, caller Cargo
+network settings, cache recovery and parallel Make ordering checks. CI selects
+this consumer fixture; it runs substitutes rather than product compilation. The real Linux stage must also demonstrate execution,
 reuse and invalidation through `scripts/release/native-stage.sh`.
 
 Deployment latency runs from the authorized request through pushed GitHub refs
@@ -147,3 +161,28 @@ and HTTP pricing on both targets. Outside replicated execution the adapter refus
 requests before claiming source custody. Timers 0.46.10 exposes the watchdog API
 to native builds. Installed qualification exercises actual randomness, timer
 dispatch and HTTP contention on the IC.
+
+## Rule checks and ordered validation
+
+`make check-rules` is the shared source/declaration admission for CI and release.
+It uses the installed Toko Tooling checkers for pins with Cargo inheritance,
+canonical IC/CBOR/hash dependency ownership in both workspaces, lexical Candid/CBOR
+references in `crates` and `qualification/entropy-probe`, and cross-module type
+headers. Private type layout, macro expansion and semantic ownership still need
+review. The empty Candid allowance policy grants no external DTO exceptions.
+These checks catch boundary drift before compilation and run when the selected
+source, declarations or rule tooling change. On 2026-11-20 the complete leaf took
+0.54 seconds on the local Linux host with prepared tools and locked metadata. This is local rule-check cost, not a
+release or hosted-CI timing; revisit it when widening the selected roots.
+
+Entropy ships libraries with no supported public canister Wire surface. The
+qualification probe's RPCs are private test contracts. Public Wire baseline
+comparison is therefore not selected; adding a supported public API would require
+baseline review and export matching against its release Wasm.
+
+`make validate-native` owns the existing product/native roster. It completes
+native Clippy before tests, Wasm and docs, then qualification lint/docs before
+building and running the installed probe. Separate recursive Make phases preserve
+that order with parallel scheduling. CI adds rule checks first and consumer
+fixtures afterward; release/publication use the same native target through their
+existing exact-input stage. No producer regression matrix is added.

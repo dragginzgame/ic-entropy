@@ -8,7 +8,7 @@ mod tests;
 
 use crate::{Error, source};
 use driver::reconcile;
-use model::Model;
+use model::{Model, RefillChange};
 use std::{cell::RefCell, mem::DropGuard};
 
 /// Maximum number of independently acquired seeds buffered in memory.
@@ -18,7 +18,12 @@ pub const BYTE_BUDGET: u64 = 65_536;
 /// Maximum work admitted by one local fill request.
 pub const MAX_DRAW_BYTES: usize = 1_024;
 
+///
+/// RefillState
+///
 /// Current refill demand; no seed contents or stream state are exposed.
+///
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RefillState {
     /// Buffering has not been selected or the host suspended it.
@@ -33,7 +38,12 @@ pub enum RefillState {
     Paused,
 }
 
+///
+/// Status
+///
 /// Read-only readiness and usage projection; contains no random bytes.
+///
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Status {
     /// Seeds available for explicit buffered consumption.
@@ -62,7 +72,8 @@ thread_local! {
 /// Never persist or restore the pool/generator. Repeated calls deliberately reset them.
 ///
 /// # Panics
-/// Traps if the logical lifecycle generation is exhausted.
+/// Traps if the logical lifecycle generation is exhausted. With `logging`, also
+/// propagates a panic from the configured host sink.
 ///
 /// # Errors
 /// Refuses non-replicated execution or a timer registration/control failure.
@@ -71,7 +82,11 @@ pub fn reconstruct() -> Result<(), Error> {
     source::invalidate(false);
     BUFFER.with_borrow_mut(|state| state.reset(true, now_ns()));
 
-    reconcile(false)
+    reconcile(false)?;
+    #[cfg(feature = "logging")]
+    crate::logging::record(crate::logging::Event::Reconstructed);
+
+    Ok(())
 }
 
 /// Consume one previously buffered independent seed, never a freshly requested one.
@@ -79,11 +94,18 @@ pub fn reconstruct() -> Result<(), Error> {
 /// # Errors
 /// Refuses non-replicated execution, failed scheduling, or an unavailable pool.
 /// The pool reports disabled, not-ready, exhausted or retry-limit state explicitly.
+///
+/// # Panics
+/// With `logging`, propagates a panic from the configured host sink.
 pub fn take_seed() -> Result<[u8; 32], Error> {
     source::require_replicated()?;
-    reconcile(true)?;
+    let result = reconcile(true).and_then(|()| BUFFER.with_borrow_mut(Model::take_seed));
+    #[cfg(feature = "metrics")]
+    if result.is_err() {
+        crate::metrics::record(crate::metrics::Event::TakeRefused);
+    }
 
-    BUFFER.with_borrow_mut(Model::take_seed)
+    result
 }
 
 /// Fill at most 1,024 bytes from the bounded local stream; no implicit fresh draw.
@@ -92,16 +114,33 @@ pub fn take_seed() -> Result<[u8; 32], Error> {
 /// # Errors
 /// Refuses non-replicated execution, an oversized draw, failed scheduling or an
 /// unavailable replacement seed. Empty draws still require replicated execution.
+///
+/// # Panics
+/// With `logging`, propagates a panic from the configured host sink.
 pub fn fill_bytes(output: &mut [u8]) -> Result<(), Error> {
     source::require_replicated()?;
-    if output.len() > MAX_DRAW_BYTES {
-        return Err(Error::DrawTooLarge);
-    }
-    if !output.is_empty() {
-        reconcile(true)?;
+    let result = (|| {
+        if output.len() > MAX_DRAW_BYTES {
+            return Err(Error::DrawTooLarge);
+        }
+
+        if !output.is_empty() {
+            reconcile(true)?;
+        }
+
+        BUFFER.with_borrow_mut(|state| state.fill_bytes(output))
+    })();
+    #[cfg(feature = "metrics")]
+    {
+        let event = if result.is_ok() {
+            crate::metrics::Event::Drawn(output.len())
+        } else {
+            crate::metrics::Event::DrawRefused
+        };
+        crate::metrics::record(event);
     }
 
-    BUFFER.with_borrow_mut(|state| state.fill_bytes(output))
+    result
 }
 
 /// Explicitly reopen the bounded automatic refill budget after source recovery.
@@ -110,11 +149,18 @@ pub fn fill_bytes(output: &mut [u8]) -> Result<(), Error> {
 /// # Errors
 /// Refuses non-replicated execution, disabled buffering, an outstanding refill
 /// or a timer control failure.
+///
+/// # Panics
+/// With `logging`, propagates a panic from the configured host sink.
 pub fn retry_refill() -> Result<(), Error> {
     source::require_replicated()?;
     BUFFER.with_borrow_mut(|state| state.retry(now_ns()))?;
 
-    reconcile(false)
+    reconcile(false)?;
+    #[cfg(feature = "logging")]
+    crate::logging::record(crate::logging::Event::RetryRequested);
+
+    Ok(())
 }
 
 /// Inspect readiness in either a query or replicated callback without mutation.
@@ -135,8 +181,22 @@ fn now_ns() -> u64 {
 
 fn refill_cancellation(generation: u64, started_ns: u64) -> DropGuard<(), impl FnOnce(())> {
     DropGuard::new((), move |()| {
-        BUFFER.with_borrow_mut(|state| {
-            state.finish(generation, Err(Error::Transport), started_ns);
-        });
+        finish_refill(generation, Err(Error::Transport), started_ns);
     })
+}
+
+fn finish_refill(generation: u64, result: Result<[u8; 32], Error>, now: u64) {
+    // Release model custody before calling trusted host logging code.
+    let change = BUFFER.with_borrow_mut(|state| state.finish(generation, result, now));
+    match change {
+        RefillChange::Unchanged => {}
+        RefillChange::Paused => {
+            #[cfg(feature = "logging")]
+            crate::logging::record(crate::logging::Event::RefillPaused);
+        }
+        RefillChange::Recovered => {
+            #[cfg(feature = "logging")]
+            crate::logging::record(crate::logging::Event::RefillRecovered);
+        }
+    }
 }

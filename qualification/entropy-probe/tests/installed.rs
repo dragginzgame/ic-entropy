@@ -78,6 +78,22 @@ async fn inspect(pic: &PocketIc, pid: Principal) -> State {
     query(pic, pid, "inspect", INSPECT).await
 }
 
+async fn metrics(pic: &PocketIc, pid: Principal) -> MetricState {
+    let state: MetricState = query(pic, pid, "metrics", METRICS).await;
+    assert!(state.shared);
+    assert!(!state.overflowed);
+
+    state
+}
+
+async fn logs(pic: &PocketIc, pid: Principal) -> Vec<(String, String)> {
+    query(pic, pid, "logs", LOGS).await
+}
+
+fn has_log(rows: &[(String, String)], source: &str, message: &str) -> bool {
+    rows.iter().any(|row| row.0 == source && row.1 == message)
+}
+
 async fn advance(pic: &PocketIc, seconds: u64) {
     pic.advance_time(Duration::from_secs(seconds)).await;
     for _ in 0..5 {
@@ -132,6 +148,20 @@ async fn background_refill_and_lifecycle() {
 
     // Only queries/time/ticks precede readiness: the pool must fill in the background.
     let full = full_pool(pic, pid).await;
+    assert!(metrics(pic, pid).await.refill_succeeded >= u128::from(EXPECTED_POOL_CAPACITY));
+    assert!(update::<bool>(pic, pid, "metrics_binding", METRICS_BINDING).await);
+    let initial_logs = logs(pic, pid).await;
+    assert_eq!(initial_logs.len(), 2);
+    assert!(has_log(
+        &initial_logs,
+        "entropy-probe",
+        "Host lifecycle setup"
+    ));
+    assert!(has_log(
+        &initial_logs,
+        "ic-entropy-ic",
+        "Entropy buffer reconstructed"
+    ));
     assert_eq!(full.remaining, 0);
     advance(pic, 30).await;
     assert_eq!(inspect(pic, pid).await, full);
@@ -146,16 +176,46 @@ async fn background_refill_and_lifecycle() {
     assert_eq!(bytes.len(), 1024);
     assert_eq!(budget, 65536 - 1024);
     assert!(update::<bool>(pic, pid, "oversized_refusal", OVERSIZED_REFUSAL).await);
+    let consumption = metrics(pic, pid).await;
+    assert_eq!(consumption.seeds_consumed, 2);
+    assert_eq!(consumption.bytes_generated, 1024);
+    assert_eq!(consumption.draws_succeeded, 1);
+    assert_eq!(consumption.draw_refusals, 1);
 
     // A fresh call must not spend the buffered generator or consume pool seeds.
     let before_fresh = full_pool(pic, pid).await;
+    let before = metrics(pic, pid).await;
     let _: [u8; 32] = update(pic, pid, "fresh", FRESH).await;
     assert_eq!(inspect(pic, pid).await, before_fresh);
+    assert_eq!(logs(pic, pid).await, initial_logs);
+    let after = metrics(pic, pid).await;
+    assert_eq!(after.fresh_attempts, before.fresh_attempts + 1);
+    assert_eq!(after.fresh_succeeded, before.fresh_succeeded + 1);
+    assert_eq!(after.seeds_consumed, before.seeds_consumed);
+    assert_eq!(after.bytes_generated, before.bytes_generated);
+    assert_eq!(
+        after.fresh_latency_samples,
+        before.fresh_latency_samples + 1
+    );
+    assert_eq!(after.fresh_latency_unavailable, 0);
 
     assert!(update::<bool>(pic, pid, "cancel", CANCEL).await);
     assert_eq!(inspect(pic, pid).await, before_fresh);
+    let cancelled = metrics(pic, pid).await;
+    assert_eq!(cancelled.fresh_attempts, after.fresh_attempts + 2);
+    assert_eq!(cancelled.fresh_cancelled, after.fresh_cancelled + 1);
+    assert_eq!(cancelled.fresh_succeeded, after.fresh_succeeded + 1);
     assert!(update::<bool>(pic, pid, "stale", STALE).await);
     assert!(inspect(pic, pid).await.disabled);
+    assert!(has_log(
+        &logs(pic, pid).await,
+        "ic-entropy-ic",
+        "Stale entropy reply discarded"
+    ));
+    let stale = metrics(pic, pid).await;
+    assert_eq!(stale.fresh_attempts, cancelled.fresh_attempts + 3);
+    assert_eq!(stale.stale_replies, cancelled.stale_replies + 1);
+    assert_eq!(stale.busy_refusals, cancelled.busy_refusals + 1);
 
     let held = pic
         .submit_call(pid, Principal::anonymous(), "contend", request(CONTEND))
@@ -208,7 +268,14 @@ async fn background_refill_and_lifecycle() {
     let recovered: SourceState = query(pic, pid, "source_state", SOURCE_STATE).await;
     assert!(!recovered.busy);
     assert_eq!(recovered.failures, 0);
+    assert!(metrics(pic, pid).await.refill_failed > 0);
 
+    assert!(has_log(
+        &logs(pic, pid).await,
+        "ic-entropy-ic",
+        "Entropy refill recovered"
+    ));
+    let before_suspend = metrics(pic, pid).await;
     update::<()>(pic, pid, "suspend", SUSPEND).await;
     advance(pic, 10).await;
     assert_eq!(
@@ -222,6 +289,28 @@ async fn background_refill_and_lifecycle() {
     );
     update::<()>(pic, pid, "resume", RESUME).await;
     full_pool(pic, pid).await;
+    assert_eq!(
+        metrics(pic, pid).await.fresh_attempts,
+        before_suspend.fresh_attempts
+    );
+    let retained_logs = logs(pic, pid).await;
+    assert!(has_log(
+        &retained_logs,
+        "ic-entropy-ic",
+        "Entropy suspended"
+    ));
+    assert!(has_log(
+        &retained_logs,
+        "ic-entropy-ic",
+        "Entropy refill recovered"
+    ));
+    assert_eq!(
+        retained_logs
+            .iter()
+            .filter(|row| row.1 == "Host lifecycle setup")
+            .count(),
+        2
+    );
     let _: (ic_wire::ByteBuf, u64) = update(pic, pid, "draw", DRAW).await;
 
     // Upgrades start a fresh heap and reconstruct the provider and entropy state.
@@ -231,6 +320,9 @@ async fn background_refill_and_lifecycle() {
         .unwrap();
     pic.start_canister(pid, None).await.unwrap();
     assert_eq!(inspect(pic, pid).await.remaining, 0);
+    assert_eq!(metrics(pic, pid).await.fresh_attempts, 0);
+    assert_eq!(metrics(pic, pid).await.bytes_generated, 0);
+    assert_eq!(logs(pic, pid).await, initial_logs);
     full_pool(pic, pid).await;
     let (_, budget): (ic_wire::ByteBuf, u64) = update(pic, pid, "draw", DRAW).await;
     assert_eq!(budget, 65536 - 1024);
@@ -238,6 +330,8 @@ async fn background_refill_and_lifecycle() {
         .await
         .unwrap();
     assert_eq!(full_pool(pic, pid).await.remaining, 0);
+    assert_eq!(metrics(pic, pid).await.bytes_generated, 0);
+    assert_eq!(logs(pic, pid).await, initial_logs);
     assert_eq!(
         owned.close(Duration::from_secs(30)).await,
         Deletion::Attempted

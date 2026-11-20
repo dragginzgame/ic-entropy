@@ -5,16 +5,25 @@ mod tests;
 
 use crate::Seed;
 
+///
+/// PoolFull
+///
 /// The pool is full. No existing seed was overwritten.
+///
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PoolFull;
 
-/// A bounded queue that returns each inserted seed at most once.
 ///
+/// SeedPool
+///
+/// A bounded queue that returns each inserted seed at most once.
 /// The caller owns source quality and must not insert repeated seeds. This is
 /// buffered randomness, not a guarantee of freshness at the time of consumption.
 /// No persistence or clone interface is supplied. Removing a seed clears its
 /// queue slot, but this crate makes no compiler-level secure-erasure guarantee.
+///
+
 pub struct SeedPool<const N: usize> {
     seeds: [Seed; N],
     head: usize,
@@ -58,6 +67,7 @@ impl<const N: usize> SeedPool<N> {
         if self.is_full() {
             return Err(PoolFull);
         }
+
         let until_end = N - self.head;
         let tail = if self.len >= until_end {
             self.len - until_end
@@ -75,6 +85,7 @@ impl<const N: usize> SeedPool<N> {
         if self.is_empty() {
             return None;
         }
+
         let seed = core::mem::take(&mut self.seeds[self.head]);
         self.head = if self.head == N - 1 { 0 } else { self.head + 1 };
         self.len -= 1;

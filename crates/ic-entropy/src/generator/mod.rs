@@ -9,15 +9,24 @@ use rand_chacha::{
     rand_core::{Rng, SeedableRng},
 };
 
+///
+/// Exhausted
+///
 /// A request would exceed the remaining byte budget; no bytes were consumed.
+///
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Exhausted;
 
-/// Deterministic pseudorandom expansion of a full seed, bounded by output bytes.
 ///
+/// Generator
+///
+/// Deterministic pseudorandom expansion of a full seed, bounded by output bytes.
 /// Not clonable or serializable: copying or restoring state can replay outputs.
 /// Hosts must obtain a fresh seed after a restart or restore. The byte budget is
 /// an operational reseeding limit, not a count of remaining entropy bits.
+///
+
 pub struct Generator {
     rng: ChaCha20Rng,
     remaining: u64,

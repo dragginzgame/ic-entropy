@@ -1,5 +1,54 @@
 use super::*;
 
+#[cfg(feature = "metrics")]
+#[test]
+fn metrics_follow_current_refill_transitions_and_survive_reconstruction() {
+    let before = crate::metrics().unwrap_or_default();
+    let mut state = Model::new();
+    state.reset(true, 0);
+    let first = state.begin(0).unwrap();
+    state.finish(first, Err(Error::Transport), 0);
+    let next = state.status().next_refill_ns;
+    let second = state.begin(next).unwrap();
+    state.finish(second, Ok([1; 32]), next);
+    state.take_seed().unwrap();
+    let after = crate::metrics().unwrap();
+    assert_eq!(
+        after.refill_retries.total() - before.refill_retries.total(),
+        1
+    );
+    assert_eq!(
+        after.refill_recoveries.total() - before.refill_recoveries.total(),
+        1
+    );
+    assert_eq!(
+        after.seeds_consumed.total() - before.seeds_consumed.total(),
+        1
+    );
+    state.reset(true, next);
+    state.finish(second, Err(Error::Transport), next);
+    assert_eq!(crate::metrics(), Some(after));
+    let mut now = next;
+    for _ in 0..MAX_FAILURES {
+        let claim = state.begin(now).unwrap();
+        state.finish(claim, Err(Error::Transport), now);
+        now = state.status().next_refill_ns;
+    }
+
+    let paused = crate::metrics().unwrap();
+    assert_eq!(
+        paused.refill_pauses.total() - after.refill_pauses.total(),
+        1
+    );
+    assert!(state.begin(now).is_none());
+    assert_eq!(crate::metrics(), Some(paused));
+    state.retry(now).unwrap();
+    assert_eq!(
+        crate::metrics().unwrap().refill_restarts.total() - paused.refill_restarts.total(),
+        1
+    );
+}
+
 fn insert(state: &mut Model, seed: [u8; 32], now: u64) {
     let claim = state.begin(now).unwrap();
     assert!(state.begin(now).is_none());

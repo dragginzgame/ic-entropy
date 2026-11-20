@@ -2,8 +2,11 @@
 # Consumer dispatch and disposable cache recovery; no release/publication effects.
 set -euo pipefail
 root="$PWD"
+make_binary="$(command -v make)"
 mkdir -p target
 fixture="$(mktemp -d "$root/target/validation-caller.XXXXXX")"
+complete=false
+trap 'if [[ "$complete" == true ]]; then rm -rf -- "$fixture"; else printf "Validation caller fixture retained: %s\n" "$fixture" >&2; fi' EXIT
 mkdir -p "$fixture/scripts/release" "$fixture/scripts/ci" \
     "$fixture/vendor/toko-tooling/scripts/ci" "$fixture/.tools/host/bin"
 cp scripts/release/adapter.sh scripts/release/native-stage.sh scripts/release/stage-makeflags.pl "$fixture/scripts/release/"
@@ -18,7 +21,7 @@ chmod +x "$fixture/.tools/host/bin/make"
 cat > "$fixture/vendor/toko-tooling/scripts/ci/read-cargo-workspace-version.sh" <<'EOF'
 printf '0.1.10\n'
 EOF
-for script in check-release-source cargo-release-metadata check-dependency-pins; do
+for script in check-release-source cargo-release-metadata; do
     printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/vendor/toko-tooling/scripts/ci/$script.sh"
 done
 printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/scripts/release/metadata.sh"
@@ -30,13 +33,13 @@ printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/scripts/release/metadata.sh"
     if perl scripts/release/stage-makeflags.pl '"unterminated'; then exit 1; fi
     # A preliminary version cannot satisfy final-version native validation.
     RELEASE_VERSION=0.1.11 bash scripts/release/adapter.sh verify > preliminary.log
-    ! test -e calls || ! rg 'lint test' calls
+    ! test -e calls || ! rg 'validate-native' calls
     # Publication and committed-source checks both retain a native obligation.
     RELEASE_VERSION=0.1.11 RUSTFLAGS=-Cdebuginfo=0 bash scripts/release/adapter.sh publication-verify > publication.log
-    rg -q 'lint test check-wasm doc-check qualification-check test-installed' calls
+    rg -q 'validate-native' calls
     rm calls
     RUSTFLAGS=-Cdebuginfo=0 bash scripts/release/adapter.sh committed-check > committed.log
-    rg -q 'lint test check-wasm doc-check qualification-check test-installed' calls
+    rg -q 'validate-native' calls
     # An unsupported environment must execute ordinarily, preserving failure.
     set +e
     FIXTURE_STATUS=23 RUSTFLAGS=-Cdebuginfo=0 bash scripts/release/native-stage.sh > failed.log
@@ -63,4 +66,35 @@ printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/scripts/release/metadata.sh"
     ln -s "$fixture/calls" target/debug/unsafe
     if bash scripts/ci/build-cache.sh seal > unsafe.log 2>&1; then exit 1; fi
 )
-printf 'Consumer dispatch, Cargo settings, failed validation and cache recovery passed: %s\n' "$fixture"
+
+# Exercise the real Make roster under parallel scheduling. Failed early lint
+# must prevent tests, Wasm/docs and installed qualification from starting.
+cp Makefile "$fixture/Makefile"
+cp -R vendor/toko-tooling/make "$fixture/vendor/toko-tooling/make"
+cat > "$fixture/.tools/host/bin/cargo" <<'EOF_CARGO'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >> cargo-calls
+if [[ "${FIXTURE_CARGO_FAILURE:-}" == "$1" ]]; then exit 23; fi
+EOF_CARGO
+chmod +x "$fixture/.tools/host/bin/cargo"
+(
+    cd "$fixture"
+    status=0
+    FIXTURE_CARGO_FAILURE=clippy "$make_binary" --no-print-directory -j2 validate-native > lint-failed.log 2>&1 || status=$?
+    [[ "$status" == 2 ]]
+    [[ "$(wc -l < cargo-calls)" -eq 1 ]]
+    rg -q '^clippy --locked -p ic-entropy --all-targets$' cargo-calls
+    rm cargo-calls
+    "$make_binary" --no-print-directory -j2 validate-native > ordered.log 2>&1
+    # The complete lint selection precedes the first test, even with -j2.
+    awk '
+        $1 == "test" { tests = 1 }
+        $1 == "clippy" && $0 !~ /--target wasm32/ && $0 !~ /qualification\/Cargo.toml/ {
+            if (tests) exit 1
+            lint++
+        }
+        END { if (lint != 9 || !tests) exit 1 }
+    ' cargo-calls
+)
+complete=true
+printf 'Consumer dispatch, Cargo settings, cache recovery and parallel lint ordering passed.\n'

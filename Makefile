@@ -17,23 +17,69 @@ test:
 	cargo test --locked -p ic-entropy
 	cargo test --locked -p ic-entropy-ic
 	cargo test --locked -p ic-entropy-ic --features buffered
+	cargo test --locked -p ic-entropy-ic --features metrics
+	cargo test --locked -p ic-entropy-ic --features buffered,metrics
+	cargo test --locked -p ic-entropy-ic --features logging
+	cargo test --locked -p ic-entropy-ic --features buffered,logging
+	cargo test --locked -p ic-entropy-ic --features logging,metrics
+	cargo test --locked -p ic-entropy-ic --features buffered,logging,metrics
 lint:
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --all-targets
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features metrics
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered,metrics
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features logging
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered,logging
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features logging,metrics
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --all-targets --features buffered,logging,metrics
 check-wasm:
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy --target wasm32-unknown-unknown
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --target wasm32-unknown-unknown
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered --example consumer_owned --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features metrics --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered,metrics --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered,metrics --example consumer_owned --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features logging --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered,logging --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features logging,metrics --target wasm32-unknown-unknown
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-entropy-ic --features buffered,logging,metrics --target wasm32-unknown-unknown
 .PHONY: doc-check
 doc-check:
 	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy -p ic-entropy-ic --no-deps
 	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered --no-deps
 	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy -p ic-entropy-ic --target wasm32-unknown-unknown --no-deps
 	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features metrics --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,metrics --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features metrics --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,metrics --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features logging --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,logging --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features logging,metrics --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,logging,metrics --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features logging --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,logging --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features logging,metrics --target wasm32-unknown-unknown --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --locked -p ic-entropy-ic --features buffered,logging,metrics --target wasm32-unknown-unknown --no-deps
+.PHONY: check-rules
+check-rules:
+	bash vendor/toko-tooling/scripts/ci/check-dependency-pins.sh --cargo-inheritance
+	bash vendor/toko-tooling/scripts/ci/check-cargo-dependency-boundaries.sh --consumer "$(CURDIR)" --external-ic
+	bash vendor/toko-tooling/scripts/ci/check-cargo-dependency-boundaries.sh --consumer "$(CURDIR)/qualification" --external-ic
+	perl vendor/toko-tooling/scripts/ci/check-candid-boundary.pl --cbor "$(CURDIR)" ci/candid-boundary.json crates qualification/entropy-probe
+	perl vendor/toko-tooling/scripts/ci/check-type-docs.pl crates qualification/entropy-probe
+.PHONY: validate-native
+validate-native:
+	$(MAKE) lint
+	$(MAKE) test check-wasm doc-check
+	$(MAKE) qualification-check
+	$(MAKE) test-installed
 ci: toko-tooling-check
-	$(MAKE) lint test check-wasm doc-check qualification-check test-installed test-release-metadata test-required-inventory
+	$(MAKE) check-rules
+	$(MAKE) validate-native
+	$(MAKE) test-release-metadata test-required-inventory test-validation-dispatch
 
 release-editor-setup:
 	bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-cargo-metadata --version 0.1.0 --bin ic-cargo-metadata --profile debug
@@ -80,6 +126,10 @@ test-installed: build-entropy-probe
 .PHONY: test-release-metadata
 test-release-metadata:
 	bash scripts/release/test-metadata.sh
+
+.PHONY: test-validation-dispatch
+test-validation-dispatch:
+	bash scripts/release/test-validation.sh
 
 .PHONY: test-required-inventory
 test-required-inventory:

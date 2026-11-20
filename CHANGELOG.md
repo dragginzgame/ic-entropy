@@ -1,5 +1,45 @@
 # Changelog
 
+## [0.5.10] - Unreleased
+
+### ➕ Added
+
+- Add independent opt-in `ic-entropy-ic/logging` using IC Logging 0.25.20.
+  Forward fixed lifecycle, acquisition failure, scheduling and refill transition
+  messages to a host-configured sink compatible with Canic's shared logger.
+  Hosts own log storage and policy; no entropy contents enter messages.
+- Add opt-in `ic-entropy-ic/metrics` using IC Metrics 0.30.21. Hosts can supply
+  shared `Rc<MetricsStorage>` with the same binding pattern as Timers and Canic's
+  typed metrics store; the adapter owns recording and hosts own reporting and
+  incarnation identity. No Canic dependency or reporting endpoint is introduced.
+- Observe explicit/background acquisition outcomes, cancellations, bounded
+  completion latency, source refusals, buffered seed/byte consumption and refill
+  retry/pause/recovery transitions. Preserve observations across reconstruction
+  and refuse switching live stores.
+
+### 🧪 Testing
+
+- Cover instrumented and uninstrumented fresh/buffered modes and qualify shared
+  storage, consumption, cancellation, stale replies and fresh upgrade/reinstall
+  counters in the standalone PocketIC journey. Check shared canonical log storage,
+  quiet successful draws, retained lifecycle history and fresh-heap logs.
+
+### 🔧 Tooling
+
+- Adopt authenticated Toko Tooling 0.46.0 in both workspaces and the installed
+  snapshot. Enforce inherited dependency declarations, canonical IC dependency
+  and Candid/CBOR source boundaries, and Rust type headers through shared checks.
+- Restore pinned tool downloads before CI bootstrap, share ordered native
+  validation between CI and release, and prove lint failure stops later work
+  under parallel Make. Keep one repository secret scan and all three host jobs.
+- Apply the current Rust type documentation and function layout rules; keep
+  logging test helpers in test source and share refill recovery decisions.
+- Registry review confirms current locked direct suppliers. Retain the separately
+  prepared metadata editor 0.1.0 and Testkit preparer 0.110.0; defer optional
+  0.1.2/0.110.3 CLI refreshes to the next installer-maintenance batch.
+- Qualify the locked Timers 0.46.13 and qualification Wire 0.27.1 selections
+  with the optional metrics integration.
+
 ## [0.5.9] - 2026-11-20
 
 ### 🔧 Tooling

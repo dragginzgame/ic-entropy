@@ -31,6 +31,10 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           persist-credentials: false
+      - name: Restore pinned tool downloads before bootstrap
+        uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
+        with:
+          extra-key: ${{ hashFiles('Makefile') }}
       - name: Prepare selected compiler
         run: |
           make --no-print-directory install-host-tools host-tools-check
@@ -97,10 +101,7 @@ jobs:
         timeout-minutes: 15
         shell: bash
         run: |
-          {
-            make ci fmt-check
-            PATH="$PWD/.tools/host/bin:$PATH" bash vendor/toko-tooling/scripts/ci/check-dependency-pins.sh
-          } 2>&1 | tee "$RUNNER_TEMP/validation.log"
+          make ci fmt-check 2>&1 | tee "$RUNNER_TEMP/validation.log"
       - name: Retain validation diagnostics
         if: always()
         timeout-minutes: 2

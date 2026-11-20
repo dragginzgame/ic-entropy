@@ -16,7 +16,8 @@ category = "tests"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-ic-entropy-ic = { workspace = true, features = ["buffered"] }
+ic-entropy-ic = { workspace = true, features = ["buffered", "logging", "metrics"] }
+ic-logging.workspace = true
 ic-platform-protocol = { workspace = true, features = ["http-request"] }
 ic-platform-runtime = { workspace = true, features = ["entrypoint-macros", "system-raw"] }
 ic-platform-types.workspace = true

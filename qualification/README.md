@@ -65,6 +65,15 @@ The journey verifies:
   starts acquisition again.
 - Stop/drain, upgrade/start and reinstall reconstruct fresh volatile state and
   refill again.
+- The host-supplied metrics store matches the adapter's observations, preserves
+  counters across repeated binding and reconstruction, and refuses replacement.
+  Fresh/background requests, cancellation, stale replies, consumption/refusals
+  and real latency clocks are observed; upgrade/reinstall start fresh counters.
+
+- The host's canonical IC Logging store contains both host and Entropy events.
+  Routine draws/fresh successes add no rows; stale completion and refill recovery
+  emit fixed messages. Repeated sink setup preserves history, and upgrade/reinstall
+  create fresh logs. The sink reads adapter status without a custody conflict.
 
 The endpoint group is at the top of `entropy-probe/src/lib.rs`, with its explicit
 guard and request/reply bounds recorded on each handler. Portable bodies and the

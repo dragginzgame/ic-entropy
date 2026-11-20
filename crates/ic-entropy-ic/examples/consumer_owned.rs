@@ -10,7 +10,12 @@ use ic_entropy::Generator;
 use ic_entropy_ic::{self as entropy, Error};
 use std::cell::RefCell;
 
+///
+/// Consumer
+///
 /// Separate consumers, each with exclusive stream ownership and its own budget.
+///
+
 #[derive(Clone, Copy)]
 pub enum Consumer {
     /// Expand each independently acquired seed into at most 2,000 output bytes.
@@ -65,7 +70,8 @@ fn discard_streams() {
 /// Caller-owned streams are discarded before adapter reconstruction is attempted.
 ///
 /// # Panics
-/// Traps if the adapter's logical lifecycle generation is exhausted.
+/// Traps if the adapter's logical lifecycle generation is exhausted. With adapter
+/// logging enabled, also propagates a panic from the configured host sink.
 pub fn reconstruct() -> Result<(), Error> {
     require_update_context()?;
     discard_streams();
@@ -80,7 +86,8 @@ pub fn reconstruct() -> Result<(), Error> {
 /// The host must handle suspension failure before proceeding with its lifecycle.
 ///
 /// # Panics
-/// Traps if the adapter's logical lifecycle generation is exhausted.
+/// Traps if the adapter's logical lifecycle generation is exhausted. With adapter
+/// logging enabled, also propagates a panic from the configured host sink.
 pub fn suspend() -> Result<(), Error> {
     require_update_context()?;
     discard_streams();
@@ -101,11 +108,15 @@ pub fn suspend() -> Result<(), Error> {
 /// If the pool cannot supply a replacement, propagate its typed error with the
 /// output and existing generator unchanged. The host can defer/retry; it must
 /// not substitute timestamps, zeros or previously returned bytes.
+///
+/// # Panics
+/// With adapter logging enabled, propagates a panic from the configured host sink.
 pub fn fill_bytes(consumer: Consumer, output: &mut [u8]) -> Result<(), Error> {
     require_update_context()?;
     if output.len() > 1_024 {
         return Err(Error::DrawTooLarge);
     }
+
     if output.is_empty() {
         return Ok(());
     }
