@@ -41,10 +41,8 @@ thread_local! {
 }
 
 // Core Generator has no IC admission policy, including after it has been seeded.
-// Runtime's raw admission API is Wasm-only; native callers must refuse before
-// touching the caller-owned streams.
+// Admit replicated execution before touching the caller-owned streams.
 fn require_update_context() -> Result<(), Error> {
-    #[cfg(target_arch = "wasm32")]
     if ic_platform_runtime::raw::in_replicated_execution() {
         return Ok(());
     }

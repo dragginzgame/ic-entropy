@@ -1,16 +1,12 @@
 //! One retained Timers watchdog over volatile entropy demand.
 //! The host explicitly reconstructs/suspends; this module exports no lifecycle hooks.
 
-// Runtime 0.23.22 still hides executor::run_update from the supported native
-// adapter. Demand, cancellation and the clock API remain outside this boundary.
-#[cfg(target_arch = "wasm32")]
 mod driver;
 mod model;
 #[cfg(test)]
 mod tests;
 
 use crate::{Error, source};
-#[cfg(target_arch = "wasm32")]
 use driver::reconcile;
 use model::Model;
 use std::{cell::RefCell, mem::DropGuard};
@@ -137,18 +133,6 @@ fn now_ns() -> u64 {
     ic_platform_runtime::system::time()
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-fn reconcile(_will_draw: bool) -> Result<(), Error> {
-    Err(Error::Scheduling)
-}
-
-#[cfg_attr(
-    all(not(target_arch = "wasm32"), not(test)),
-    expect(
-        dead_code,
-        reason = "the IC watchdog and native cancellation tests own this guard"
-    )
-)]
 fn refill_cancellation(generation: u64, started_ns: u64) -> DropGuard<(), impl FnOnce(())> {
     DropGuard::new((), move |()| {
         BUFFER.with_borrow_mut(|state| {

@@ -101,19 +101,11 @@ async fn request_with(
     })
 }
 
-// Runtime 0.23.22 omits this IC observation on native. Public native requests
-// must refuse before claiming source custody; native tests exercise that contract.
-#[cfg(target_arch = "wasm32")]
 pub(super) fn require_replicated() -> Result<(), Error> {
     if ic_platform_runtime::raw::in_replicated_execution() {
         return Ok(());
     }
 
-    Err(Error::NonReplicated)
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-pub(super) const fn require_replicated() -> Result<(), Error> {
     Err(Error::NonReplicated)
 }
 

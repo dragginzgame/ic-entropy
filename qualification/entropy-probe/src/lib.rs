@@ -193,12 +193,10 @@ fn oversized_refusal(_input: ()) -> bool {
         && before == entropy::status()
 }
 
-// Runtime 0.23.22 omits HTTP request pricing from the native Wire client.
 // contend
 // Hold a real request while the driver observes exclusive source custody.
 // guard  : guard (unrestricted private probe)
 // limits : request Wire LIMITS (4096 bytes); reply Wire LIMITS (4096 bytes)
-#[cfg(target_arch = "wasm32")]
 #[runtime::update(
     runtime = runtime,
     name = "contend",

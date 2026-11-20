@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.8] - Unreleased
+
+### 🧹 Cleanup
+
+- Compile the buffered driver, replication check and contention probe on both
+  targets using Platform Runtime 0.23.23 and Timers 0.46.10 or later. Remove the
+  consumer target guards following [Platform #34 — Expose management observations and prepared call pricing to native type-checking](https://github.com/dragginzgame/ic-platform/issues/34).
+
+### 🔧 Tooling
+
+- Refresh qualification's locked Host Artifacts/Fs from 0.80.6 to 0.80.7.
+- Retain Wire 0.26.1, Toko Tooling 0.45.21, prepared metadata editor 0.1.0 and
+  Testkit server preparer 0.110.0. Defer optional 0.27.0/0.45.22/0.1.2/0.110.3
+  refreshes to the next tooling-maintenance batch; other first-party locked
+  suppliers remain current.
+
 ## [0.5.7] - 2026-11-19
 
 ### 🔧 Tooling

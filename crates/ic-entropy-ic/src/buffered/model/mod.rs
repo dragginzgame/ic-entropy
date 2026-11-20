@@ -135,14 +135,6 @@ impl Model {
     }
 }
 
-// Only the IC watchdog and native tests drive refill attempts.
-#[cfg_attr(
-    all(not(target_arch = "wasm32"), not(test)),
-    expect(
-        dead_code,
-        reason = "native libraries type-check the watchdog transitions"
-    )
-)]
 impl Model {
     pub(super) fn begin(&mut self, now: u64) -> Option<u64> {
         if self.status().refill != RefillState::Scheduled || now < self.next_ns {
