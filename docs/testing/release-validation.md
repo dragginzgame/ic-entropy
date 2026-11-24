@@ -7,7 +7,7 @@ active crate, retirement notice, feature modes and installed qualification oblig
 | Flow | Entrypoints and trigger | Guarantee and input scope |
 | --- | --- | --- |
 | Development | Focused package tests, Clippy and Wasm selections in `AGENTS.md`, after affected product edits | Product behavior and compilation for the changed package, features and callers. |
-| Changed tooling | `make toko-tooling-check tools-check`; affected metadata, validation-dispatch, scanner and required-inventory fixtures | Installed registry bytes, prepared tools and actual consumer caller/failure contracts. Run fixtures when their wiring changes. |
+| Changed tooling | `make toko-tooling-check tools-check`; affected metadata, validation-dispatch, early setup, scanner and required-inventory fixtures | Installed registry bytes, prepared tools and actual consumer caller/failure contracts. Run fixtures when their wiring changes. |
 | Repository CI | `make ci fmt-check`, ordered rule checks and one history scan, on pushes/PRs | Active-crate feature modes and the empty retirement notice, Wasm, docs and installed qualification on every declared host; one repository secret scan. |
 | Release | `make release-patch`, `release-minor` or `release-major`, after explicit release authority | Fresh graph/pin/format admission, two-lock version preparation, the complete native stage on final-version source, commit/tag and Git delivery. |
 | Publication | `make publish`, for an affected publishable release | Fresh final-source and Cargo archive/registry admission; the native stage reuses an exact-input proof or executes. |
@@ -66,8 +66,9 @@ CI restores pinned tool downloads before bootstrap, then installs and admits
 the pinned host tools so the shared
 `prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml` entrypoint can
 parse the compiler policy. That file owns the channel, profile, components and
-Wasm target. Each host verifies the effective rustc/Cargo versions and reports
-installed components and targets before dependency fetching. Qualify this setup
+Wasm target. Each host verifies the effective rustc/Cargo versions, checks
+installed components and targets, and retains checked compiler identities before
+dependency fetching. Qualify this setup
 with the workflow's `Prepare selected compiler` step; Linux execution does not
 establish execution on either macOS runner.
 
@@ -107,6 +108,32 @@ each bounded to 2 minutes. Validation output streams to the job log and a retain
 artifact, with Bash failure and pipeline status preserved. Setup logs retain their
 existing redaction. Uploads are best effort if the overall job limit or runner
 termination is reached; they do not turn a failed or timed-out step into success.
+
+Compiler preparation (including host-tool bootstrap) and both locked Cargo
+fetches run through the installed `SetupDiagnostics.pm` helper via
+`scripts/ci/setup-command.pl`. Each started phase creates status metadata and a
+hidden `.attempt/diagnostic.log` under `$RUNNER_TEMP/early-setup/` before launch.
+On failure the shared helper drains output, redacts sensitive lines, neutralizes
+workflow commands and retains a tail of at most 100 lines/32 KiB, with omissions
+identified. Raw command output is not retained. Compiler success also retains
+the checked rustc/Cargo identities. Compiler preparation uses the host's tool
+budget; locked fetching has five minutes. The helper emits its excerpt after
+command completion; interruption can leave the initial incomplete marker rather
+than a completed failure diagnostic.
+
+The always-run setup upload explicitly selects these metadata, identity and
+hidden log files alongside the existing tool/PocketIC logs, includes hidden
+files and refuses an empty selection. The following always-run report prints
+the retained evidence, links the 14-day artifact and fails on missing required
+phases/files, incomplete collection or upload failure. Collection/reporting
+cannot replace the original command's failing status. Run
+`bash scripts/ci/test-early-setup.sh` to exercise the actual workflow callers
+with substituted compiler/bootstrap and Cargo commands. It forces both locked
+fetch failures, builds a bounded local archive from the actual upload selection,
+checks redaction and original statuses, and rejects missing evidence, collector
+failure and upload failure. Linux CI selects this fixture once after common
+tool setup with a one-minute budget. These local substitutes do not establish
+hosted artifact upload/retrieval or macOS execution.
 
 The secrets job prepares its pinned Gitleaks scanner separately from scanning.
 Setup retains only `status.txt` and the hidden `.attempt/install.log` under

@@ -1,9 +1,9 @@
 # Toko Tooling snapshot v1
-# version	0.46.0
+# version	0.46.3
 # layout	vendor
 format	1
 source	https://crates.io/crates/toko-tooling
-revision	4601d2785aaa14e01fd8656d6b3a57653337b214e027810c953595f1d91d6a8d
+revision	3f6d677af6c5ed88e3ba9ccf4d7b0c2eaad5f0fc49f0ad5b697e412ea4be600e
 # entrypoint	TOKO-TOOLING.md
 # entrypoint	vendor/toko-tooling/make/consumer.mk
 # entrypoint	vendor/toko-tooling/make/release.mk
@@ -27,13 +27,15 @@ revision	4601d2785aaa14e01fd8656d6b3a57653337b214e027810c953595f1d91d6a8d
 # entrypoint	vendor/toko-tooling/scripts/ci/check-type-docs.pl
 # entrypoint	vendor/toko-tooling/scripts/ci/check-candid-boundary.pl
 # entrypoint	vendor/toko-tooling/scripts/ci/check-cargo-dependency-boundaries.sh
-file	6750a18a92577ae4fea265c60f34cc80e442335c6f9edeccd498f75debbaa283	-	TOKO-TOOLING.md
+# entrypoint	vendor/toko-tooling/scripts/ci/SetupDiagnostics.pm
+# entrypoint	vendor/toko-tooling/scripts/ci/extract-workflow-step.sh
+file	74a31e560650f34b70e1d8f40131c78c9bc7f9c39e2e36bf6bcbcfdec06e38ae	-	TOKO-TOOLING.md
 file	e5be6f538ee619be119aef9b3fca9d156f35c08732d9775e4e2efd698db8cbd7	-	vendor/toko-tooling/make/consumer.mk
 file	4835699ea2ad56ede6f1f89b6b070854a86891cec62ac13af8884252476ede51	-	vendor/toko-tooling/make/release.mk
 file	f83e4bd3143a04e954f77eb23d38b1924658aa298b0c1d3486748197861d696d	-	vendor/toko-tooling/make/cargo-publication.mk
 file	07b59f8cc784c79c648d379561f2493e40bac5b7c2809e8eda960cba661fae7d	-	vendor/toko-tooling/make/cargo-dependencies.mk
 file	1085e5521dfacb38aed065b70f905aab666ab73ef49dd5a25270c2ec2cf63710	x	vendor/toko-tooling/.githooks/pre-commit
-file	070fdb944a1c8e6d341b7a6943277c4fe9cf9642d925a6ba32ab9d04f969d2b1	x	vendor/toko-tooling/scripts/ci/cargo-release-metadata.sh
+file	131c2c8355363578da9379aa139176cd3973e2cac654e668dc1eb21c12e8d275	x	vendor/toko-tooling/scripts/ci/cargo-release-metadata.sh
 file	a3af7084956384262842be33100f91a22fdd82b0f91b6091a00e90f8726f67fe	x	vendor/toko-tooling/scripts/ci/check-release-source.sh
 file	5a4f1abe764e1e46c472bcf1e2e38f7f998085c570f53976591c808eca884d65	-	vendor/toko-tooling/scripts/ci/check-release-changelog.sh
 file	e0f1b194ddbe5e5ae35864edc67727993511e093cff07506b4ffa503681edd52	x	vendor/toko-tooling/scripts/ci/install-ci-tool.sh
@@ -50,6 +52,8 @@ file	31c47b675fba90850681c6fac0d685def34b08a68e7e05bc55ae0403419fdf82	x	vendor/t
 file	5dd3171d8fec23ce4ca694a9c88afa92fe4a4765313fb5cd2c94075280278f72	x	vendor/toko-tooling/scripts/ci/check-type-docs.pl
 file	4ba3a93e5ba61d532fa368d0f264a23f601693a8289e83e82749b09da53cf0e9	-	vendor/toko-tooling/scripts/ci/check-candid-boundary.pl
 file	078e546560ff4a2c2edfb1577b1ef1a62855bcaefef6971ba88763fef0cc378c	x	vendor/toko-tooling/scripts/ci/check-cargo-dependency-boundaries.sh
+file	5c4b137ef1c611246d62a033b5f3f35acdf377ca1a5153c595d28fe4b0db644a	-	vendor/toko-tooling/scripts/ci/SetupDiagnostics.pm
+file	e2825c554ea3952515ecb2938f7ad592d6539ec5304c3b3107d32a1bfc6b4eda	-	vendor/toko-tooling/scripts/ci/extract-workflow-step.sh
 file	578a5f7217e378280fe378328d39e4b7dcea653bd868159b57362461bd4e8555	x	vendor/toko-tooling/scripts/ci/verify-file-checksum.sh
 file	aec8dfcff940adbf7ca69d0e9edb4cd31b65648e1deef299ffb194e94e64c536	x	vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh
 file	da86464696f4f600f034566cef732aa680dc9c577e534519c71ee3d07172a875	-	vendor/toko-tooling/scripts/dev/toko-tooling.sh
@@ -61,7 +65,7 @@ file	1970787aba8bc8d18e04ee80c1f293a81bc0b83b8404d8e1532390e1c94010bc	x	vendor/t
 file	1b01f4b482fb85986d1ffab592626ccbfec187ac7a5133ab946b0acd51a18381	-	vendor/toko-tooling/scripts/ci/check-release-delivery.sh
 file	f6ecd07a9577b0b307d2bef6c8185125c611e05732c119c63bb474cbf50e18d5	-	vendor/toko-tooling/make/execution.mk
 file	a1ed6b41c20ec62404a127fa3432a56beb1e76541c08fa7231adc8e0409047e1	-	vendor/toko-tooling/scripts/dev/clean-empty-source-dirs.pl
-file	f52eb75c9b3b7eab6dee5def659bf3e1ea323bc9cc126821d9910740c182dfe6	-	vendor/toko-tooling/scripts/ci/cargo-publication-adapter.sh
+file	757ce0c6d283271aaf6d3d91a7c407b8de28a0d21a8b731315ac36273cc2842c	-	vendor/toko-tooling/scripts/ci/cargo-publication-adapter.sh
 file	37fec4ef571caa7199f284bdcc28e4a5d8c74da300362f48e688654bbda64966	-	vendor/toko-tooling/scripts/dev/cargo-dependencies.pl
 file	3bbcd3458afbeee5803bf4f51e624afd2b11578ee961250522c9332ed0fc7b4f	x	vendor/toko-tooling/scripts/ci/check-make-execution.sh
 file	e00937f22bd31231993ae9c1d7eda844227b39529466d017de44dbc1f0618026	-	vendor/toko-tooling/scripts/ci/cargo-workspace-members.jq

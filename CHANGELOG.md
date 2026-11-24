@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.6.1] - Unreleased
+
+### 🔧 Tooling
+
+- Adopt Wire 0.30.0 in both sides of installed qualification and align Platform
+  declarations with Runtime/Macros/Guard 0.23.25, Protocol 0.3.8 and Types
+  0.21.4. Keep one Runtime executor and guard across Entropy, Timers and the probe.
+- Adopt Testkit 0.110.4 for qualification and its prepared server helper, with
+  locked Host Artifacts/Fs 0.80.8 and Process 0.81.4. Preserve the existing lock
+  refreshes, including current Timers 0.46.13. Defer the optional metadata editor
+  0.1.3 refresh to the next installer-maintenance batch.
+- Adopt Toko Tooling 0.46.3 in both workspace catalogs and the authenticated
+  snapshot, including corrected coordinated-release dependency admission.
+- Capture compiler bootstrap and both locked dependency fetch failures through
+  shared Toko Tooling setup diagnostics. Retain bounded, sanitized hidden logs
+  and original statuses in the always-run 14-day setup artifact; report its link,
+  missing evidence and upload failures explicitly.
+- Exercise the actual workflow commands with forced setup/fetch failures and
+  local artifact selection, including redaction, bounds and collector failures.
+
 ## [0.6.0] - 2026-11-20
 
 ### ⚠️ Breaking

@@ -108,7 +108,7 @@ QUALIFICATION_TARGET := $(CURDIR)/target/qualification
 QUALIFICATION_SERVER_DIRECTORY := $(CURDIR)/.tools/pocket-ic-managed
 .PHONY: install-qualification-tools qualification-check build-entropy-probe test-installed
 install-qualification-tools: qualification-server-setup
-	@server="$$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.0 --example prepare_server --profile debug --features managed-server --check)" && \
+	@server="$$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.4 --example prepare_server --profile debug --features managed-server --check)" && \
 	  bash scripts/dev/setup-pocket-ic.sh "$$server" "$(QUALIFICATION_SERVER_DIRECTORY)"
 qualification-check:
 	cargo fmt --manifest-path qualification/Cargo.toml --all --check
@@ -137,9 +137,9 @@ test-required-inventory:
 
 .PHONY: release-editor-check qualification-tools-check qualification-server-setup qualification-server-check
 qualification-server-setup:
-	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.0 --example prepare_server --profile debug --features managed-server
+	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.4 --example prepare_server --profile debug --features managed-server
 qualification-server-check:
-	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.0 --example prepare_server --profile debug --features managed-server --check > /dev/null
+	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.4 --example prepare_server --profile debug --features managed-server --check > /dev/null
 release-editor-check:
 	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-cargo-metadata --version 0.1.0 --bin ic-cargo-metadata --profile debug --check > /dev/null
 qualification-tools-check:

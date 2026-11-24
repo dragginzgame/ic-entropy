@@ -35,22 +35,16 @@ jobs:
         uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
         with:
           extra-key: ${{ hashFiles('Makefile') }}
-      - name: Prepare selected compiler
+      - id: compiler-setup
+        name: Prepare selected compiler
+        timeout-minutes: ${{ matrix.tools-timeout }}
+        run: perl scripts/ci/setup-command.pl compiler bash scripts/ci/prepare-compiler.sh
+      - id: locked-fetch
+        name: Fetch locked dependencies
+        timeout-minutes: 5
         run: |
-          make --no-print-directory install-host-tools host-tools-check
-          export PATH="$PWD/.tools/host/bin:$PATH"
-          bash vendor/toko-tooling/scripts/dev/prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml
-          compiler="$(yq -p toml -o yaml -r '.toolchain.channel' rust-toolchain.toml)"
-          rustc -vV
-          cargo -vV
-          test "$(rustc --version | cut -d ' ' -f 2)" = "$compiler"
-          test "$(cargo --version | cut -d ' ' -f 2)" = "$compiler"
-          rustup component list --toolchain "$compiler" --installed
-          rustup target list --toolchain "$compiler" --installed
-      - name: Fetch locked dependencies
-        run: |
-          cargo fetch --locked
-          cargo fetch --locked --manifest-path qualification/Cargo.toml
+          perl scripts/ci/setup-command.pl fetch-product cargo fetch --locked
+          perl scripts/ci/setup-command.pl fetch-qualification cargo fetch --locked --manifest-path qualification/Cargo.toml
       - name: Prepare admitted tools with compiled cache
         timeout-minutes: ${{ matrix.tools-timeout }}
         uses: ./vendor/toko-tooling/.github/actions/prepare-common-tools
@@ -58,6 +52,10 @@ jobs:
           cache: 'true'
           cache-save: 'true'
           cache-extra-key: ${{ hashFiles('Makefile') }}
+      - name: Check early setup failure diagnostics
+        if: runner.os == 'Linux'
+        timeout-minutes: 1
+        run: bash scripts/ci/test-early-setup.sh
       - name: Check scanner setup diagnostics
         if: runner.os == 'Linux'
         timeout-minutes: 1
@@ -65,18 +63,35 @@ jobs:
       - name: Prepare admitted PocketIC server
         timeout-minutes: 5
         run: make install-qualification-tools
-      - name: Retain setup diagnostics
+      - id: setup-diagnostics
+        name: Retain setup diagnostics
         if: always()
         timeout-minutes: 2
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: setup-${{ runner.os }}-${{ runner.arch }}-${{ github.run_attempt }}
           path: |
+            ${{ runner.temp }}/early-setup/compiler/status.txt
+            ${{ runner.temp }}/early-setup/compiler/identity.log
+            ${{ runner.temp }}/early-setup/compiler/.attempt/diagnostic.log
+            ${{ runner.temp }}/early-setup/fetch-product/status.txt
+            ${{ runner.temp }}/early-setup/fetch-product/.attempt/diagnostic.log
+            ${{ runner.temp }}/early-setup/fetch-qualification/status.txt
+            ${{ runner.temp }}/early-setup/fetch-qualification/.attempt/diagnostic.log
             target/setup-pocket-ic/**/*.log
             ${{ runner.temp }}/tools-install.log
             ${{ runner.temp }}/tools-check.log
-          if-no-files-found: ignore
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 14
+      - id: setup-report
+        name: Report setup diagnostics
+        if: always()
+        timeout-minutes: 1
+        env:
+          ARTIFACT_OUTCOME: ${{ steps.setup-diagnostics.outcome }}
+          ARTIFACT_URL: ${{ steps.setup-diagnostics.outputs.artifact-url }}
+        run: perl scripts/ci/setup-command.pl report
       - id: build-key
         name: Select native compilation cache
         shell: bash

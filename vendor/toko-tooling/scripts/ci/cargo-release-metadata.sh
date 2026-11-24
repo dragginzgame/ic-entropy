@@ -40,24 +40,20 @@ regular_metadata() {
     done
 }
 
-lock_packages() {
-    local directory="$1" version="$2"
-    "${YQ:-yq}" -p toml -o json '.' "$directory/Cargo.lock" |
-        jq -er --arg primary "$primary" --arg version "$version" '
-            [.package[] | select(.source == null)] as $local |
-            if any($local[]; .name == $primary) and
-               all($local[]; .version == $version and (.name | test("^[A-Za-z0-9][A-Za-z0-9_-]*$"))) and
-               (($local | map(.name) | unique | length) == ($local | length))
-            then $local[].name else error("invalid coordinated workspace lock identities") end'
-}
-
+# The lock describes the whole local graph. Only workspace members participate
+# in this coordinated version bump; the editor selects local records by name.
 workspace_packages() {
-    local metadata="$1" version="$2" names="$3"
-    jq -L "$ROOT/scripts/ci" -er --arg primary "$primary" --arg version "$version" --rawfile names "$names" '
-        include "cargo-workspace-members";
-        coordinated_members($primary; $version) as $owned |
-        if (($owned | map(.name) | sort) == ($names | split("\n") | map(select(length > 0)) | sort))
-        then true else error("workspace members and admitted lock identities must agree") end' "$metadata" > /dev/null
+    local metadata="$1" version="$2" lock="$3"
+    "${YQ:-yq}" -p toml -o json '.' "$lock" |
+        jq -L "$ROOT/scripts/ci" -er --arg primary "$primary" --arg version "$version" --slurpfile graph "$metadata" '
+            include "cargo-workspace-members";
+            [.package[] | select(.source == null) | {name,version}] as $locked |
+            $graph[0] |
+            coordinated_members($primary; $version) as $owned |
+            [.packages[] | select(.source == null) | {name,version}] as $local |
+            if ($locked | sort) == ($local | sort) and
+               all($owned[]; .name as $name | [$locked[] | select(.name == $name)] | length == 1)
+            then $owned[].name else error("workspace members or local dependency identities disagree with Cargo.lock") end'
 }
 
 inherited_members() {
@@ -67,7 +63,10 @@ inherited_members() {
             case "$manifest" in "$directory"/*) ;; *) echo 'workspace member is outside the selected root' >&2; exit 1 ;; esac
             [[ -f "$manifest" && ! -L "$manifest" ]] || exit 1
             "${YQ:-yq}" -p toml -o json '.' "$manifest" |
-                jq -e '.package.version.workspace == true' > /dev/null
+                jq -e '.package.version | objects | .workspace == true' > /dev/null || {
+                    printf 'release member must inherit workspace.package.version: %s\n' "$manifest" >&2
+                    exit 1
+                }
         done
 }
 
@@ -77,8 +76,7 @@ admit_workspace_graph() {
     local directory="$1" version="$2" evidence="$3" lock_directory="$4" status
     local metadata_status=(0 0)
     mkdir -p "$evidence" || return
-    lock_packages "$lock_directory" "$version" > "$evidence/local-packages" || return
-    if (cd "$directory" && cargo metadata --locked --format-version 1) \
+    if (cd "$directory" && cargo metadata --locked --all-features --format-version 1) \
         2>&1 > "$evidence/metadata.json" | tee "$evidence/metadata.stderr" >&2; then
         :
     else
@@ -89,7 +87,7 @@ admit_workspace_graph() {
     status="${metadata_status[0]}"
     [[ "$status" != 0 ]] || status="${metadata_status[1]}"
     [[ "$status" == 0 ]] || return "$status"
-    workspace_packages "$evidence/metadata.json" "$version" "$evidence/local-packages"
+    workspace_packages "$evidence/metadata.json" "$version" "$lock_directory/Cargo.lock" > "$evidence/local-packages"
 }
 
 # shellcheck disable=SC2329 # Callback passed to release_metadata_prepare.
