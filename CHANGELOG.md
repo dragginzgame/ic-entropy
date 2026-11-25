@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2] - Unreleased
+
+### 🔧 Tooling
+
+- Refresh the locked Platform Runtime and Timers versions in both workspaces
+  and update Wire in the installed qualification probe.
+
 ## [0.6.1] - 2026-11-24
 
 ### 🔧 Tooling
