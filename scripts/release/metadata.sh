@@ -27,8 +27,7 @@ case "${1:-}" in
         evidence="${candidate%/*}"
         cargo metadata --locked --format-version 1 > "$evidence/product.json"
         cargo metadata --locked --manifest-path qualification/Cargo.toml --format-version 1 > "$evidence/qualification.json"
-        # The installed probe qualifies the active crate from the same local source.
-        # The empty retirement package is checked directly, not linked into the probe.
+        # The installed probe qualifies the product from the same local source.
         jq -e --slurpfile product "$evidence/product.json" '
             . as $q | $product[0] as $p |
             [$p.packages[] | select(.name == "ic-entropy") |

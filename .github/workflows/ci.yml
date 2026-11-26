@@ -112,7 +112,7 @@ jobs:
             entropy-build-v2-${{ runner.os }}-${{ runner.arch }}-${{ steps.build-key.outputs.key }}-
       - name: Admit restored build bytes
         run: bash scripts/ci/build-cache.sh restore
-      - name: Validate entropy and retirement notice
+      - name: Validate entropy
         timeout-minutes: 15
         shell: bash
         run: |

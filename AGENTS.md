@@ -11,17 +11,14 @@ It may not depend on Canic, IcyDB or Auth. Retain upstream cryptographic
 implementations; do not introduce a custom hash chain, entropy mixer or primitive.
 Preserve applicable external dependency notices.
 
-`ic-entropy-ic` is an empty retirement notice linking to `ic-entropy`. It exposes
-no APIs, features or normal dependencies. Do not add compatibility forwarding.
-The unpublished core package has been removed; generator and pool code belongs
-in the main crate's modules.
+`ic-entropy` is the only product package. Generator and pool code belongs in
+its modules.
 
 Focused checks select `-p ic-entropy`, with default features and all combinations
 of `buffered`, `metrics` and `logging`, for tests, strict all-target Clippy and Wasm
 compilation. Use `CARGO_BUILD_WARNINGS=deny` for Clippy. Keep test bodies/helpers
 in separate test modules. The Make test/lint/check-wasm targets aggregate these
-modes and directly check the empty retirement package. Linux checks do not
-establish macOS execution.
+modes. Linux checks do not establish macOS execution.
 
 The host can supply shared `Rc<MetricsStorage>` before acquisition and owns
 reporting and incarnation identity. Logging forwards fixed events through a host
@@ -32,7 +29,7 @@ qualification in order; CI and release adapters share this owner.
 Installed IC qualification lives in the independent `qualification/` workspace.
 Use `make install-qualification-tools`, `make qualification-check`, and
 `make test-installed` for its standalone PocketIC lifecycle journey. It consumes
-only the active crate; the empty retirement package has no installed-runtime role.
+the product crate through a local path dependency.
 Its private probe version does not follow product releases; prepare both lockfiles
 together through the consumer adapter and shared metadata transaction. Format
 both roots.

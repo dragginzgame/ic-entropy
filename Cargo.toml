@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/ic-entropy", "crates/ic-entropy-ic"]
+members = ["crates/ic-entropy"]
 exclude = ["qualification"]
 resolver = "3"
 

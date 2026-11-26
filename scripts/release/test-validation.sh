@@ -98,7 +98,7 @@ chmod +x "$fixture/.tools/host/bin/cargo"
             if (tests) exit 1
             lint++
         }
-        END { if (lint != 9 || !tests) exit 1 }
+        END { if (lint != 8 || !tests) exit 1 }
     ' cargo-calls
 )
 complete=true

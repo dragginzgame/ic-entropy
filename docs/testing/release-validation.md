@@ -2,13 +2,13 @@
 
 Shared tooling owns execution, metadata transactions, evidence admission and
 delivery recovery. Entropy's Make recipes and thin release adapter own the
-active crate, retirement notice, feature modes and installed qualification obligations.
+product crate, feature modes and installed qualification obligations.
 
 | Flow | Entrypoints and trigger | Guarantee and input scope |
 | --- | --- | --- |
 | Development | Focused package tests, Clippy and Wasm selections in `AGENTS.md`, after affected product edits | Product behavior and compilation for the changed package, features and callers. |
 | Changed tooling | `make toko-tooling-check tools-check`; affected metadata, validation-dispatch, early setup, scanner and required-inventory fixtures | Installed registry bytes, prepared tools and actual consumer caller/failure contracts. Run fixtures when their wiring changes. |
-| Repository CI | `make ci fmt-check`, ordered rule checks and one history scan, on pushes/PRs | Active-crate feature modes and the empty retirement notice, Wasm, docs and installed qualification on every declared host; one repository secret scan. |
+| Repository CI | `make ci fmt-check`, ordered rule checks and one history scan, on pushes/PRs | Product feature modes, Wasm, docs and installed qualification on every declared host, plus one repository secret scan. |
 | Release | `make release-patch`, `release-minor` or `release-major`, after explicit release authority | Fresh graph/pin/format admission, two-lock version preparation, the complete native stage on final-version source, commit/tag and Git delivery. |
 | Publication | `make publish`, for an affected publishable release | Fresh final-source and Cargo archive/registry admission; the native stage reuses an exact-input proof or executes. |
 | Recovery | `make release-resume VERSION=X.Y.Z`, for one saved failed release | Saved source, payload and destination admission; preserve failed evidence. Publication attempts separately require registry reconciliation before any retry. |
@@ -214,13 +214,8 @@ that order with parallel scheduling. CI adds rule checks first and consumer
 fixtures afterward; release/publication use the same native target through their
 existing exact-input stage. No producer regression matrix is added.
 
-## Consolidated crate and retirement notice
+## Product and qualification versions
 
-From 0.6, `ic-entropy` owns acquisition, generation and pooling. The product
-workspace also retains `ic-entropy-ic` solely to publish its empty retirement
-notice. The latter has no normal dependencies, features or APIs. Native/Wasm
-lint, compilation and Rustdoc check that artifact directly; it is not linked into
-the installed probe. The probe qualifies the active crate from its local manifest
-and version. The shared metadata transaction advances both product entries in
-the root lock and only the active product entry in the qualification lock,
-leaving the private probe version and unrelated suppliers unchanged.
+The installed probe qualifies `ic-entropy` from its local manifest and version.
+The shared metadata transaction advances the product entry in both lockfiles.
+The private probe version and supplier selections are independent.

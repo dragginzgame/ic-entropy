@@ -50,21 +50,14 @@ All functionality now belongs to **`ic-entropy`**, with Rust import path
 `ic_entropy`. The package requires IC Runtime and `std`; it no longer offers a
 separate `no_std` product. Generator and pool operations remain allocation-free.
 
-Replace `ic-entropy-ic` dependencies and `ic_entropy_ic` imports with `ic-entropy`
-and `ic_entropy`. Existing generator/pool callers keep their `ic_entropy` paths.
-Enable `buffered`, `metrics` and `logging` on `ic-entropy` as needed.
-
-The latest [`ic-entropy-ic`](https://crates.io/crates/ic-entropy-ic) release is an
-empty retirement notice linking here. It has no APIs, features or forwarding
-dependency. The unpublished `ic-entropy-core` package was removed and will not be
-published. The active crate's log source and refill watchdog prefix are
-`ic-entropy`; update host filters alongside imports.
+Enable `buffered`, `metrics` and `logging` on `ic-entropy` as needed. Use
+`ic-entropy` as the log source and refill watchdog prefix in host filters.
 
 ## Development
 
 Rust 1.100.0 with rustfmt and Clippy; Wasm uses `wasm32-unknown-unknown`.
 `make test`, `make lint`, `make check-wasm` and `make doc-check` aggregate all
-eight active-crate feature combinations and directly check the retirement notice.
+eight product feature combinations.
 For focused work, select `-p ic-entropy` and the appropriate features. Native and
 Wasm Clippy use `CARGO_BUILD_WARNINGS=deny`; Rustdoc retains strict warnings.
 

@@ -37,13 +37,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ic-entropy-ic"
-version = "0.7.0"
-dependencies = [
- "toko-tooling",
-]
-
-[[package]]
 name = "ic-logging"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

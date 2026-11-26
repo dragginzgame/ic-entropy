@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.1] - Unreleased
+
+### 🔧 Tooling
+
+- Scope publication, CI and release metadata to the sole product crate, `ic-entropy`.
+
 ## [0.7.0] - 2026-11-26
 
 ### ⚠️ Breaking
@@ -72,29 +78,25 @@
   buffering, metrics and logging into `ic-entropy` with Rust path `ic_entropy`.
   Platform Runtime and upstream ChaCha20 are normal dependencies; the package
   no longer promises `no_std` support.
-- Publish `ic-entropy-ic` as an empty retirement notice linking to `ic-entropy`,
-  with no APIs, features, forwarding dependency or compatibility exports. Remove
-  the unpublished core package instead of publishing another crate name.
+- Remove the unpublished core package.
 - Rename the fixed log source and refill watchdog prefix to `ic-entropy`; update
   host filters and imports using the README migration instructions.
 
 ### 🔧 Tooling
 
-- Keep one active runtime qualification target and check the empty retirement
-  package directly. Prepare the root and qualification locks together without
-  adding the retirement notice to the canister dependency graph.
-- Update package checks and release fixtures for the consolidated API and the
-  empty retirement artifact.
+- Keep one runtime qualification target and prepare the root and qualification
+  locks together.
+- Update package checks and release fixtures for the consolidated API.
 
 ## [0.5.10] - 2026-11-20
 
 ### ➕ Added
 
-- Add independent opt-in `ic-entropy-ic/logging` using IC Logging 0.25.20.
+- Add independent opt-in logging using IC Logging 0.25.20.
   Forward fixed lifecycle, acquisition failure, scheduling and refill transition
   messages to a host-configured sink compatible with Canic's shared logger.
   Hosts own log storage and policy; no entropy contents enter messages.
-- Add opt-in `ic-entropy-ic/metrics` using IC Metrics 0.30.21. Hosts can supply
+- Add opt-in metrics using IC Metrics 0.30.21. Hosts can supply
   shared `Rc<MetricsStorage>` with the same binding pattern as Timers and Canic's
   typed metrics store; the adapter owns recording and hosts own reporting and
   incarnation identity. No Canic dependency or reporting endpoint is introduced.

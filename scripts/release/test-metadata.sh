@@ -21,7 +21,7 @@ bash scripts/release/metadata.sh render "$scratch/original" "$scratch/candidate"
 for path in Cargo.lock qualification/Cargo.lock; do
     yq -p toml -o json '.' "$scratch/original/$path" |
         jq --arg version "$RELEASE_VERSION" '
-            (.package[] | select(.source == null and (.name == "ic-entropy" or .name == "ic-entropy-ic")) | .version) = $version
+            (.package[] | select(.source == null and .name == "ic-entropy") | .version) = $version
         ' > "$scratch/expected.json"
     yq -p toml -o json '.' "$scratch/candidate/$path" > "$scratch/actual.json"
     jq -e --slurpfile expected "$scratch/expected.json" '. == $expected[0]' "$scratch/actual.json" > /dev/null
