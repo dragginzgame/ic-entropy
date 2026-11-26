@@ -12,19 +12,19 @@ publish = false
 [workspace.dependencies]
 # Production
 ic-entropy = { path = "../crates/ic-entropy", default-features = false }
-ic-logging = { version = "0.25.20", default-features = false }
-ic-platform-protocol = { version = "0.3.8", default-features = false }
-ic-platform-runtime = { version = "0.23.25", default-features = false }
-ic-platform-types = { version = "0.21.4", default-features = false }
+ic-logging = { version = "0.25.21", default-features = false }
+ic-platform-protocol = { version = "0.3.10", default-features = false }
+ic-platform-runtime = { version = "0.23.27", default-features = false }
+ic-platform-types = { version = "0.21.5", default-features = false }
 
 # Production and tests
-ic-wire = { version = "0.30.0", default-features = false }
+ic-wire = { version = "0.30.2", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 
 # Tests and tooling
-ic-testkit = { version = "0.110.4", default-features = false }
+ic-testkit = { version = "0.110.5", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread"] }
-toko-tooling = "=0.46.4"
+toko-tooling = "=0.46.5"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"

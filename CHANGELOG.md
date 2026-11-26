@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.6.3] - Unreleased
+
+### 🩹 Fixed
+
+- Use Timers 0.46.16 so buffered refill can retry when the replica rejects a timer
+  self-call before execution because the canister is low on cycles or stopped.
+  [Timers 0.46.16 release notes](https://github.com/dragginzgame/ic-scheduling/blob/ba5e544107d24fe545906965cb5a147adfc18e27/releases/timers/CHANGELOG.md#04616---2026-11-26)
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.46.5. Use `make deps-list` for the product workspace and
+  `make deps-list DEPENDENCY_MANIFEST=qualification/Cargo.toml` to include
+  the qualification workspace.
+- Update Logging to 0.25.21 and Metrics to 0.30.22. Align
+  Platform and Wire declarations with the reviewed locks and preserve one Runtime executor.
+- Update Testkit and its PocketIC preparer to 0.110.5 and the release metadata
+  editor to 0.1.4.
+
+### 🧪 Testing
+
+- Check Cargo network settings in the release fixture on both Linux and macOS,
+  where native validation follows different evidence-reuse rules.
+
 ## [0.6.2] - 2026-11-25
 
 ### 🔧 Tooling

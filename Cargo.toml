@@ -12,15 +12,15 @@ repository = "https://github.com/dragginzgame/ic-entropy"
 
 [workspace.dependencies]
 # Production
-ic-logging = { version = "0.25.20", default-features = false }
-ic-metrics = { version = "0.30.21", default-features = false }
-ic-platform-runtime = { version = "0.23.25", default-features = false }
-ic-timers = { version = "0.46.10", default-features = false }
+ic-logging = { version = "0.25.21", default-features = false }
+ic-metrics = { version = "0.30.22", default-features = false }
+ic-platform-runtime = { version = "0.23.27", default-features = false }
+ic-timers = { version = "0.46.16", default-features = false }
 rand_chacha = { version = "0.10.0", default-features = false }
 
 # Tests and tooling
-ic-platform-protocol = { version = "0.3.8", default-features = false }
-toko-tooling = "=0.46.4"
+ic-platform-protocol = { version = "0.3.10", default-features = false }
+toko-tooling = "=0.46.5"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"

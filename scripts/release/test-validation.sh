@@ -47,12 +47,17 @@ printf '#!/usr/bin/env bash\nexit 0\n' > "$fixture/scripts/release/metadata.sh"
     set -e
     [[ "$status" == 23 ]]
     # Explicit Cargo network settings select the ordinary gate unchanged.
+    if [[ "$(uname -s)" == Linux ]]; then
+        network_reason='environment override: CARGO_NET_OFFLINE'
+    else
+        network_reason='host not qualified for reuse'
+    fi
     CARGO_NET_OFFLINE=true bash scripts/release/native-stage.sh > offline.log
     [[ "$(tail -n 1 cargo-network)" == true ]]
-    rg -q 'environment override: CARGO_NET_OFFLINE' offline.log
+    rg -Fq "Native validation: executing ($network_reason)" offline.log
     CARGO_NET_OFFLINE=false bash scripts/release/native-stage.sh > online.log
     [[ "$(tail -n 1 cargo-network)" == false ]]
-    rg -q 'environment override: CARGO_NET_OFFLINE' online.log
+    rg -Fq "Native validation: executing ($network_reason)" online.log
     export GITHUB_ACTIONS=true
     bash scripts/ci/build-cache.sh restore > cold.log 2>&1
     mkdir -p target/debug

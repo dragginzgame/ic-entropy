@@ -831,19 +831,19 @@ dependencies = [
 
 [[package]]
 name = "ic-host-artifacts"
-version = "0.80.8"
+version = "0.80.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d8b55a21c287f361bdca10151f5404f5f658024b037284d83f8a7a7e3181041"
+checksum = "6e4663171264c16016311a52ef2e4da62b653f409c162f45cc1e6812e07601b8"
 dependencies = [
- "sha2 0.11.1",
+ "sha2 0.11.2",
  "thiserror 2.0.18",
 ]
 
 [[package]]
 name = "ic-host-fs"
-version = "0.80.8"
+version = "0.80.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4108c38f5cddb31fb982987a35522608f406a3e2d70d929667a69a391c52c80f"
+checksum = "e4f8d75874d7320ab50edd12a371e772205403d672865c97976e1307f1d86215"
 dependencies = [
  "ic-host-artifacts",
  "rustix",
@@ -852,9 +852,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-process"
-version = "0.81.4"
+version = "0.81.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11ea739ab482b78e71f7f044c8ea29e5225c3b2e751375cf20591de0489bb980"
+checksum = "fd610ee00fe545a9af9fa8b14fc9085ac0cfbe720f82e13046bb31e9f49a37b8"
 dependencies = [
  "errno",
  "libproc",
@@ -864,9 +864,9 @@ dependencies = [
 
 [[package]]
 name = "ic-logging"
-version = "0.25.20"
+version = "0.25.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d953bdc17bc0642e0c09de2dbf6f5dca41730571499588ee904c564166a2e6e"
+checksum = "a4878cc180abd68f4b364f76ea61006c015eeffc865e88ab9ad3efc87209a6b7"
 
 [[package]]
 name = "ic-management-canister-types"
@@ -881,9 +881,9 @@ dependencies = [
 
 [[package]]
 name = "ic-metrics"
-version = "0.30.21"
+version = "0.30.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c00ef25ff7952d6b6e667ba64f5840fdf3c933cabe2e03a34a42ce4e92cad488"
+checksum = "4a2030cb94b787738a7a6905fed339a69713e10c3a439aaceab4ab99bac9e14c"
 
 [[package]]
 name = "ic-platform-macros"
@@ -935,9 +935,9 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.110.4"
+version = "0.110.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5617b2cbdc7adf055c6c7f4bdcbca8ad0ef5b367b65996acda10cad7fb79bb13"
+checksum = "f72c4ef2bc7cb1244d20e10d64416b8d8da4c5afda5018c476ae8253a75aadc6"
 dependencies = [
  "ic-host-artifacts",
  "ic-host-fs",
@@ -950,9 +950,9 @@ dependencies = [
 
 [[package]]
 name = "ic-timers"
-version = "0.46.14"
+version = "0.46.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "476fd1244a50a3c15931b88c89b8e67ee6bee593f51a72536861b2c09aee2a77"
+checksum = "da28a48401780dfd1f26c3dca6811849fa3360bba676511aec26e0d4f7c692b7"
 dependencies = [
  "ic-platform-runtime",
 ]
@@ -2037,9 +2037,9 @@ dependencies = [
 
 [[package]]
 name = "sha2"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19"
+checksum = "5b0e5c7d67bc53f435386b2130fdc900488c5703770f6d8a4633060e34288a27"
 dependencies = [
  "cfg-if",
  "cpufeatures 0.3.1",
@@ -2384,9 +2384,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.46.4"
+version = "0.46.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3889bff0f8ff6dc8c80b161c908f4b598125b55bf55f18146471f9ac3294cff"
+checksum = "038380e2f80a7301dee19c19e2afd38a0bfbbfc41b447a1c81178afc1de94bc7"
 
 [[package]]
 name = "tower"
@@ -2852,18 +2852,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.65"
+version = "0.8.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32bc8a75f879cd6fe53a6bedf3c28f0e1b914c77424fc2be9e2ec85d7d25aff5"
+checksum = "cba8a86aee14fc8cc6c208af60854b3d4ab7185a9a369a12c648faa2716ff42a"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.65"
+version = "0.8.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8bfd2644ea1681f60cf95029ff18aa8ad1cc3f7b8fe37286f8e473bb29f816b"
+checksum = "f89bca3b96ceb3cfcb4572790402f977442270d252b9a8504ebc258760c55f94"
 dependencies = [
  "proc-macro2",
  "quote",

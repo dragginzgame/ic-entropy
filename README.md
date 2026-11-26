@@ -77,8 +77,10 @@ checks do not establish macOS execution.
 `make check-rules` checks dependencies and source boundaries. Shared tooling lives
 under `vendor/toko-tooling/`; repository-owned adapters stay under `scripts/`.
 Refresh the authenticated snapshot with `make toko-tooling-update`. Use
-`make deps-list` for local package/version inventory and `toko-cloc` for source
-counts, including `toko-cloc --manifest qualification/Cargo.toml` for qualification.
+`make deps-list` to list product packages and versions. Add
+`DEPENDENCY_MANIFEST=qualification/Cargo.toml` to include the qualification probe.
+Use `toko-cloc` for source counts and
+`toko-cloc --manifest qualification/Cargo.toml` for qualification source counts.
 
 The selected repository license is the [Toko Studios Network Licence](LICENSE.md).
 Contributions follow the canonical [contribution policy](CONTRIBUTING.md).

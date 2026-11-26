@@ -7,6 +7,8 @@ TOKO_TOOLING_RELEASE := 1
 FORMAT_RUST_ARGS := --extra-workspace qualification --extra-manifest-order package,lib,features,dependencies,dev-dependencies,target
 LOCAL_TOOL_INSTALL_TARGETS := release-editor-setup qualification-server-setup
 LOCAL_TOOL_CHECK_TARGETS := release-editor-check qualification-server-check
+RELEASE_EDITOR_SETUP = bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-cargo-metadata --version 0.1.4 --bin ic-cargo-metadata --profile debug
+QUALIFICATION_SERVER_SETUP = bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.5 --example prepare_server --profile debug --features managed-server
 export RELEASE_DELIVERY
 include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
@@ -82,7 +84,7 @@ ci: toko-tooling-check
 	$(MAKE) test-release-metadata test-required-inventory test-validation-dispatch
 
 release-editor-setup:
-	bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-cargo-metadata --version 0.1.0 --bin ic-cargo-metadata --profile debug
+	@$(RELEASE_EDITOR_SETUP)
 release-version:
 	@bash scripts/release/adapter.sh version
 release-preflight:
@@ -108,7 +110,7 @@ QUALIFICATION_TARGET := $(CURDIR)/target/qualification
 QUALIFICATION_SERVER_DIRECTORY := $(CURDIR)/.tools/pocket-ic-managed
 .PHONY: install-qualification-tools qualification-check build-entropy-probe test-installed
 install-qualification-tools: qualification-server-setup
-	@server="$$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.4 --example prepare_server --profile debug --features managed-server --check)" && \
+	@server="$$($(QUALIFICATION_SERVER_SETUP) --check)" && \
 	  bash scripts/dev/setup-pocket-ic.sh "$$server" "$(QUALIFICATION_SERVER_DIRECTORY)"
 qualification-check:
 	cargo fmt --manifest-path qualification/Cargo.toml --all --check
@@ -137,11 +139,11 @@ test-required-inventory:
 
 .PHONY: release-editor-check qualification-tools-check qualification-server-setup qualification-server-check
 qualification-server-setup:
-	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.4 --example prepare_server --profile debug --features managed-server
+	@$(QUALIFICATION_SERVER_SETUP)
 qualification-server-check:
-	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --version 0.110.4 --example prepare_server --profile debug --features managed-server --check > /dev/null
+	@$(QUALIFICATION_SERVER_SETUP) --check > /dev/null
 release-editor-check:
-	@bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-cargo-metadata --version 0.1.0 --bin ic-cargo-metadata --profile debug --check > /dev/null
+	@$(RELEASE_EDITOR_SETUP) --check
 qualification-tools-check:
 	ENTROPY_POCKET_IC_DIRECTORY="$(QUALIFICATION_SERVER_DIRECTORY)" \
 	  cargo test --locked --manifest-path qualification/Cargo.toml --target-dir "$(QUALIFICATION_TARGET)" -p entropy-probe --test installed prepared_server_is_admitted -- --exact
