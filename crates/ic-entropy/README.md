@@ -206,13 +206,13 @@ timer retries.
 
 ## Operational logging
 
-Enable optional `logging` independently of `metrics` and `buffered`. It uses
-`ic-logging::Level` and forwards fixed entropy messages to a host-owned sink;
-no private log or canister endpoint is created. Without a configured sink,
-logging does nothing. Direct generator and pool operations emit no log events.
+Enable optional `logging` independently of `metrics` and `buffered`. Entropy
+forwards fixed messages to a host-owned sink that accepts `ic_logging::Level`
+from `ic-logging` 0.26. Without a configured sink, logging does nothing.
+Direct generator and pool operations emit no log events.
 
-For a Canic host, bind its existing shared logger during synchronous lifecycle
-setup, before entropy reconstruction or fresh acquisition:
+For a Canic host using Logging 0.26, bind its shared logger during
+synchronous lifecycle setup, before entropy reconstruction or fresh acquisition:
 
 ```rust,ignore
 canic::logging::initialize();

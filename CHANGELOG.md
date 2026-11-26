@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.0] - Unreleased
+
+### ⚠️ Breaking
+
+- `LogSink` now accepts `ic_logging::Level` from Logging 0.26. Hosts using the
+  `logging` feature must update their sink and shared logger to Logging 0.26.
+  [Logging 0.26 release notes](https://github.com/dragginzgame/ic-observability/blob/d295cef690a9046c050f09ad085d4a2d458ef692/releases/logging/CHANGELOG.md#0260---2026-11-26)
+
+### 🔧 Tooling
+
+- Adopt Metrics 0.30.23 and Platform Protocol 0.3.11 and retain the Timers
+  0.46.17 lockfile refresh in both workspaces. Entropy, Timers and the installed
+  probe share Platform Runtime and its guard at 0.23.27.
+
 ## [0.6.3] - 2026-11-26
 
 ### 🩹 Fixed

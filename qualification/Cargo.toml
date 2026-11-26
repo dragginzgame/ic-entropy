@@ -12,8 +12,8 @@ publish = false
 [workspace.dependencies]
 # Production
 ic-entropy = { path = "../crates/ic-entropy", default-features = false }
-ic-logging = { version = "0.25.21", default-features = false }
-ic-platform-protocol = { version = "0.3.10", default-features = false }
+ic-logging = { version = "0.26.0", default-features = false }
+ic-platform-protocol = { version = "0.3.11", default-features = false }
 ic-platform-runtime = { version = "0.23.27", default-features = false }
 ic-platform-types = { version = "0.21.5", default-features = false }
 
