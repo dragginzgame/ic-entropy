@@ -9,7 +9,7 @@ use ic_testkit::{
     },
     server::{Deletion, Limits as ServerLimits, PreparedServer, Server},
 };
-use serde::de::DeserializeOwned;
+use ic_wire::{Message, evolution::inline::Inline};
 use std::{path::PathBuf, time::Duration};
 
 const EXPECTED_POOL_CAPACITY: u32 = 256;
@@ -30,7 +30,7 @@ fn prepared_server_is_admitted() {
 
 fn request(id: u64) -> Vec<u8> {
     ic_wire::encode(
-        &(),
+        &Message(()),
         ic_wire::Encoding::Frame {
             method: id,
             direction: ic_wire::Direction::Request,
@@ -40,38 +40,36 @@ fn request(id: u64) -> Vec<u8> {
     .unwrap()
 }
 
-async fn update<T: DeserializeOwned>(pic: &PocketIc, pid: Principal, name: &str, id: u64) -> T {
+async fn update<T: for<'de> Inline<'de>>(pic: &PocketIc, pid: Principal, name: &str, id: u64) -> T {
     let bytes = pic
         .update_call(pid, Principal::anonymous(), name, request(id))
         .await
         .unwrap();
 
-    ic_wire::decode(
-        &bytes,
-        ic_wire::Encoding::Frame {
-            method: id,
-            direction: ic_wire::Direction::Response,
-        },
-        LIMITS,
-    )
-    .unwrap()
+    decode_reply(&bytes, id)
 }
 
-async fn query<T: DeserializeOwned>(pic: &PocketIc, pid: Principal, name: &str, id: u64) -> T {
+async fn query<T: for<'de> Inline<'de>>(pic: &PocketIc, pid: Principal, name: &str, id: u64) -> T {
     let bytes = pic
         .query_call(pid, Principal::anonymous(), name, request(id))
         .await
         .unwrap();
 
-    ic_wire::decode(
-        &bytes,
+    decode_reply(&bytes, id)
+}
+
+fn decode_reply<T: for<'de> Inline<'de>>(bytes: &[u8], id: u64) -> T {
+    let Message(value) = ic_wire::decode(
+        bytes,
         ic_wire::Encoding::Frame {
             method: id,
             direction: ic_wire::Direction::Response,
         },
         LIMITS,
     )
-    .unwrap()
+    .unwrap();
+
+    value
 }
 
 async fn inspect(pic: &PocketIc, pid: Principal) -> State {
@@ -253,17 +251,7 @@ async fn background_refill_and_lifecycle() {
     })
     .await;
     let reply = pic.await_call(held).await.unwrap();
-    assert!(
-        ic_wire::decode::<bool>(
-            &reply,
-            ic_wire::Encoding::Frame {
-                method: CONTEND,
-                direction: ic_wire::Direction::Response
-            },
-            LIMITS
-        )
-        .unwrap()
-    );
+    assert!(decode_reply::<bool>(&reply, CONTEND));
     full_pool(pic, pid).await;
     let recovered: SourceState = query(pic, pid, "source_state", SOURCE_STATE).await;
     assert!(!recovered.busy);

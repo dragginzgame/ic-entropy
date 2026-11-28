@@ -42,8 +42,8 @@ The native driver uses Testkit's upstream PocketIC re-export, including its
 Principal identities and async client. Explicit close awaits upstream best-effort
 deletion; it does not independently prove remote deletion.
 Typed Wire calls live in the separate `ic-testkit-wire` adapter.
-This driver uses raw PocketIC calls and its own Wire 0.32 codecs, so it needs no
-additional adapter dependency.
+This driver uses raw PocketIC calls and shares the canister's bounded Wire 0.33
+sparse frame layout.
 The native test starts the server after its binary is built.
 `make qualification-tools-check` admits the prepared server without downloading
 or installing it. Cargo may retrieve missing locked dependencies using the caller's

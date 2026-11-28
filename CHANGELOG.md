@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2] - Unreleased
+
+### 🧪 Testing
+
+- Move the installed qualification canister and native driver together to Wire
+  0.33.0 sparse frames.
+
 ## [0.7.1] - 2026-11-28
 
 ### 🔧 Tooling

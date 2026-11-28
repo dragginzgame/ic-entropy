@@ -2,7 +2,7 @@
 
 use ic_entropy::{self as entropy, Error, RefillState};
 use ic_platform_runtime as runtime;
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use ic_wire::{Message, Wire, evolution::inline::Inline};
 use std::{
     cell::RefCell,
     future::{Future, poll_fn},
@@ -18,7 +18,7 @@ use std::{
 #[runtime::init(
     runtime = runtime,
     guard = guard,
-    decode = decode::<_, { INIT }>,
+    decode = decode::<{ INIT }>,
     max_bytes = 4096,
     on_error = fail
 )]
@@ -33,7 +33,7 @@ fn init(_input: ()) {
 #[runtime::post_upgrade(
     runtime = runtime,
     guard = guard,
-    decode = decode::<_, { INIT }>,
+    decode = decode::<{ INIT }>,
     max_bytes = 4096,
     on_error = fail
 )]
@@ -49,7 +49,7 @@ fn post_upgrade(_input: ()) {
     runtime = runtime,
     name = "inspect",
     guard = guard,
-    decode = decode::<_, { INSPECT }>,
+    decode = decode::<{ INSPECT }>,
     encode = encode::<_, { INSPECT }>,
     max_bytes = 4096,
     on_error = fail
@@ -73,7 +73,7 @@ fn inspect(_input: ()) -> State {
     runtime = runtime,
     name = "take",
     guard = guard,
-    decode = decode::<_, { TAKE }>,
+    decode = decode::<{ TAKE }>,
     encode = encode::<_, { TAKE }>,
     max_bytes = 4096,
     on_error = fail
@@ -92,7 +92,7 @@ fn take(_input: ()) -> ([u8; 32], State) {
     runtime = runtime,
     name = "draw",
     guard = guard,
-    decode = decode::<_, { DRAW }>,
+    decode = decode::<{ DRAW }>,
     encode = encode::<_, { DRAW }>,
     max_bytes = 4096,
     on_error = fail
@@ -112,7 +112,7 @@ fn draw(_input: ()) -> (ic_wire::ByteBuf, u64) {
     runtime = runtime,
     name = "fresh",
     guard = guard,
-    decode = decode::<_, { FRESH }>,
+    decode = decode::<{ FRESH }>,
     encode = encode::<_, { FRESH }>,
     max_bytes = 4096,
     on_error = fail
@@ -129,7 +129,7 @@ async fn fresh(_input: ()) -> [u8; 32] {
     runtime = runtime,
     name = "suspend",
     guard = guard,
-    decode = decode::<_, { SUSPEND }>,
+    decode = decode::<{ SUSPEND }>,
     encode = encode_unit::<{ SUSPEND }>,
     max_bytes = 4096,
     on_error = fail
@@ -146,7 +146,7 @@ fn suspend(_input: ()) {
     runtime = runtime,
     name = "resume",
     guard = guard,
-    decode = decode::<_, { RESUME }>,
+    decode = decode::<{ RESUME }>,
     encode = encode_unit::<{ RESUME }>,
     max_bytes = 4096,
     on_error = fail
@@ -163,7 +163,7 @@ fn resume(_input: ()) {
     runtime = runtime,
     name = "metrics",
     guard = guard,
-    decode = decode::<_, { METRICS }>,
+    decode = decode::<{ METRICS }>,
     encode = encode::<_, { METRICS }>,
     max_bytes = 4096,
     on_error = fail
@@ -218,7 +218,7 @@ fn metrics(_input: ()) -> MetricState {
     runtime = runtime,
     name = "metrics_binding",
     guard = guard,
-    decode = decode::<_, { METRICS_BINDING }>,
+    decode = decode::<{ METRICS_BINDING }>,
     encode = encode::<_, { METRICS_BINDING }>,
     max_bytes = 4096,
     on_error = fail
@@ -238,7 +238,7 @@ fn metrics_binding(_input: ()) -> bool {
     runtime = runtime,
     name = "logs",
     guard = guard,
-    decode = decode::<_, { LOGS }>,
+    decode = decode::<{ LOGS }>,
     encode = encode::<_, { LOGS }>,
     max_bytes = 4096,
     on_error = fail
@@ -268,7 +268,7 @@ fn logs(_input: ()) -> Vec<(String, String)> {
     runtime = runtime,
     name = "query_refusal",
     guard = guard,
-    decode = decode::<_, { QUERY_REFUSAL }>,
+    decode = decode::<{ QUERY_REFUSAL }>,
     encode = encode::<_, { QUERY_REFUSAL }>,
     max_bytes = 4096,
     on_error = fail
@@ -287,7 +287,7 @@ fn query_refusal(_input: ()) -> bool {
     runtime = runtime,
     name = "oversized_refusal",
     guard = guard,
-    decode = decode::<_, { OVERSIZED_REFUSAL }>,
+    decode = decode::<{ OVERSIZED_REFUSAL }>,
     encode = encode::<_, { OVERSIZED_REFUSAL }>,
     max_bytes = 4096,
     on_error = fail
@@ -309,7 +309,7 @@ fn oversized_refusal(_input: ()) -> bool {
     runtime = runtime,
     name = "contend",
     guard = guard,
-    decode = decode::<_, { CONTEND }>,
+    decode = decode::<{ CONTEND }>,
     encode = encode::<_, { CONTEND }>,
     max_bytes = 4096,
     on_error = fail
@@ -360,7 +360,7 @@ async fn contend(_input: ()) -> bool {
     runtime = runtime,
     name = "source_state",
     guard = guard,
-    decode = decode::<_, { SOURCE_STATE }>,
+    decode = decode::<{ SOURCE_STATE }>,
     encode = encode::<_, { SOURCE_STATE }>,
     max_bytes = 4096,
     on_error = fail
@@ -383,7 +383,7 @@ fn source_state(_input: ()) -> SourceState {
     runtime = runtime,
     name = "cancel",
     guard = guard,
-    decode = decode::<_, { CANCEL }>,
+    decode = decode::<{ CANCEL }>,
     encode = encode::<_, { CANCEL }>,
     max_bytes = 4096,
     on_error = fail
@@ -409,7 +409,7 @@ async fn cancel(_input: ()) -> bool {
     runtime = runtime,
     name = "stale",
     guard = guard,
-    decode = decode::<_, { STALE }>,
+    decode = decode::<{ STALE }>,
     encode = encode::<_, { STALE }>,
     max_bytes = 4096,
     on_error = fail
@@ -479,7 +479,7 @@ pub const LOGS: u64 = 17;
 /// Bounded host projection of selected metrics; recorder types stay out of Wire.
 ///
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Wire)]
 pub struct MetricState {
     /// The host and adapter read identical observations.
     pub shared: bool,
@@ -521,7 +521,7 @@ pub struct MetricState {
 /// Observable acquisition state while a real management call is outstanding.
 ///
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Wire)]
 pub struct SourceState {
     /// Consecutive background refill failures.
     pub failures: u8,
@@ -545,7 +545,7 @@ pub const LIMITS: ic_wire::Limits = ic_wire::Limits {
 /// Buffered adapter state returned by the probe.
 ///
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Wire)]
 pub struct State {
     /// Number of buffered seeds.
     pub seeds: u32,
@@ -594,8 +594,8 @@ fn reconstruct_entropy() {
     entropy::reconstruct().unwrap();
 }
 
-fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, &'static str> {
-    ic_wire::decode(
+fn decode<const ID: u64>(bytes: &[u8]) -> Result<(), &'static str> {
+    ic_wire::decode::<Message<()>>(
         bytes,
         ic_wire::Encoding::Frame {
             method: ID,
@@ -603,12 +603,13 @@ fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, &'stati
         },
         LIMITS,
     )
+    .map(|Message(value)| value)
     .map_err(|_| "fixture request")
 }
 
-fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, &'static str> {
+fn encode<T: for<'de> Inline<'de>, const ID: u64>(value: T) -> Result<Vec<u8>, &'static str> {
     ic_wire::encode(
-        &value,
+        &Message(value),
         ic_wire::Encoding::Frame {
             method: ID,
             direction: ic_wire::Direction::Response,
