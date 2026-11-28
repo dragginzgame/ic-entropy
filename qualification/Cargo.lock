@@ -225,9 +225,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.11.3"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02f0e023adb368345ce0ca6cdfc0f24a06554468d0e8503e14a0841de79bfa69"
+checksum = "95e45cf2980b2d467be49a9ed942c9179b701063a7ca3d037de7ee9bd67f8d66"
 dependencies = [
  "find-msvc-tools",
  "jobserver",
@@ -512,9 +512,9 @@ checksum = "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223"
 
 [[package]]
 name = "find-msvc-tools"
-version = "0.1.15"
+version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c66915cc5391097de7a2b0b972e8505aa33c0df401fd3a6811dbdb32881ba48"
+checksum = "3e44f110d1777dc6559a51e7d45083945ded4f1bf3305494350f693b6d20b9c8"
 
 [[package]]
 name = "flate2"
@@ -922,12 +922,11 @@ checksum = "26753889d6a2849a9844bef6064dbccfda89e8d76b4fbd7cc5eb6a34c4c79268"
 
 [[package]]
 name = "ic-platform-types"
-version = "0.21.5"
+version = "0.21.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81810d3daa26f7ee13ed687d3f093f18bda2127bba5210a81fabae7a075e1b3f"
+checksum = "4f6c4c1f4cd93bf0143623ad199f705151a9508c746ad9dbed3eda4972f5d14f"
 dependencies = [
  "crc32fast",
- "data-encoding",
  "serde",
  "serde_bytes",
  "thiserror 2.0.18",
@@ -935,9 +934,9 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.110.5"
+version = "0.110.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f72c4ef2bc7cb1244d20e10d64416b8d8da4c5afda5018c476ae8253a75aadc6"
+checksum = "28d177dc996b7c6291506e41e3a648e1e517e445e8d9ec693a4968a97a3786c8"
 dependencies = [
  "ic-host-artifacts",
  "ic-host-fs",
@@ -950,9 +949,9 @@ dependencies = [
 
 [[package]]
 name = "ic-timers"
-version = "0.46.17"
+version = "0.46.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "91cec9fde24311ca80ef8193b303dde3d719a7aa92ab33efdeba4d797bc61147"
+checksum = "2d44deedc98a825c1214825417eb7efdc2577737bc09925cae2b7b0f7cfb9aa7"
 dependencies = [
  "ic-platform-runtime",
 ]
@@ -977,9 +976,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.30.2"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e0402f79c98770304fcae9c9e747342127d53a1210ed9c8eab3de10ade39331"
+checksum = "476f78d119b0ac0bb77eac71938d1fb9421596e76d9739c1a4dde26c80bedfd8"
 dependencies = [
  "bytemuck",
  "postcard",
@@ -2384,9 +2383,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.46.5"
+version = "0.46.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "038380e2f80a7301dee19c19e2afd38a0bfbbfc41b447a1c81178afc1de94bc7"
+checksum = "42cc531ac13934abd2fff578d828bc36166edda0612dc9c6e5fdcbf8af1e6257"
 
 [[package]]
 name = "tower"

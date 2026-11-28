@@ -1,9 +1,9 @@
 # Toko Tooling snapshot v1
-# version	0.46.5
+# version	0.46.9
 # layout	vendor
 format	1
 source	https://crates.io/crates/toko-tooling
-revision	038380e2f80a7301dee19c19e2afd38a0bfbbfc41b447a1c81178afc1de94bc7
+revision	42cc531ac13934abd2fff578d828bc36166edda0612dc9c6e5fdcbf8af1e6257
 # entrypoint	TOKO-TOOLING.md
 # entrypoint	vendor/toko-tooling/make/consumer.mk
 # entrypoint	vendor/toko-tooling/make/release.mk
@@ -29,7 +29,7 @@ revision	038380e2f80a7301dee19c19e2afd38a0bfbbfc41b447a1c81178afc1de94bc7
 # entrypoint	vendor/toko-tooling/scripts/ci/check-cargo-dependency-boundaries.sh
 # entrypoint	vendor/toko-tooling/scripts/ci/SetupDiagnostics.pm
 # entrypoint	vendor/toko-tooling/scripts/ci/extract-workflow-step.sh
-file	f9b7398a85b99b074620bc71b09f4436f2a4c041d218daab18d6d10b52021485	-	TOKO-TOOLING.md
+file	0a9832247b124afd4ce78c19a563a32ced1ba61a94cbe6ce2557cef4257b8d64	-	TOKO-TOOLING.md
 file	e5be6f538ee619be119aef9b3fca9d156f35c08732d9775e4e2efd698db8cbd7	-	vendor/toko-tooling/make/consumer.mk
 file	4835699ea2ad56ede6f1f89b6b070854a86891cec62ac13af8884252476ede51	-	vendor/toko-tooling/make/release.mk
 file	f83e4bd3143a04e954f77eb23d38b1924658aa298b0c1d3486748197861d696d	-	vendor/toko-tooling/make/cargo-publication.mk

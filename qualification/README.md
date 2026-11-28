@@ -42,7 +42,7 @@ The native driver uses Testkit's upstream PocketIC re-export, including its
 Principal identities and async client. Explicit close awaits upstream best-effort
 deletion; it does not independently prove remote deletion.
 Typed Wire calls live in the separate `ic-testkit-wire` adapter.
-This driver uses raw PocketIC calls and its own Wire 0.30 codecs, so it needs no
+This driver uses raw PocketIC calls and its own Wire 0.32 codecs, so it needs no
 additional adapter dependency.
 The native test starts the server after its binary is built.
 `make qualification-tools-check` admits the prepared server without downloading
@@ -79,7 +79,7 @@ The journey verifies:
 The endpoint group is at the top of `entropy-probe/src/lib.rs`, with its explicit
 guard and request/reply bounds recorded on each handler. Portable bodies and the
 trap reporter also compile for the native Wire client. The HTTP contention
-barrier uses Runtime 0.23.25's pricing API on both targets. Native compilation
+barrier uses the Platform Runtime pricing API on both targets. Native compilation
 does not supply an IC pricing environment; the installed PocketIC journey
 executes the real barrier call and verifies contention and recovery.
 The RPCs use bounded Wire codecs. IC `raw_rand` remains Platform's external

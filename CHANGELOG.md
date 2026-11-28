@@ -5,6 +5,11 @@
 ### 🔧 Tooling
 
 - Scope publication, CI and release metadata to the sole product crate, `ic-entropy`.
+- Use Wire 0.32.0 in the installed qualification canister and native driver.
+- Select Platform Types 0.21.6 in both workspaces. Entropy, Timers and the probe
+  continue to share Runtime and its guard at 0.23.27.
+- Retain the locked Timers 0.46.18 and qualification Testkit 0.110.6 updates.
+  Keep the prepared server helper on 0.110.5 until the next tool maintenance batch.
 
 ## [0.7.0] - 2026-11-26
 

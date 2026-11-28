@@ -20,7 +20,7 @@ rand_chacha = { version = "0.10.0", default-features = false }
 
 # Tests and tooling
 ic-platform-protocol = { version = "0.3.11", default-features = false }
-toko-tooling = "=0.46.5"
+toko-tooling = "=0.46.9"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"
